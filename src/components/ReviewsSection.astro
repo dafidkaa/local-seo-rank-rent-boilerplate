@@ -1,0 +1,25 @@
+---
+import { siteConfig } from "@/site.config";
+const { title } = Astro.props;
+---
+<section class="section">
+  <div class="container">
+    <p class="eyebrow">Local Proof</p>
+    <h2>{title}</h2>
+    {siteConfig.integrations.reviewWidgetEmbedHtml ? (
+      <Fragment set:html={siteConfig.integrations.reviewWidgetEmbedHtml} />
+    ) : (
+      <div class="grid grid-3" style="margin-top:28px">
+        {["Clear scheduling", "Respectful communication", "Professional follow-through"].map((item) => (
+          <article class="card">
+            <div class="card-body">
+              <span class="icon-mark">✓</span>
+              <h3>{item}</h3>
+              <p>This placeholder avoids fake reviews. Replace this section with a real Google Business Profile, Trustindex, EmbedSocial, Trustmary, Elfsight, or CRM-native review widget when real reviews are available.</p>
+            </div>
+          </article>
+        ))}
+      </div>
+    )}
+  </div>
+</section>

@@ -1,0 +1,9 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { siteConfig, type Locale } from "@/site.config";
+import { seo } from "@/lib/seo";
+export function getStaticPaths() { return siteConfig.locales.map((locale) => ({ params: { lang: locale.code } })); }
+const locale = Astro.params.lang as Locale;
+const pageSeo = seo({ locale, path: "terms-and-conditions", title: `Terms And Conditions | ${siteConfig.business.name}`, description: `Terms and conditions for ${siteConfig.business.name}.` });
+---
+<BaseLayout seo={pageSeo}><section class="section"><div class="container" style="max-width:850px"><h1>Terms And Conditions</h1><p>This template terms page covers service inquiry disclaimers, estimate requests, no-guarantee scheduling language, and website use. Replace with legal language approved for your market before launch.</p></div></section></BaseLayout>

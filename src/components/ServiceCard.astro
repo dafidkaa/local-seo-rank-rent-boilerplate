@@ -1,0 +1,11 @@
+---
+const { title, description, image, href, alt } = Astro.props;
+---
+<a class="card" href={href} style="text-decoration:none">
+  <img src={image} alt={alt} width="600" height="400" loading="lazy" decoding="async" style="aspect-ratio:3/2;object-fit:cover;width:100%;height:auto" />
+  <div class="card-body">
+    <h3>{title}</h3>
+    <p>{description}</p>
+    <strong>Learn more about {title}</strong>
+  </div>
+</a>

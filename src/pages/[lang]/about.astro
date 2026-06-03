@@ -1,0 +1,16 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Hero from "@/components/Hero.astro";
+import FinalCta from "@/components/FinalCta.astro";
+import { siteConfig, type Locale } from "@/site.config";
+import { localizedPath, t } from "@/lib/routes";
+import { breadcrumbSchema, localBusinessSchema, seo } from "@/lib/seo";
+export function getStaticPaths() { return siteConfig.locales.map((locale) => ({ params: { lang: locale.code } })); }
+const locale = Astro.params.lang as Locale;
+const pageSeo = seo({ locale, path: "about", title: `About ${siteConfig.business.name} | ${t(siteConfig.business.primaryService, locale)} In ${siteConfig.business.city}`, description: `Learn about ${siteConfig.business.name}, a local ${t(siteConfig.business.primaryService, locale)} provider serving ${siteConfig.business.city} and ${siteConfig.business.serviceArea}.`, schema: [localBusinessSchema(locale), breadcrumbSchema([{ name: "Home", url: localizedPath(locale) }, { name: "About", url: localizedPath(locale, "about") }])] });
+---
+<BaseLayout seo={pageSeo}>
+  <Hero eyebrow="About" title={`About ${siteConfig.business.name}`} text={`Learn how ${siteConfig.business.name} became a trusted ${t(siteConfig.business.primaryService, locale)} provider in ${siteConfig.business.city} since ${siteConfig.business.foundedYear}.`} image={siteConfig.brand.teamImage} primaryHref={localizedPath(locale, "contact")} primaryText={t(siteConfig.business.cta, locale)} />
+  <section class="section"><div class="container" style="max-width:850px"><h2>Company Story</h2>{["Origin story and why the business started.", "Mission, standards, and values.", "Experience, training, certifications, and team expectations.", "Community involvement and local roots.", "Vision for the future.", "Invitation to contact the business."].map((item) => <p>{item} Replace this paragraph with real, verifiable details before launch. The boilerplate keeps these prompts visible so you do not accidentally publish invented trust claims.</p>)}</div></section>
+  <FinalCta locale={locale} title={`Talk With ${siteConfig.business.name}`} text={`Request a free estimate for ${t(siteConfig.business.primaryService, locale)} in ${siteConfig.business.city} and nearby areas.`} />
+</BaseLayout>

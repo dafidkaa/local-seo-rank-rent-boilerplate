@@ -1,0 +1,14 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import ServiceCard from "@/components/ServiceCard.astro";
+import { siteConfig, type Locale } from "@/site.config";
+import { localizedPath, t } from "@/lib/routes";
+import { seo } from "@/lib/seo";
+export function getStaticPaths() { return siteConfig.locales.map((locale) => ({ params: { lang: locale.code } })); }
+const locale = Astro.params.lang as Locale;
+const pageSeo = seo({ locale, path: "blog", title: `${siteConfig.business.name} Blog | ${t(siteConfig.business.primaryService, locale)} Tips In ${siteConfig.business.city}`, description: `Tips, guides, and updates about ${t(siteConfig.business.primaryService, locale)}, local service advice, and helpful information for customers in ${siteConfig.business.serviceArea}.` });
+---
+<BaseLayout seo={pageSeo}>
+  <section class="section section-light"><div class="container"><p class="eyebrow">Blog</p><h1>{siteConfig.business.name} Blog</h1><p>Tips, guides, and updates about {t(siteConfig.business.primaryService, locale)}, local service advice, and helpful information for customers in {siteConfig.business.serviceArea}.</p></div></section>
+  <section class="section"><div class="container"><div class="grid grid-3">{siteConfig.blogPosts.map((post) => <ServiceCard title={t(post.title, locale)} description={t(post.excerpt, locale)} image={post.image} href={localizedPath(locale, `blog/${post.id}`)} alt={t(post.title, locale)} />)}</div></div></section>
+</BaseLayout>

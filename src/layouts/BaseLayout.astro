@@ -1,0 +1,45 @@
+---
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import MobileCta from "@/components/MobileCta.astro";
+import "@/styles/global.css";
+
+const { seo } = Astro.props;
+---
+
+<!doctype html>
+<html lang={Astro.params.lang ?? "en"}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{seo.title}</title>
+    <meta name="description" content={seo.description} />
+    <link rel="canonical" href={seo.canonical} />
+    {seo.alternates?.map((alternate: { lang: string; url: string }) => <link rel="alternate" hreflang={alternate.lang} href={alternate.url} />)}
+    {seo.alternates?.[0] && <link rel="alternate" hreflang="x-default" href={seo.alternates[0].url} />}
+    {seo.noindex && <meta name="robots" content="noindex, follow" />}
+    <meta property="og:title" content={seo.title} />
+    <meta property="og:description" content={seo.description} />
+    <meta property="og:image" content={seo.image} />
+    <meta property="og:url" content={seo.canonical} />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    {seo.schema?.map((item: unknown) => <script is:inline type="application/ld+json" set:html={JSON.stringify(item)} />)}
+  </head>
+  <body>
+    <Header locale={Astro.params.lang ?? "en"} currentPath={seo.path ?? ""} />
+    <main>
+      <slot />
+    </main>
+    <Footer locale={Astro.params.lang ?? "en"} />
+    <MobileCta locale={Astro.params.lang ?? "en"} />
+    <script is:inline>
+      document.querySelectorAll("[data-mobile-toggle]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const menu = document.querySelector("[data-mobile-menu]");
+          menu?.setAttribute("data-open", menu.getAttribute("data-open") === "true" ? "false" : "true");
+        });
+      });
+    </script>
+  </body>
+</html>

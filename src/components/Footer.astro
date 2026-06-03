@@ -1,0 +1,46 @@
+---
+import { allServices, siteConfig, type Locale } from "@/site.config";
+import { localizedPath, locationPath, servicePath, t } from "@/lib/routes";
+const { locale } = Astro.props as { locale: Locale };
+---
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <section>
+        <h2>{siteConfig.business.name}</h2>
+        <h3>Who We Are</h3>
+        <p>{siteConfig.business.name} provides {t(siteConfig.business.primaryService, locale)} in {siteConfig.business.city}, {siteConfig.business.region}, and surrounding areas. We help local customers with reliable service, clear communication, and simple scheduling.</p>
+      </section>
+      <section>
+        <h3>Contact Us</h3>
+        <p><a href={`tel:${siteConfig.business.phone}`}>{siteConfig.business.phone}</a></p>
+        <p><a href={`mailto:${siteConfig.business.email}`}>{siteConfig.business.email}</a></p>
+        <p>{siteConfig.business.address}</p>
+      </section>
+      <section>
+        <h3>Hours Of Operation</h3>
+        {Object.entries(siteConfig.business.hours).map(([day, hours]) => <p>{day}: {hours}</p>)}
+      </section>
+      <section>
+        <h3>Service Area</h3>
+        {siteConfig.locations.slice(0, 6).map((location) => (
+          <p><a href={locationPath(locale, location.id)}>{location.name}</a></p>
+        ))}
+      </section>
+    </div>
+    <div class="footer-bottom">
+      <span>© {new Date().getFullYear()} {siteConfig.business.name}. All Rights Reserved.</span>
+      <span>
+        <a href={localizedPath(locale, "privacy-policy")}>Privacy Policy</a> ·
+        <a href={localizedPath(locale, "terms-and-conditions")}>Terms & Conditions</a> ·
+        <a href="/sitemap-index.xml">Sitemap</a>
+      </span>
+    </div>
+    <p style="margin-top:24px">
+      {allServices.slice(0, 6).map((service) => (
+        <a href={servicePath(locale, service)}> {t(service.title, locale)} </a>
+      ))}
+    </p>
+  </div>
+</footer>

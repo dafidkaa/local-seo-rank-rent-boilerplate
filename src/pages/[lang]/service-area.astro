@@ -1,0 +1,18 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Hero from "@/components/Hero.astro";
+import LocationCard from "@/components/LocationCard.astro";
+import FinalCta from "@/components/FinalCta.astro";
+import { siteConfig, type Locale } from "@/site.config";
+import { locationPath, t } from "@/lib/routes";
+import { localBusinessSchema, seo } from "@/lib/seo";
+export function getStaticPaths() { return siteConfig.locales.map((locale) => ({ params: { lang: locale.code } })); }
+const locale = Astro.params.lang as Locale;
+const pageSeo = seo({ locale, path: "service-area", title: `${t(siteConfig.business.primaryService, locale)} Service Areas | ${siteConfig.business.name}`, description: `${siteConfig.business.name} provides ${t(siteConfig.business.primaryService, locale)} throughout ${siteConfig.business.serviceArea}, including ${siteConfig.business.city} and nearby communities.`, schema: [localBusinessSchema(locale)] });
+---
+<BaseLayout seo={pageSeo}>
+  <Hero eyebrow="Service Areas" title={`${t(siteConfig.business.primaryService, locale)} Service Areas`} text={`${siteConfig.business.name} provides ${t(siteConfig.business.primaryService, locale)} throughout ${siteConfig.business.region}, including ${siteConfig.business.city} and nearby communities.`} image={siteConfig.brand.alternateHeroImage} primaryHref="#locations" primaryText="View Locations" />
+  <section id="locations" class="section"><div class="container"><h2>Areas We Serve</h2><div class="grid grid-3">{siteConfig.locations.map((location) => <LocationCard title={location.name} href={locationPath(locale, location.id)} image={location.image} />)}</div></div></section>
+  <section class="section section-light"><div class="container" style="max-width:900px"><h2>What Makes Us Different From Other {t(siteConfig.business.primaryService, locale)} Companies In {siteConfig.business.serviceArea}?</h2><p>Use this section to explain dispatch coverage, local familiarity, scheduling windows, and how the business can serve the entire region effectively without overpromising.</p></div></section>
+  <FinalCta locale={locale} title={`Need ${t(siteConfig.business.primaryService, locale)} In Your Area?`} text={`Call ${siteConfig.business.phone} or request a free estimate today.`} />
+</BaseLayout>

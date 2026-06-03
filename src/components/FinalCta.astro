@@ -1,0 +1,20 @@
+---
+import EstimateForm from "@/components/EstimateForm.astro";
+import { siteConfig, type Locale } from "@/site.config";
+const { locale, title, text, service = "" } = Astro.props as { locale: Locale; title: string; text: string; service?: string };
+---
+<section class="section section-light">
+  <div class="container split">
+    <div>
+      <p class="eyebrow">Free Estimate</p>
+      <h2>{title}</h2>
+      <p>{text}</p>
+      <p><strong>Need to contact us right away?</strong> <a href={`tel:${siteConfig.business.phone}`}>Call {siteConfig.business.phone}</a>.</p>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <EstimateForm locale={locale} service={service} />
+      </div>
+    </div>
+  </div>
+</section>

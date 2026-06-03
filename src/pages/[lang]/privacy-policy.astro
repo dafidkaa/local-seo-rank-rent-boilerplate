@@ -1,0 +1,9 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { siteConfig, type Locale } from "@/site.config";
+import { seo } from "@/lib/seo";
+export function getStaticPaths() { return siteConfig.locales.map((locale) => ({ params: { lang: locale.code } })); }
+const locale = Astro.params.lang as Locale;
+const pageSeo = seo({ locale, path: "privacy-policy", title: `Privacy Policy | ${siteConfig.business.name}`, description: `Privacy policy for ${siteConfig.business.name}.` });
+---
+<BaseLayout seo={pageSeo}><section class="section"><div class="container" style="max-width:850px"><h1>Privacy Policy</h1><p>This template privacy policy explains that form information is used to respond to service inquiries, route leads to connected CRM/email systems, and measure conversions when tracking tools are configured. Replace with legal language approved for your market before launch.</p></div></section></BaseLayout>

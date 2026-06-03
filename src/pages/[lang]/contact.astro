@@ -1,0 +1,19 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Hero from "@/components/Hero.astro";
+import EstimateForm from "@/components/EstimateForm.astro";
+import ProcessSection from "@/components/ProcessSection.astro";
+import MapSection from "@/components/MapSection.astro";
+import { siteConfig, type Locale } from "@/site.config";
+import { t } from "@/lib/routes";
+import { localBusinessSchema, seo } from "@/lib/seo";
+export function getStaticPaths() { return siteConfig.locales.map((locale) => ({ params: { lang: locale.code } })); }
+const locale = Astro.params.lang as Locale;
+const pageSeo = seo({ locale, path: "contact", title: `Contact ${siteConfig.business.name} | ${t(siteConfig.business.primaryService, locale)} In ${siteConfig.business.city}`, description: `Contact ${siteConfig.business.name} for ${t(siteConfig.business.primaryService, locale)} in ${siteConfig.business.city}. Call, email, or request a free estimate online.`, schema: [localBusinessSchema(locale), { "@context": "https://schema.org", "@type": "ContactPage", name: `Contact ${siteConfig.business.name}` }] });
+---
+<BaseLayout seo={pageSeo}>
+  <Hero eyebrow="Contact" title={`Contact ${siteConfig.business.name}`} text={`Request ${t(siteConfig.business.primaryService, locale)} in ${siteConfig.business.city}, ${siteConfig.business.region}, and surrounding areas.`} image={siteConfig.brand.heroImage} primaryHref="#estimate-form" primaryText="Get My Free Estimate" secondaryHref={`tel:${siteConfig.business.phone}`} secondaryText={`Call ${siteConfig.business.phone}`} />
+  <ProcessSection title={`How Our ${t(siteConfig.business.primaryService, locale)} Process Works`} steps={[{title:"Reach Out",text:"Call or send the form."},{title:"Project Review",text:"We review your request and location."},{title:"Service Appointment",text:"We schedule the next step."},{title:"Follow-Up",text:"You receive clear next steps."}]} />
+  <section class="section"><div class="container split"><div><h2>Contact Details</h2><p><strong>Phone:</strong> <a href={`tel:${siteConfig.business.phone}`}>{siteConfig.business.phone}</a></p><p><strong>Email:</strong> <a href={`mailto:${siteConfig.business.email}`}>{siteConfig.business.email}</a></p><p><strong>Address:</strong> {siteConfig.business.address}</p><p><strong>Hours:</strong> Mon-Fri 8:00AM-5:00PM</p></div><div class="card"><div class="card-body"><EstimateForm locale={locale} /></div></div></div></section>
+  <MapSection title={`${siteConfig.business.name} Service Area Map`} text={`${siteConfig.business.name} serves ${siteConfig.business.city}, ${siteConfig.business.region}, and nearby areas.`} />
+</BaseLayout>

@@ -1,0 +1,96 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Hero from "@/components/Hero.astro";
+import ServiceCard from "@/components/ServiceCard.astro";
+import ProcessSection from "@/components/ProcessSection.astro";
+import ReviewsSection from "@/components/ReviewsSection.astro";
+import FinalCta from "@/components/FinalCta.astro";
+import { allServices, siteConfig, type Locale } from "@/site.config";
+import { localizedPath, servicePath, t } from "@/lib/routes";
+import { localBusinessSchema, seo, websiteSchema } from "@/lib/seo";
+
+export function getStaticPaths() {
+  return siteConfig.locales.map((locale) => ({ params: { lang: locale.code } }));
+}
+
+const locale = Astro.params.lang as Locale;
+const title = `${t(siteConfig.business.primaryService, locale)} In ${siteConfig.business.city} | ${siteConfig.business.name}`;
+const description = `Need ${t(siteConfig.business.primaryService, locale)} in ${siteConfig.business.city}? Contact ${siteConfig.business.name} for reliable local service, clear communication, and free estimates.`;
+const pageSeo = seo({ locale, title, description, schema: [localBusinessSchema(locale), websiteSchema(locale)] });
+const questions = [
+  `Need help with ${t(siteConfig.business.customerProblem, locale)}?`,
+  `Looking for a local ${t(siteConfig.business.primaryService, locale)} provider who responds quickly?`,
+  "Want clear pricing before the work begins?",
+  `Need reliable help in ${siteConfig.business.city} or nearby areas?`,
+  "Trying to compare your options without wasting time?",
+  "Want the job done properly the first time?"
+];
+const processSteps = [
+  { title: "Reach Out To Us", text: "Call or fill out the estimate form with a few details about what you need." },
+  { title: "Schedule Your Estimate", text: "We review the request and help choose a time that works for your schedule." },
+  { title: "We Provide The Service", text: "The team completes the work with clear communication and professional care." },
+  { title: "We Inspect The Service", text: "We review the result and make sure the next step is clear before closing out." }
+];
+---
+<BaseLayout seo={pageSeo}>
+  <Hero
+    eyebrow={`Local ${t(siteConfig.business.primaryService, locale)} Experts`}
+    title={`We Are The Best ${t(siteConfig.business.primaryService, locale)} In ${siteConfig.business.city}`}
+    text={`Offering reliable ${t(siteConfig.business.primaryService, locale)} in ${siteConfig.business.city}, ${siteConfig.business.region}, and surrounding areas. We help local customers solve ${t(siteConfig.business.customerProblem, locale)} with clear communication, professional service, and simple scheduling.`}
+    image={siteConfig.brand.heroImage}
+    primaryHref={localizedPath(locale, "contact")}
+    primaryText={t(siteConfig.business.cta, locale)}
+    secondaryHref={`tel:${siteConfig.business.phone}`}
+    secondaryText={`Call Now: ${siteConfig.business.phone}`}
+    badges={["Licensed & Insured", "Fast Response", "Free Estimates"]}
+  />
+  <section class="section section-light">
+    <div class="container">
+      <p class="eyebrow">Customer Problems</p>
+      <h2>Looking For A {t(siteConfig.business.primaryService, locale)} In {siteConfig.business.city}?</h2>
+      <div class="grid grid-3" style="margin-top:28px">
+        {questions.map((question) => <article class="card"><div class="card-body"><span class="icon-mark">✓</span><p>{question}</p></div></article>)}
+      </div>
+    </div>
+  </section>
+  <section class="section">
+    <div class="container split">
+      <div>
+        <p class="eyebrow">Welcome</p>
+        <h2>Welcome to {siteConfig.business.name}</h2>
+        <h3>We Are Your Local {t(siteConfig.business.primaryService, locale)} Team In {siteConfig.business.serviceArea}</h3>
+        <p>{t(siteConfig.business.description, locale)} We serve customers who want reliable scheduling, simple explanations, and work handled without confusion. This section is intentionally easy to rewrite with real owner, team, and local proof details before launch.</p>
+        <a class="button button-primary" href={localizedPath(locale, "contact")}>{t(siteConfig.business.cta, locale)}</a>
+      </div>
+      <img class="image-frame" src={siteConfig.brand.teamImage} alt={`${siteConfig.business.name} team providing ${t(siteConfig.business.primaryService, locale)} in ${siteConfig.business.city}`} width="900" height="506" loading="lazy" decoding="async" />
+    </div>
+  </section>
+  <section class="section section-light">
+    <div class="container">
+      <h2>We Make {t(siteConfig.business.primaryService, locale)} Simple</h2>
+      <div class="grid grid-3">
+        {["Fast Response", "Clear Communication", "Professional Local Service"].map((item) => <article class="card"><div class="card-body"><span class="icon-mark">✓</span><h3>{item}</h3><p>Use this block to explain how the business reduces friction for local customers in {siteConfig.business.serviceArea}.</p></div></article>)}
+      </div>
+    </div>
+  </section>
+  <section class="section">
+    <div class="container">
+      <p class="eyebrow">Services</p>
+      <h2>{siteConfig.business.city} {t(siteConfig.business.primaryService, locale)} And Related Services</h2>
+      <p>Whether you need {allServices.slice(0, 3).map((service) => t(service.title, locale)).join(", ")}, or help choosing the right option, {siteConfig.business.name} makes the process simple from first contact to completed service.</p>
+      <div class="grid grid-3" style="margin-top:28px">
+        {allServices.slice(0, 9).map((service) => <ServiceCard title={t(service.title, locale)} description={t(service.short, locale)} image={service.image} href={servicePath(locale, service)} alt={`${t(service.title, locale)} for local customers in ${siteConfig.business.city}`} />)}
+      </div>
+    </div>
+  </section>
+  <section class="section" style={`background:${siteConfig.brand.primary};color:white`}>
+    <div class="container" style="max-width:900px;text-align:center">
+      <h2 style="color:white">What Makes Us Different From Other {t(siteConfig.business.primaryService, locale)} Companies In {siteConfig.business.city}?</h2>
+      <p style="color:white">This section is built for local experience, simple communication, clear estimates, reliable scheduling, quality-focused work, service-area knowledge, and a customer-first approach. Replace these placeholders with true proof, real process details, and actual differentiators from the rented business once the lead asset is sold or partnered.</p>
+      <a class="button button-secondary" href={localizedPath(locale, "contact")}>Get Your Free Estimate</a>
+    </div>
+  </section>
+  <ProcessSection title={`How Our ${t(siteConfig.business.primaryService, locale)} Works`} subtitle="Our process is simple from first contact to completed service." steps={processSteps} />
+  <ReviewsSection title={`Why Customers Choose ${siteConfig.business.name}`} />
+  <FinalCta locale={locale} title={`Get A Free Estimate On ${t(siteConfig.business.primaryService, locale)}`} text={`Fill out the quick form to schedule a no-pressure, no-obligation quote for ${t(siteConfig.business.primaryService, locale)} in ${siteConfig.business.city} and nearby areas.`} />
+</BaseLayout>

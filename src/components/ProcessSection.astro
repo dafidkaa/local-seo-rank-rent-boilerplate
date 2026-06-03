@@ -1,0 +1,21 @@
+---
+const { title, subtitle, steps } = Astro.props;
+---
+<section class="section section-light">
+  <div class="container">
+    <p class="eyebrow">Simple Process</p>
+    <h2>{title}</h2>
+    {subtitle && <p>{subtitle}</p>}
+    <div class="grid grid-4" style="margin-top:28px">
+      {steps.map((step: { title: string; text: string }, index: number) => (
+        <article class="card">
+          <div class="card-body">
+            <span class="icon-mark">{index + 1}</span>
+            <h3>{step.title}</h3>
+            <p>{step.text}</p>
+          </div>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>

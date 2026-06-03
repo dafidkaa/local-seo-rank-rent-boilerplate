@@ -1,0 +1,38 @@
+---
+import { allServices, type Locale } from "@/site.config";
+import { t } from "@/lib/routes";
+const { locale, service = "" } = Astro.props as { locale: Locale; service?: string };
+---
+
+<form id="estimate-form" class="form" method="get" action={`/${locale}/thank-you/`} data-conversion-form>
+  <input type="hidden" name="locale" value={locale} />
+  <label class="honeypot">Company <input name="company" tabindex="-1" autocomplete="off" /></label>
+  <div class="grid grid-2">
+    <label>First Name *<input name="firstName" required autocomplete="given-name" /></label>
+    <label>Last Name *<input name="lastName" required autocomplete="family-name" /></label>
+  </div>
+  <div class="grid grid-2">
+    <label>Phone Number *<input name="phone" required inputmode="tel" autocomplete="tel" pattern="^[0-9+() .-]{7,}$" /></label>
+    <label>Email Address *<input name="email" type="email" required autocomplete="email" /></label>
+  </div>
+  <label>Service Address / Zip Code *<input name="serviceAddress" required autocomplete="street-address" /></label>
+  <label>Service Needed *
+    <select name="serviceNeeded" required>
+      <option value="">Select a service</option>
+      {allServices.map((item) => <option selected={service === item.id} value={item.id}>{t(item.title, locale)}</option>)}
+    </select>
+  </label>
+  <label>Project Details<textarea name="details" rows="5"></textarea></label>
+  <button class="button button-primary" type="submit">Get My Free Estimate</button>
+  <small>We respect your privacy. Your information is only used to respond to your request.</small>
+</form>
+<script is:inline>
+  document.querySelectorAll("[data-conversion-form]").forEach((form) => {
+    form.addEventListener("submit", () => {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({ event: "lead_form_submit" });
+      if (window.fbq) window.fbq("track", "Lead");
+      if (window.gtag) window.gtag("event", "conversion", { send_to: "AW-CONVERSION_ID/LABEL" });
+    });
+  });
+</script>

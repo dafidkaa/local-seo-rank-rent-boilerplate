@@ -1,0 +1,17 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Hero from "@/components/Hero.astro";
+import LocationCard from "@/components/LocationCard.astro";
+import FinalCta from "@/components/FinalCta.astro";
+import { siteConfig, type Locale } from "@/site.config";
+import { locationPath, t } from "@/lib/routes";
+import { localBusinessSchema, seo } from "@/lib/seo";
+export function getStaticPaths() { return siteConfig.locales.map((locale) => ({ params: { lang: locale.code } })); }
+const locale = Astro.params.lang as Locale;
+const pageSeo = seo({ locale, path: "service-area-hub-2", title: `${siteConfig.business.serviceArea} ${t(siteConfig.business.primaryService, locale)} Locations | ${siteConfig.business.name}`, description: `Alternate service area hub for ${siteConfig.business.name}, useful for a second region, county cluster, metro cluster, or A/B test.`, schema: [localBusinessSchema(locale)] });
+---
+<BaseLayout seo={pageSeo}>
+  <Hero eyebrow="Area Hub 2" title={`${siteConfig.business.serviceArea} Locations`} text="Use this alternate hub for a second region, county cluster, metro-area cluster, or a different visual approach for testing." image={siteConfig.brand.heroImage} primaryHref="#locations" primaryText="View Locations" />
+  <section id="locations" class="section"><div class="container"><h2>Metro Service Locations</h2><div class="grid grid-3">{siteConfig.locations.slice().reverse().map((location) => <LocationCard title={location.name} href={locationPath(locale, location.id)} image={location.image} />)}</div></div></section>
+  <FinalCta locale={locale} title={`Need ${t(siteConfig.business.primaryService, locale)} In This Area?`} text={`Request a free estimate for ${siteConfig.business.serviceArea}.`} />
+</BaseLayout>

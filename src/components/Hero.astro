@@ -1,0 +1,22 @@
+---
+const { eyebrow, title, text, image, primaryHref, primaryText, secondaryHref, secondaryText, badges = [] } = Astro.props;
+---
+
+<section class="hero">
+  <img src={image} alt="" width="1920" height="1080" fetchpriority="high" class="hero-bg" />
+  <div class="hero-overlay"></div>
+  <div class="container hero-content">
+    {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+    <h1>{title}</h1>
+    <p>{text}</p>
+    <div class="hero-actions">
+      {primaryText && <a class="button button-primary" href={primaryHref}>{primaryText}</a>}
+      {secondaryText && <a class="button button-secondary" href={secondaryHref}>{secondaryText}</a>}
+    </div>
+    {badges.length > 0 && (
+      <div class="trust-bar">
+        {badges.map((badge: string) => <div class="trust-item">✓ {badge}</div>)}
+      </div>
+    )}
+  </div>
+</section>

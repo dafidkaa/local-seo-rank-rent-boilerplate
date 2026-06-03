@@ -1,0 +1,21 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Hero from "@/components/Hero.astro";
+import ServiceCard from "@/components/ServiceCard.astro";
+import ProcessSection from "@/components/ProcessSection.astro";
+import ReviewsSection from "@/components/ReviewsSection.astro";
+import FinalCta from "@/components/FinalCta.astro";
+import { allServices, siteConfig, type Locale } from "@/site.config";
+import { servicePath, t } from "@/lib/routes";
+import { localBusinessSchema, seo } from "@/lib/seo";
+export function getStaticPaths() { return siteConfig.locales.map((locale) => ({ params: { lang: locale.code } })); }
+const locale = Astro.params.lang as Locale;
+const pageSeo = seo({ locale, path: "home-page-2", title: `${t(siteConfig.business.primaryService, locale)} Estimates In ${siteConfig.business.city} | ${siteConfig.business.name}`, description: `Alternative conversion homepage for ${siteConfig.business.name}, built for A/B testing local ${t(siteConfig.business.primaryService, locale)} leads.`, schema: [localBusinessSchema(locale)] });
+---
+<BaseLayout seo={pageSeo}>
+  <Hero eyebrow="Local Service Team" title={`Schedule ${t(siteConfig.business.primaryService, locale)} In ${siteConfig.business.city}`} text={`A conversion-focused alternate homepage with different hero copy, earlier form placement, six service cards, and a shorter process for A/B testing.`} image={siteConfig.brand.alternateHeroImage} primaryHref="#estimate-form" primaryText="Schedule An Estimate" secondaryHref={`tel:${siteConfig.business.phone}`} secondaryText={`Call ${siteConfig.business.phone}`} badges={["Simple Scheduling", "Free Estimates", "Local Response"]} />
+  <FinalCta locale={locale} title={`Get A Free Estimate On ${t(siteConfig.business.primaryService, locale)}`} text={`Tell us what you need and we will follow up about ${t(siteConfig.business.primaryService, locale)} in ${siteConfig.business.city}.`} />
+  <section class="section"><div class="container"><h2>Featured Services</h2><div class="grid grid-3">{allServices.slice(0,6).map((service) => <ServiceCard title={t(service.title, locale)} description={t(service.short, locale)} image={service.image} href={servicePath(locale, service)} alt={`${t(service.title, locale)} in ${siteConfig.business.city}`} />)}</div></div></section>
+  <ProcessSection title="Simple Three-Step Process" steps={[{title:"Reach Out",text:"Call or send the form."},{title:"Schedule Your Service",text:"We review your request and timing."},{title:"We Provide The Service",text:"The work is handled with clear communication."}]} />
+  <ReviewsSection title={`Why Customers Choose ${siteConfig.business.name}`} />
+</BaseLayout>

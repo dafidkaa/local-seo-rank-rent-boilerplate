@@ -1,0 +1,16 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import FinalCta from "@/components/FinalCta.astro";
+import { siteConfig, type Locale } from "@/site.config";
+import { localizedPath, t } from "@/lib/routes";
+import { breadcrumbSchema, seo } from "@/lib/seo";
+export function getStaticPaths() { return siteConfig.locales.flatMap((locale) => siteConfig.blogPosts.map((post) => ({ params: { lang: locale.code, post: post.id }, props: { post } }))); }
+const { post } = Astro.props;
+const locale = Astro.params.lang as Locale;
+const pageSeo = seo({ locale, path: `blog/${post.id}`, title: `${t(post.title, locale)} | ${siteConfig.business.name}`, description: t(post.excerpt, locale), image: post.image, schema: [{ "@context": "https://schema.org", "@type": "Article", headline: t(post.title, locale), datePublished: post.date, image: post.image }, breadcrumbSchema([{ name: "Home", url: localizedPath(locale) }, { name: "Blog", url: localizedPath(locale, "blog") }, { name: t(post.title, locale), url: localizedPath(locale, `blog/${post.id}`) }])] });
+---
+<BaseLayout seo={pageSeo}>
+  <section class="section section-light"><div class="container" style="max-width:850px"><p class="eyebrow">{post.date}</p><h1>{t(post.title, locale)}</h1><p>{t(post.excerpt, locale)}</p></div></section>
+  <section class="section"><article class="container" style="max-width:800px"><img class="image-frame" src={post.image} alt={t(post.title, locale)} width="900" height="506" loading="lazy" decoding="async" /><h2>Practical Local Service Guidance</h2><p>This article template is ready for SEO-focused educational content. Add original advice, local examples, internal links to services, and a clear CTA. Blog posts should support money pages rather than compete with them.</p><h2>Why Choose {siteConfig.business.name}</h2><p>Use real reasons, real photos, and real proof where available. Avoid fake ratings, invented customer names, or unsupported claims.</p></article></section>
+  <FinalCta locale={locale} title={`Ready to schedule ${t(siteConfig.business.primaryService, locale)}?`} text={`Request a free estimate in ${siteConfig.business.city} and nearby areas.`} />
+</BaseLayout>

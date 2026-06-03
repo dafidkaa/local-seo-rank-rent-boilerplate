@@ -1,0 +1,15 @@
+---
+import { siteConfig } from "@/site.config";
+const target = `/${siteConfig.defaultLocale}/`;
+---
+<html lang={siteConfig.defaultLocale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="refresh" content={`0; url=${target}`} />
+    <link rel="canonical" href={target} />
+    <title>{siteConfig.business.name}</title>
+  </head>
+  <body>
+    <a href={target}>Continue to {siteConfig.business.name}</a>
+  </body>
+</html>

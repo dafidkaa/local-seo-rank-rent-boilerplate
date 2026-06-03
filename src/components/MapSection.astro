@@ -1,0 +1,29 @@
+---
+import { siteConfig } from "@/site.config";
+const { title = "Service Area Map", text = `Serving ${siteConfig.business.serviceArea} and nearby communities.` } = Astro.props;
+---
+
+<section class="section section-light">
+  <div class="container">
+    <p class="eyebrow">Local Area</p>
+    <h2>{title}</h2>
+    <p>{text}</p>
+    <div class="card" style="margin-top:24px">
+      {siteConfig.integrations.googleMapEmbedUrl ? (
+        <iframe
+          title="Google map"
+          src={siteConfig.integrations.googleMapEmbedUrl}
+          loading="lazy"
+          style="width:100%;min-height:380px;border:0"
+        ></iframe>
+      ) : (
+        <div style="min-height:320px;display:grid;place-items:center;text-align:center;background:#e5e7eb;padding:24px">
+          <div>
+            <h3>Map Placeholder</h3>
+            <p>Add a real Google Map embed URL in <code>siteConfig.integrations.googleMapEmbedUrl</code>.</p>
+          </div>
+        </div>
+      )}
+    </div>
+  </div>
+</section>

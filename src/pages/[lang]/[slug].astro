@@ -1,0 +1,67 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Hero from "@/components/Hero.astro";
+import ServiceCard from "@/components/ServiceCard.astro";
+import LocationCard from "@/components/LocationCard.astro";
+import ProcessSection from "@/components/ProcessSection.astro";
+import ReviewsSection from "@/components/ReviewsSection.astro";
+import FinalCta from "@/components/FinalCta.astro";
+import FaqSection from "@/components/FaqSection.astro";
+import ScheduleWidget from "@/components/ScheduleWidget.astro";
+import MapSection from "@/components/MapSection.astro";
+import { allServices, siteConfig, type Locale } from "@/site.config";
+import { localizedPath, locationPath, locationSlug, servicePath, subservicePath, t } from "@/lib/routes";
+import { breadcrumbSchema, faqSchema, localBusinessSchema, seo, serviceSchema } from "@/lib/seo";
+
+export function getStaticPaths() {
+  return siteConfig.locales.flatMap((locale) => [
+    ...allServices.map((service) => ({ params: { lang: locale.code, slug: service.id }, props: { pageType: "service", service } })),
+    ...siteConfig.locations.map((location) => ({ params: { lang: locale.code, slug: locationSlug(locale.code, location.id) }, props: { pageType: "location", location } }))
+  ]);
+}
+const { pageType, service, location } = Astro.props;
+const currentService = service ?? allServices[0];
+const currentLocation = location ?? siteConfig.locations[0];
+const locale = Astro.params.lang as Locale;
+const isLocation = pageType === "location";
+const isSecondaryCategory = !isLocation && siteConfig.secondaryCategories.some((item) => item.id === currentService.id);
+const pageTitle = isLocation ? `${t(siteConfig.business.primaryService, locale)} In ${currentLocation.name} | ${siteConfig.business.name}` : `${t(currentService.title, locale)} In ${siteConfig.business.city} | ${siteConfig.business.name}`;
+const description = isLocation ? `${siteConfig.business.name} provides ${t(siteConfig.business.primaryService, locale)} in ${currentLocation.name} with clear communication, reliable scheduling, and free estimates.` : `Need ${t(currentService.title, locale)} in ${siteConfig.business.city}? Contact ${siteConfig.business.name} for reliable local service, clear communication, and free estimates.`;
+const faqs = [
+  { question: `How do I schedule ${isLocation ? t(siteConfig.business.primaryService, locale) : t(currentService.title, locale)}?`, answer: "Call or send the estimate form and we will follow up with next steps." },
+  { question: `Do you serve ${isLocation ? currentLocation.name : siteConfig.business.city}?`, answer: `${siteConfig.business.name} serves ${siteConfig.business.serviceArea} and nearby communities.` },
+  { question: "Can I get a free estimate?", answer: "Yes. Use the form on this page to request a no-pressure estimate." }
+];
+const pageSeo = seo({
+  locale,
+  path: Astro.params.slug,
+  title: pageTitle,
+  description,
+  image: isLocation ? currentLocation.image : currentService.image,
+  schema: [
+    serviceSchema(locale, isLocation ? t(siteConfig.business.primaryService, locale) : t(currentService.title, locale), Astro.params.slug!, isLocation ? currentLocation.name : undefined),
+    ...(isLocation ? [localBusinessSchema(locale)] : []),
+    breadcrumbSchema([{ name: "Home", url: localizedPath(locale) }, { name: isLocation ? currentLocation.name : t(currentService.title, locale), url: isLocation ? locationPath(locale, currentLocation.id) : servicePath(locale, currentService) }]),
+    faqSchema(faqs)
+  ]
+});
+---
+<BaseLayout seo={pageSeo}>
+  <Hero eyebrow={isLocation ? "Location Page" : "Service Page"} title={isLocation ? `Your Local ${t(siteConfig.business.primaryService, locale)} In ${currentLocation.name}` : `${t(currentService.title, locale)} In ${siteConfig.business.city}`} text={isLocation ? `${siteConfig.business.name} provides reliable ${t(siteConfig.business.primaryService, locale)} in ${currentLocation.name} and nearby areas. We help local customers with ${t(siteConfig.business.customerProblem, locale)} through clear communication, simple scheduling, and professional service.` : `We provide ${t(currentService.title, locale)} in ${siteConfig.business.city}, ${siteConfig.business.region}, and surrounding areas. Our goal is to help you ${t(siteConfig.business.customerOutcome, locale)} with professional service and clear communication.`} image={isLocation ? currentLocation.image : currentService.image} primaryHref={localizedPath(locale, "contact")} primaryText={isLocation ? "Request A Free Local Estimate" : `Get A Free Estimate On ${t(currentService.title, locale)}`} secondaryHref={`tel:${siteConfig.business.phone}`} secondaryText={`Call ${siteConfig.business.phone}`} badges={isLocation ? [`Serving ${currentLocation.name}`, "Free Local Estimates", "Fast Response"] : ["Fast Scheduling", "Clear Estimates", "Professional Results"]} />
+  {isLocation ? (
+    <section class="section section-light"><div class="container"><h2>{t(siteConfig.business.primaryService, locale)} Services In {currentLocation.name}</h2><p>{currentLocation.name} customers often need simple scheduling, clear scope, and reliable follow-up. {currentLocation.detail} Add real local landmarks, neighborhoods, and project examples before publishing.</p><div class="grid grid-3">{allServices.slice(0,9).map((item) => <ServiceCard title={t(item.title, locale)} description={t(item.short, locale)} image={item.image} href={servicePath(locale, item)} alt={`${t(item.title, locale)} in ${currentLocation.name}`} />)}</div></div></section>
+  ) : (
+    <>
+      <section class="section section-light"><div class="container"><h2>Need Expert {t(currentService.title, locale)} In {siteConfig.business.serviceArea}?</h2><div class="grid grid-3">{Array.from({length:6}).map((_, i) => <article class="card"><div class="card-body"><span class="icon-mark">✓</span><p>Customer-intent question {i + 1} for {t(currentService.title, locale)}. Replace with niche-specific pain points before launch.</p></div></article>)}</div></div></section>
+      <section class="section"><div class="container split"><div><p class="eyebrow">Local Team</p><h2>We Are {siteConfig.business.name}</h2><h3>Offering {t(currentService.title, locale)} In {siteConfig.business.serviceArea}</h3><p>{siteConfig.business.name} helps local customers understand the process, schedule service without confusion, and get clear next steps. Add real qualifications, local proof, and service-specific details here.</p><a class="button button-primary" href={localizedPath(locale, "contact")}>Get A Free Estimate</a></div><img class="image-frame" src={currentService.image} alt={`${t(currentService.title, locale)} in ${siteConfig.business.city}`} width="900" height="506" loading="lazy" decoding="async" /></div></section>
+      {isSecondaryCategory && <ScheduleWidget title="Schedule An Estimate" text="Select a day and time to schedule a no-pressure, no-obligation quote." />}
+      <section class="section section-light"><div class="container"><h2>{siteConfig.business.city} {t(currentService.title, locale)} Services</h2><p>Here are examples of the services we provide under {t(currentService.title, locale)}.</p><div class="grid">{currentService.children.map((child) => <ServiceCard title={t(child.title, locale)} description={t(child.short, locale)} image={currentService.image} href={subservicePath(locale, currentService, child.id)} alt={`${t(child.title, locale)} for local customers in ${siteConfig.business.city}`} />)}</div></div></section>
+    </>
+  )}
+  <ReviewsSection title={`Why Local Customers Choose ${siteConfig.business.name}`} />
+  {isLocation && <section class="section"><div class="container"><h2>Nearby Areas Around {currentLocation.name}</h2><div class="grid grid-3">{siteConfig.locations.filter((item) => item.id !== currentLocation.id).slice(0,3).map((item) => <LocationCard title={item.name} href={locationPath(locale, item.id)} image={item.image} />)}</div></div></section>}
+  {isLocation && <MapSection title={`Map For ${currentLocation.name} And Nearby Areas`} text={`${siteConfig.business.name} serves ${currentLocation.name}, ${siteConfig.business.region}, and nearby communities across ${siteConfig.business.serviceArea}.`} />}
+  <ProcessSection title={`How Our ${isLocation ? t(siteConfig.business.primaryService, locale) : t(currentService.title, locale)} Works`} steps={[{title:"Reach Out To Us",text:"Call or fill out the form."},{title:"Schedule Your Service",text:"We review your request and schedule the next step."},{title:"We Do The Work",text:"The service is completed professionally."},{title:"We Make Sure You Are Happy",text:"We review the result and next steps."}]} />
+  <FaqSection faqs={faqs} />
+  <FinalCta locale={locale} service={isLocation ? "" : currentService.id} title={isLocation ? `Get A Free Estimate In ${currentLocation.name}` : `Get A Free Estimate On ${t(currentService.title, locale)}`} text={isLocation ? `Use the form to request ${t(siteConfig.business.primaryService, locale)} in ${currentLocation.name} and nearby areas.` : `Use the form to request ${t(currentService.title, locale)} in ${siteConfig.business.city}, ${siteConfig.business.region}, and nearby areas.`} />
+</BaseLayout>

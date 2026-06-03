@@ -1,0 +1,10 @@
+---
+const { title, href, image } = Astro.props;
+---
+<a href={href} class="card" style="min-height:220px;display:grid;align-items:end;text-decoration:none;position:relative;overflow:hidden">
+  <img src={image} alt={title} width="600" height="400" loading="lazy" decoding="async" class="location-card-bg" />
+  <div class="location-card-overlay"></div>
+  <div class="card-body" style="position:relative;z-index:1">
+    <h3 style="color:white">{title}</h3>
+  </div>
+</a>

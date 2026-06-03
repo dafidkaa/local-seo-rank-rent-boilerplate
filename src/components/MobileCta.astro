@@ -1,0 +1,10 @@
+---
+import { siteConfig, type Locale } from "@/site.config";
+import { localizedPath, t } from "@/lib/routes";
+const { locale } = Astro.props as { locale: Locale };
+---
+
+<div class="mobile-cta">
+  <a class="button button-secondary" href={`tel:${siteConfig.business.phone}`}>Call Now</a>
+  <a class="button button-primary" href={localizedPath(locale, "contact")}>{t(siteConfig.business.cta, locale)}</a>
+</div>

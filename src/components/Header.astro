@@ -1,0 +1,61 @@
+---
+import { allServices, siteConfig, type Locale } from "@/site.config";
+import { localizedPath, locationPath, servicePath, subservicePath, t } from "@/lib/routes";
+
+const { locale, currentPath = "" } = Astro.props as { locale: Locale; currentPath?: string };
+---
+
+<header class="site-header">
+  <div class="utility">
+    <div class="container">
+      <span>Mon-Fri 8:00AM-5:00PM</span>
+      <a href={`tel:${siteConfig.business.phone}`}>Call Now: {siteConfig.business.phone}</a>
+    </div>
+  </div>
+  <div class="container nav-row">
+    <a class="logo" href={localizedPath(locale)}>{siteConfig.brand.logoText}</a>
+    <button class="button button-secondary mobile-toggle" type="button" data-mobile-toggle aria-label="Open menu">Menu</button>
+    <nav class="nav-links" data-mobile-menu data-open="false" aria-label="Main navigation">
+      <a href={localizedPath(locale)}>Home</a>
+      <a href={localizedPath(locale, "about")}>About</a>
+      <details class="dropdown">
+        <summary>Services</summary>
+        <div class="dropdown-menu">
+          {allServices.map((service) => (
+            <div>
+              <a href={servicePath(locale, service)}><strong>{t(service.title, locale)}</strong></a>
+              {service.children.slice(0, 6).map((child) => (
+                <a href={subservicePath(locale, service, child.id)}>Learn more about {t(child.title, locale)}</a>
+              ))}
+            </div>
+          ))}
+        </div>
+      </details>
+      <details class="dropdown">
+        <summary>Service Area</summary>
+        <div class="dropdown-menu">
+          <div>
+            <a href={localizedPath(locale, "service-area")}><strong>Service Area Hub</strong></a>
+            <a href={localizedPath(locale, "service-area-hub-2")}><strong>Service Area Hub 2</strong></a>
+          </div>
+          <div>
+            {siteConfig.locations.slice(0, 9).map((location) => (
+              <a href={locationPath(locale, location.id)}>{location.name}</a>
+            ))}
+          </div>
+        </div>
+      </details>
+      <a href={localizedPath(locale, "blog")}>Blog</a>
+      <a href={localizedPath(locale, "contact")}>Contact</a>
+      <details class="dropdown">
+        <summary>{locale.toUpperCase()}</summary>
+        <div class="dropdown-menu language-menu">
+          {siteConfig.locales.map((item) => (
+            <a href={localizedPath(item.code, currentPath)} aria-current={item.code === locale ? "page" : undefined}>{item.label}</a>
+          ))}
+        </div>
+      </details>
+      <a class="button button-primary" href={localizedPath(locale, "contact")}>{t(siteConfig.business.cta, locale)}</a>
+    </nav>
+  </div>
+</header>
