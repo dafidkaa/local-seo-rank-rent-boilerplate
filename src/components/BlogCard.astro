@@ -1,0 +1,27 @@
+---
+import { localizedPath, t } from "@/lib/routes";
+import type { Locale } from "@/site.config";
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+  post: CollectionEntry<"blog">;
+  locale: Locale;
+}
+
+const { post, locale } = Astro.props;
+const { title, excerpt, date, image, category } = post.data;
+---
+
+<article class="blog-card" data-category={category}>
+  <a href={localizedPath(locale, `blog/${post.slug}`)} class="blog-card-link">
+    <img src={image} alt={t(title, locale)} class="blog-card-image" width="900" height="506" loading="lazy" decoding="async" />
+    <div class="blog-card-body">
+      <div class="blog-card-meta">
+        <span class="blog-card-category">{category}</span>
+        <time datetime={date}>{new Date(date).toLocaleDateString(locale === "hr" ? "hr-HR" : "en-US", { year: "numeric", month: "long", day: "numeric" })}</time>
+      </div>
+      <h3 class="blog-card-title">{t(title, locale)}</h3>
+      <p class="blog-card-excerpt">{t(excerpt, locale)}</p>
+    </div>
+  </a>
+</article>

@@ -51,7 +51,7 @@ async function askYesNo(rl, label, fallback) {
 }
 
 function generateConfig(data) {
-  const { business, locales, brand, services, locations, integrations, blogPosts } = data;
+  const { business, locales, brand, services, locations, integrations, heroSlides, blogCategories } = data;
 
   const localeEntries = locales
     .map(
@@ -105,16 +105,23 @@ ${indent}}`;
     )
     .join(",\n");
 
-  const blogEntries = blogPosts
+  const heroSlideEntries = heroSlides
     .map(
-      (p) =>
+      (s) =>
         `    {
-      id: "${p.id}",
-      title: ${JSON.stringify(p.title)},
-      excerpt: ${JSON.stringify(p.excerpt)},
-      date: "${p.date}",
-      image: "${p.image}"
+      image: "${s.image}",
+      title: ${JSON.stringify(s.title)},
+      text: ${JSON.stringify(s.text)},
+      primaryText: ${JSON.stringify(s.primaryText)},
+      primaryHref: "${s.primaryHref}"${s.secondaryText ? `,\n      secondaryText: ${JSON.stringify(s.secondaryText)},\n      secondaryHref: "${s.secondaryHref}"` : ""}
     }`
+    )
+    .join(",\n");
+
+  const blogCategoryEntries = blogCategories
+    .map(
+      (c) =>
+        `    { id: "${c.id}", label: ${JSON.stringify(c.label)} }`
     )
     .join(",\n");
 
@@ -140,6 +147,21 @@ export type ServiceItem = {
     short: LocalizedText;
     faq: Array<{ question: LocalizedText; answer: LocalizedText }>;
   }>;
+};
+
+export type HeroSlide = {
+  image: string;
+  title: LocalizedText;
+  text: LocalizedText;
+  primaryText: LocalizedText;
+  primaryHref: string;
+  secondaryText?: LocalizedText;
+  secondaryHref?: string;
+};
+
+export type BlogCategory = {
+  id: string;
+  label: LocalizedText;
 };
 
 export const siteConfig = {
@@ -205,9 +227,12 @@ ${mainServiceEntries}
   secondaryCategories: [
 ${secondaryServiceEntries}
   ] satisfies ServiceItem[],
-  blogPosts: [
-${blogEntries}
-  ]
+  heroSlides: [
+${heroSlideEntries}
+  ] satisfies HeroSlide[],
+  blogCategories: [
+${blogCategoryEntries}
+  ] satisfies BlogCategory[]
 };
 
 export const allServices = [...siteConfig.mainServices, ...siteConfig.secondaryCategories];
@@ -447,42 +472,55 @@ async function collectIntegrations(rl) {
   };
 }
 
-async function collectBlogPosts(rl, locales) {
-  heading("Blog Starter Posts");
-  const count = parseInt(await ask(rl, "How many blog posts to scaffold?", "2"), 10);
-  const posts = [];
+async function collectHeroSlides(rl, locales, business) {
+  heading("Hero Slides");
+  const count = parseInt(await ask(rl, "How many hero slides?", "3"), 10);
+  const slides = [];
   for (let i = 0; i < count; i++) {
-    console.log(`\n  ${BOLD}Blog Post ${i + 1}${RESET}`);
+    console.log(`\n  ${BOLD}Slide ${i + 1}${RESET}`);
     const titleByLocale = {};
-    const excerptByLocale = {};
+    const textByLocale = {};
+    const primaryTextByLocale = {};
     for (const l of locales) {
-      titleByLocale[l.code] = await ask(
-        rl,
-        `  Title (${l.label})`,
-        i === 0 ? "How To Choose A Local Service Provider" : "Questions To Ask Before Booking A Service"
-      );
-      excerptByLocale[l.code] = await ask(
-        rl,
-        `  Excerpt (${l.label})`,
-        i === 0
-          ? "A practical guide for comparing local service companies."
-          : "Key questions to ask before you book a service."
-      );
+      titleByLocale[l.code] = await ask(rl, `  Title (${l.label})`, `We Are The Best ${business.primaryService[l.code]} In ${business.city}`);
+      textByLocale[l.code] = await ask(rl, `  Text (${l.label})`, `Offering reliable ${business.primaryService[l.code]} in ${business.city} and surrounding areas.`);
+      primaryTextByLocale[l.code] = await ask(rl, `  Primary CTA text (${l.label})`, business.cta[l.code]);
     }
-    posts.push({
-      id: titleByLocale[locales[0].code]
-        .toLowerCase()
-        .normalize("NFKD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-|-$/g, ""),
+    const primaryHref = await ask(rl, "  Primary CTA href", "contact");
+    const addSecondary = await askYesNo(rl, "  Add secondary CTA?", i === 0);
+    const slide = {
+      image: `https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1920&q=80`,
       title: titleByLocale,
-      excerpt: excerptByLocale,
-      date: new Date().toISOString().slice(0, 10),
-      image: `https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=900&q=80`
-    });
+      text: textByLocale,
+      primaryText: primaryTextByLocale,
+      primaryHref
+    };
+    if (addSecondary) {
+      const secondaryTextByLocale = {};
+      for (const l of locales) {
+        secondaryTextByLocale[l.code] = await ask(rl, `  Secondary CTA text (${l.label})`, `Call ${business.phone}`);
+      }
+      slide.secondaryText = secondaryTextByLocale;
+      slide.secondaryHref = `tel:${business.phone}`;
+    }
+    slides.push(slide);
   }
-  return posts;
+  return slides;
+}
+
+async function collectBlogCategories(rl, locales) {
+  heading("Blog Categories");
+  const count = parseInt(await ask(rl, "How many blog categories?", "3"), 10);
+  const categories = [];
+  for (let i = 0; i < count; i++) {
+    const id = await ask(rl, `  Category ${i + 1} ID`, ["guides", "tips", "company-news"][i] || `category-${i + 1}`);
+    const labelByLocale = {};
+    for (const l of locales) {
+      labelByLocale[l.code] = await ask(rl, `  Label (${l.label})`, id.charAt(0).toUpperCase() + id.slice(1).replace(/-/g, " "));
+    }
+    categories.push({ id, label: labelByLocale });
+  }
+  return categories;
 }
 
 async function main() {
@@ -501,7 +539,8 @@ async function main() {
     const locations = await collectLocations(rl);
     const services = await collectServices(rl, locales, business.primaryService);
     const integrations = await collectIntegrations(rl);
-    const blogPosts = await collectBlogPosts(rl, locales);
+    const heroSlides = await collectHeroSlides(rl, locales, business);
+    const blogCategories = await collectBlogCategories(rl, locales);
 
     const confirm = await askYesNo(rl, "\nGenerate site.config.ts now?", true);
     if (!confirm) {
@@ -517,7 +556,8 @@ async function main() {
       services,
       locations,
       integrations,
-      blogPosts
+      heroSlides,
+      blogCategories
     });
 
     writeFileSync("src/site.config.ts", configContent, "utf-8");
@@ -534,8 +574,9 @@ async function main() {
     console.log(`\n  Next steps:`);
     console.log(`    1. Replace placeholder images with real images`);
     console.log(`    2. Add unique content to subservice and location pages`);
-    console.log(`    3. Connect your CRM, analytics, and review widget`);
-    console.log(`    4. Run ${BOLD}npm run build${RESET} to generate the site\n`);
+    console.log(`    3. Create blog posts in src/content/blog/ as .md files`);
+    console.log(`    4. Connect your CRM, analytics, and review widget`);
+    console.log(`    5. Run ${BOLD}npm run build${RESET} to generate the site\n`);
   } catch (err) {
     if (err.message !== " aborted") {
       console.error("\n  Error:", err.message);

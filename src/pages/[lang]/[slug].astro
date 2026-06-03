@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import Hero from "@/components/Hero.astro";
+import Breadcrumbs from "@/components/Breadcrumbs.astro";
 import ServiceCard from "@/components/ServiceCard.astro";
 import LocationCard from "@/components/LocationCard.astro";
 import ProcessSection from "@/components/ProcessSection.astro";
@@ -48,6 +49,7 @@ const pageSeo = seo({
 ---
 <BaseLayout seo={pageSeo}>
   <Hero eyebrow={isLocation ? "Location Page" : "Service Page"} title={isLocation ? `Your Local ${t(siteConfig.business.primaryService, locale)} In ${currentLocation.name}` : `${t(currentService.title, locale)} In ${siteConfig.business.city}`} text={isLocation ? `${siteConfig.business.name} provides reliable ${t(siteConfig.business.primaryService, locale)} in ${currentLocation.name} and nearby areas. We help local customers with ${t(siteConfig.business.customerProblem, locale)} through clear communication, simple scheduling, and professional service.` : `We provide ${t(currentService.title, locale)} in ${siteConfig.business.city}, ${siteConfig.business.region}, and surrounding areas. Our goal is to help you ${t(siteConfig.business.customerOutcome, locale)} with professional service and clear communication.`} image={isLocation ? currentLocation.image : currentService.image} primaryHref={localizedPath(locale, "contact")} primaryText={isLocation ? "Request A Free Local Estimate" : `Get A Free Estimate On ${t(currentService.title, locale)}`} secondaryHref={`tel:${siteConfig.business.phone}`} secondaryText={`Call ${siteConfig.business.phone}`} badges={isLocation ? [`Serving ${currentLocation.name}`, "Free Local Estimates", "Fast Response"] : ["Fast Scheduling", "Clear Estimates", "Professional Results"]} />
+  <div class="container"><Breadcrumbs locale={locale} items={[{ label: isLocation ? currentLocation.name : t(currentService.title, locale), href: isLocation ? locationPath(locale, currentLocation.id) : servicePath(locale, currentService) }]} /></div>
   {isLocation ? (
     <section class="section section-light"><div class="container"><h2>{t(siteConfig.business.primaryService, locale)} Services In {currentLocation.name}</h2><p>{currentLocation.name} customers often need simple scheduling, clear scope, and reliable follow-up. {currentLocation.detail} Add real local landmarks, neighborhoods, and project examples before publishing.</p><div class="grid grid-3">{allServices.slice(0,9).map((item) => <ServiceCard title={t(item.title, locale)} description={t(item.short, locale)} image={item.image} href={servicePath(locale, item)} alt={`${t(item.title, locale)} in ${currentLocation.name}`} />)}</div></div></section>
   ) : (

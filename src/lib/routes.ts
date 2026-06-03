@@ -38,3 +38,5 @@ export const getParentForChildRoute = (parentId: string, childId: string) => {
   const child = parent?.children.find((item) => item.id === childId);
   return parent && child ? { parent, child } : undefined;
 };
+
+export const blogPostPath = (locale: Locale, postId: string) => localizedPath(locale, `blog/${postId}`);

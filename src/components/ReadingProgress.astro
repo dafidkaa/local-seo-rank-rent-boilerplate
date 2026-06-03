@@ -1,0 +1,19 @@
+---
+---
+
+<div class="reading-progress" id="reading-progress" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+<script is:inline>
+  (function () {
+    var bar = document.getElementById("reading-progress");
+    if (!bar) return;
+    function update() {
+      var scrolled = window.scrollY;
+      var total = document.documentElement.scrollHeight - window.innerHeight;
+      var pct = total > 0 ? Math.min((scrolled / total) * 100, 100) : 0;
+      bar.style.width = pct + "%";
+      bar.setAttribute("aria-valuenow", Math.round(pct));
+    }
+    window.addEventListener("scroll", update, { passive: true });
+    update();
+  })();
+</script>

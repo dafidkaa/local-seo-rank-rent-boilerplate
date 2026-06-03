@@ -80,6 +80,33 @@ export const breadcrumbSchema = (items: Array<{ name: string; url: string }>) =>
   }))
 });
 
+export const articleSchema = (input: {
+  headline: string;
+  description: string;
+  url: string;
+  image: string;
+  datePublished: string;
+  dateModified?: string;
+  wordCount?: number;
+  articleBody?: string;
+}) => ({
+  "@context": "https://schema.org",
+  "@type": "Article",
+  headline: input.headline,
+  description: input.description,
+  url: input.url,
+  image: input.image,
+  datePublished: input.datePublished,
+  dateModified: input.dateModified ?? input.datePublished,
+  wordCount: input.wordCount,
+  articleBody: input.articleBody,
+  publisher: {
+    "@type": "Organization",
+    name: siteConfig.business.name,
+    url: siteConfig.siteUrl
+  }
+});
+
 export const faqSchema = (questions: Array<{ question: string; answer: string }>) => ({
   "@context": "https://schema.org",
   "@type": "FAQPage",

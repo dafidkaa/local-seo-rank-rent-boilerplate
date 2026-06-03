@@ -1,11 +1,12 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import Hero from "@/components/Hero.astro";
+import Breadcrumbs from "@/components/Breadcrumbs.astro";
 import EstimateForm from "@/components/EstimateForm.astro";
 import ProcessSection from "@/components/ProcessSection.astro";
 import MapSection from "@/components/MapSection.astro";
 import { siteConfig, type Locale } from "@/site.config";
-import { t } from "@/lib/routes";
+import { localizedPath, t } from "@/lib/routes";
 import { localBusinessSchema, seo } from "@/lib/seo";
 export function getStaticPaths() { return siteConfig.locales.map((locale) => ({ params: { lang: locale.code } })); }
 const locale = Astro.params.lang as Locale;
@@ -13,6 +14,7 @@ const pageSeo = seo({ locale, path: "contact", title: `Contact ${siteConfig.busi
 ---
 <BaseLayout seo={pageSeo}>
   <Hero eyebrow="Contact" title={`Contact ${siteConfig.business.name}`} text={`Request ${t(siteConfig.business.primaryService, locale)} in ${siteConfig.business.city}, ${siteConfig.business.region}, and surrounding areas.`} image={siteConfig.brand.heroImage} primaryHref="#estimate-form" primaryText="Get My Free Estimate" secondaryHref={`tel:${siteConfig.business.phone}`} secondaryText={`Call ${siteConfig.business.phone}`} />
+  <div class="container"><Breadcrumbs locale={locale} items={[{ label: "Contact", href: localizedPath(locale, "contact") }]} /></div>
   <ProcessSection title={`How Our ${t(siteConfig.business.primaryService, locale)} Process Works`} steps={[{title:"Reach Out",text:"Call or send the form."},{title:"Project Review",text:"We review your request and location."},{title:"Service Appointment",text:"We schedule the next step."},{title:"Follow-Up",text:"You receive clear next steps."}]} />
   <section class="section"><div class="container split"><div><h2>Contact Details</h2><p><strong>Phone:</strong> <a href={`tel:${siteConfig.business.phone}`}>{siteConfig.business.phone}</a></p><p><strong>Email:</strong> <a href={`mailto:${siteConfig.business.email}`}>{siteConfig.business.email}</a></p><p><strong>Address:</strong> {siteConfig.business.address}</p><p><strong>Hours:</strong> Mon-Fri 8:00AM-5:00PM</p></div><div class="card"><div class="card-body"><EstimateForm locale={locale} /></div></div></div></section>
   <MapSection title={`${siteConfig.business.name} Service Area Map`} text={`${siteConfig.business.name} serves ${siteConfig.business.city}, ${siteConfig.business.region}, and nearby areas.`} />

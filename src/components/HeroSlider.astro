@@ -1,0 +1,95 @@
+---
+import { t, localizedPath } from "@/lib/routes";
+import type { Locale, HeroSlide } from "@/site.config";
+
+interface Props {
+  slides: HeroSlide[];
+  locale: Locale;
+  badges?: string[];
+}
+
+const { slides, locale, badges = [] } = Astro.props;
+---
+
+<section class="hero hero-slider" role="region" aria-label="Featured content" aria-live="polite">
+  {slides.map((slide, index) => (
+    <div class={`hero-slide ${index === 0 ? "hero-slide-active" : ""}`} data-slide={index}>
+      <img src={slide.image} alt="" width="1920" height="1080" fetchpriority={index === 0 ? "high" : "low"} class="hero-bg" loading={index === 0 ? "eager" : "lazy"} />
+      <div class="hero-overlay"></div>
+      <div class="container hero-content">
+        <h1>{t(slide.title, locale)}</h1>
+        <p>{t(slide.text, locale)}</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href={slide.primaryHref.startsWith("tel:") || slide.primaryHref.startsWith("http") ? slide.primaryHref : localizedPath(locale, slide.primaryHref)}>{t(slide.primaryText, locale)}</a>
+          {slide.secondaryText && slide.secondaryHref && (
+            <a class="button button-secondary" href={slide.secondaryHref.startsWith("tel:") || slide.secondaryHref.startsWith("http") ? slide.secondaryHref : localizedPath(locale, slide.secondaryHref)}>{t(slide.secondaryText, locale)}</a>
+          )}
+        </div>
+        {badges.length > 0 && (
+          <div class="trust-bar">
+            {badges.map((badge) => <div class="trust-item">✓ {badge}</div>)}
+          </div>
+        )}
+      </div>
+    </div>
+  ))}
+  <div class="hero-dots">
+    {slides.map((_, index) => (
+      <button class={`hero-dot ${index === 0 ? "hero-dot-active" : ""}`} data-dot={index} aria-label={`Go to slide ${index + 1}`} type="button"></button>
+    ))}
+  </div>
+</section>
+<script is:inline>
+  (function () {
+    var slider = document.querySelector(".hero-slider");
+    if (!slider) return;
+    var slides = slider.querySelectorAll(".hero-slide");
+    var dots = slider.querySelectorAll(".hero-dot");
+    var current = 0;
+    var total = slides.length;
+    var interval = null;
+    var startX = 0;
+
+    function goTo(index) {
+      slides[current].classList.remove("hero-slide-active");
+      dots[current].classList.remove("hero-dot-active");
+      current = (index + total) % total;
+      slides[current].classList.add("hero-slide-active");
+      dots[current].classList.add("hero-dot-active");
+    }
+
+    function startAuto() {
+      interval = setInterval(function () { goTo(current + 1); }, 6000);
+    }
+
+    function stopAuto() {
+      if (interval) { clearInterval(interval); interval = null; }
+    }
+
+    dots.forEach(function (dot) {
+      dot.addEventListener("click", function () {
+        stopAuto();
+        goTo(parseInt(dot.getAttribute("data-dot"), 10));
+        startAuto();
+      });
+    });
+
+    slider.addEventListener("mouseenter", stopAuto);
+    slider.addEventListener("mouseleave", startAuto);
+
+    slider.addEventListener("touchstart", function (e) {
+      startX = e.touches[0].clientX;
+    }, { passive: true });
+
+    slider.addEventListener("touchend", function (e) {
+      var diff = startX - e.changedTouches[0].clientX;
+      if (Math.abs(diff) > 50) {
+        stopAuto();
+        goTo(diff > 0 ? current + 1 : current - 1);
+        startAuto();
+      }
+    }, { passive: true });
+
+    startAuto();
+  })();
+</script>

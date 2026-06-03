@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import Hero from "@/components/Hero.astro";
+import Breadcrumbs from "@/components/Breadcrumbs.astro";
 import ProcessSection from "@/components/ProcessSection.astro";
 import FinalCta from "@/components/FinalCta.astro";
 import FaqSection from "@/components/FaqSection.astro";
@@ -25,6 +26,7 @@ const pageSeo = seo({ locale, path, title: `${t(child.title, locale)} In ${siteC
 ---
 <BaseLayout seo={pageSeo}>
   <Hero eyebrow="Subservice" title={`${t(child.title, locale)} In ${siteConfig.business.city}`} text={`${siteConfig.business.name} provides ${t(child.title, locale)} in ${siteConfig.business.city} and surrounding areas with clear communication, reliable scheduling, and professional service.`} image={parent.image} primaryHref={localizedPath(locale, "contact")} primaryText="Get A Free Estimate" secondaryHref={`tel:${siteConfig.business.phone}`} secondaryText={`Call ${siteConfig.business.phone}`} badges={[`Serving ${siteConfig.business.city}`, "Free Local Estimates", "Fast Response"]} />
+  <div class="container"><Breadcrumbs locale={locale} items={[{ label: t(parent.title, locale), href: servicePath(locale, parent) }, { label: t(child.title, locale), href: subservicePath(locale, parent, child.id) }]} /></div>
   <section class="section"><div class="container" style="max-width:850px"><p class="eyebrow">Detailed Service</p><h2>Local Help For {t(child.title, locale)}</h2><p>This child page is designed to become a deep, non-duplicate page. Replace this starter copy with 900 to 1800 words of niche-specific information, real customer scenarios, what is included, when the service is needed, and practical local details.</p><p>For Rank-and-Rent builds, keep the page focused on one search intent. Link back to the parent page, link to related services, and mention relevant locations naturally.</p><p><a href={servicePath(locale, parent)}>View {t(parent.title, locale)}</a></p></div></section>
   <section class="section section-light"><div class="container"><h2>When You Need {t(child.title, locale)}</h2><div class="grid grid-3">{["The problem is affecting daily use", "You need clear options before booking", "You want local help without confusing next steps"].map((item) => <article class="card"><div class="card-body"><span class="icon-mark">✓</span><h3>{item}</h3><p>Adapt this intent block to the niche so visitors can quickly recognize their situation and take the next step.</p></div></article>)}</div></div></section>
   <section class="section section-light"><div class="container"><h2>What Is Included</h2><div class="grid grid-3">{["Problem review", "Clear estimate", "Professional service"].map((item) => <article class="card"><div class="card-body"><span class="icon-mark">✓</span><h3>{item}</h3><p>Customize this explanation for {t(child.title, locale)} so visitors understand the exact value and scope.</p></div></article>)}</div></div></section>

@@ -1,16 +1,124 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import Breadcrumbs from "@/components/Breadcrumbs.astro";
+import ReadingProgress from "@/components/ReadingProgress.astro";
+import ShareButtons from "@/components/ShareButtons.astro";
+import RelatedPosts from "@/components/RelatedPosts.astro";
 import FinalCta from "@/components/FinalCta.astro";
 import { siteConfig, type Locale } from "@/site.config";
-import { localizedPath, t } from "@/lib/routes";
-import { breadcrumbSchema, seo } from "@/lib/seo";
-export function getStaticPaths() { return siteConfig.locales.flatMap((locale) => siteConfig.blogPosts.map((post) => ({ params: { lang: locale.code, post: post.id }, props: { post } }))); }
+import { localizedPath, t, blogPostPath } from "@/lib/routes";
+import { articleSchema, breadcrumbSchema, seo } from "@/lib/seo";
+import { getCollection } from "astro:content";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("blog");
+  return siteConfig.locales.flatMap((locale) =>
+    posts.map((post) => ({
+      params: { lang: locale.code, post: post.slug },
+      props: { post }
+    }))
+  );
+}
+
 const { post } = Astro.props;
 const locale = Astro.params.lang as Locale;
-const pageSeo = seo({ locale, path: `blog/${post.id}`, title: `${t(post.title, locale)} | ${siteConfig.business.name}`, description: t(post.excerpt, locale), image: post.image, schema: [{ "@context": "https://schema.org", "@type": "Article", headline: t(post.title, locale), datePublished: post.date, image: post.image }, breadcrumbSchema([{ name: "Home", url: localizedPath(locale) }, { name: "Blog", url: localizedPath(locale, "blog") }, { name: t(post.title, locale), url: localizedPath(locale, `blog/${post.id}`) }])] });
+const { Content } = await post.render();
+
+const bodyText = post.body ?? "";
+const wordCount = bodyText.split(/\s+/).filter(Boolean).length;
+const readingTime = Math.max(1, Math.ceil(wordCount / 200));
+
+const allPosts = await getCollection("blog");
+const relatedPosts = allPosts
+  .filter((p) => p.id !== post.id && p.data.category === post.data.category)
+  .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
+  .slice(0, 3);
+const fallbackRelated = relatedPosts.length >= 3
+  ? relatedPosts
+  : [
+      ...relatedPosts,
+      ...allPosts
+        .filter((p) => p.id !== post.id && p.data.category !== post.data.category)
+        .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
+        .slice(0, 3 - relatedPosts.length)
+    ];
+
+const relatedServices = (post.data.relatedServices ?? [])
+  .map((id) => {
+    const svc = allServices.find((s) => s.id === id);
+    return svc ? { id: svc.id, title: t(svc.title, locale), href: servicePath(locale, svc) } : null;
+  })
+  .filter(Boolean);
+
+import { allServices } from "@/site.config";
+import { servicePath } from "@/lib/routes";
+
+const postUrl = `${siteConfig.siteUrl}${blogPostPath(locale, post.slug)}`;
+const pageSeo = seo({
+  locale,
+  path: `blog/${post.slug}`,
+  title: `${t(post.data.title, locale)} | ${siteConfig.business.name}`,
+  description: t(post.data.excerpt, locale),
+  image: post.data.image,
+  schema: [
+    articleSchema({
+      headline: t(post.data.title, locale),
+      description: t(post.data.excerpt, locale),
+      url: postUrl,
+      image: post.data.image,
+      datePublished: post.data.date,
+      wordCount,
+      articleBody: bodyText.slice(0, 5000)
+    }),
+    breadcrumbSchema([
+      { name: "Home", url: localizedPath(locale) },
+      { name: "Blog", url: localizedPath(locale, "blog") },
+      { name: t(post.data.title, locale), url: blogPostPath(locale, post.slug) }
+    ])
+  ]
+});
 ---
+
 <BaseLayout seo={pageSeo}>
-  <section class="section section-light"><div class="container" style="max-width:850px"><p class="eyebrow">{post.date}</p><h1>{t(post.title, locale)}</h1><p>{t(post.excerpt, locale)}</p></div></section>
-  <section class="section"><article class="container" style="max-width:800px"><img class="image-frame" src={post.image} alt={t(post.title, locale)} width="900" height="506" loading="lazy" decoding="async" /><h2>Practical Local Service Guidance</h2><p>This article template is ready for SEO-focused educational content. Add original advice, local examples, internal links to services, and a clear CTA. Blog posts should support money pages rather than compete with them.</p><h2>Why Choose {siteConfig.business.name}</h2><p>Use real reasons, real photos, and real proof where available. Avoid fake ratings, invented customer names, or unsupported claims.</p></article></section>
-  <FinalCta locale={locale} title={`Ready to schedule ${t(siteConfig.business.primaryService, locale)}?`} text={`Request a free estimate in ${siteConfig.business.city} and nearby areas.`} />
+  <ReadingProgress />
+  <section class="section section-light">
+    <div class="container" style="max-width:880px">
+      <Breadcrumbs locale={locale} items={[
+        { label: "Blog", href: localizedPath(locale, "blog") },
+        { label: t(post.data.title, locale) }
+      ]} />
+      <span class="blog-card-category" style="margin-bottom:12px;display:inline-block">{post.data.category}</span>
+      <h1>{t(post.data.title, locale)}</h1>
+      <p style="font-size:0.95rem;color:var(--color-muted);margin-bottom:8px">
+        <time datetime={post.data.date}>{new Date(post.data.date).toLocaleDateString(locale === "hr" ? "hr-HR" : "en-US", { year: "numeric", month: "long", day: "numeric" })}</time>
+        &middot; {readingTime} min read
+        &middot; {wordCount} words
+      </p>
+      <ShareButtons url={postUrl} title={t(post.data.title, locale)} />
+    </div>
+  </section>
+  <section class="section">
+    <article class="container prose" style="max-width:800px">
+      <img src={post.data.image} alt={t(post.data.title, locale)} width="900" height="506" loading="eager" decoding="async" style="border-radius:var(--radius);aspect-ratio:16/9;object-fit:cover;margin-bottom:2em" />
+      <Content />
+    </article>
+  </section>
+  {relatedServices.length > 0 && (
+    <section class="section section-light">
+      <div class="container" style="max-width:800px">
+        <h2>Related Services</h2>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:16px">
+          {relatedServices.map((svc) => (
+            <a class="button button-secondary" href={svc!.href} style="font-size:0.88rem">{svc!.title}</a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+  <RelatedPosts posts={fallbackRelated} locale={locale} />
+  <FinalCta
+    locale={locale}
+    title={`Ready to schedule ${t(siteConfig.business.primaryService, locale)}?`}
+    text={`Request a free estimate in ${siteConfig.business.city} and nearby areas.`}
+  />
 </BaseLayout>

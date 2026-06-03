@@ -1,14 +1,107 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import ServiceCard from "@/components/ServiceCard.astro";
+import Breadcrumbs from "@/components/Breadcrumbs.astro";
+import BlogCard from "@/components/BlogCard.astro";
 import { siteConfig, type Locale } from "@/site.config";
-import { localizedPath, t } from "@/lib/routes";
+import { t } from "@/lib/routes";
 import { seo } from "@/lib/seo";
-export function getStaticPaths() { return siteConfig.locales.map((locale) => ({ params: { lang: locale.code } })); }
+import { getCollection } from "astro:content";
+
+export function getStaticPaths() {
+  return siteConfig.locales.map((locale) => ({ params: { lang: locale.code } }));
+}
+
 const locale = Astro.params.lang as Locale;
-const pageSeo = seo({ locale, path: "blog", title: `${siteConfig.business.name} Blog | ${t(siteConfig.business.primaryService, locale)} Tips In ${siteConfig.business.city}`, description: `Tips, guides, and updates about ${t(siteConfig.business.primaryService, locale)}, local service advice, and helpful information for customers in ${siteConfig.business.serviceArea}.` });
+const allPosts = (await getCollection("blog")).sort(
+  (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
+);
+const categories = siteConfig.blogCategories;
+const pageSeo = seo({
+  locale,
+  path: "blog",
+  title: `${siteConfig.business.name} Blog | ${t(siteConfig.business.primaryService, locale)} Tips In ${siteConfig.business.city}`,
+  description: `Tips, guides, and updates about ${t(siteConfig.business.primaryService, locale)}, local service advice, and helpful information for customers in ${siteConfig.business.serviceArea}.`
+});
 ---
+
 <BaseLayout seo={pageSeo}>
-  <section class="section section-light"><div class="container"><p class="eyebrow">Blog</p><h1>{siteConfig.business.name} Blog</h1><p>Tips, guides, and updates about {t(siteConfig.business.primaryService, locale)}, local service advice, and helpful information for customers in {siteConfig.business.serviceArea}.</p></div></section>
-  <section class="section"><div class="container"><div class="grid grid-3">{siteConfig.blogPosts.map((post) => <ServiceCard title={t(post.title, locale)} description={t(post.excerpt, locale)} image={post.image} href={localizedPath(locale, `blog/${post.id}`)} alt={t(post.title, locale)} />)}</div></div></section>
+  <section class="section section-light">
+    <div class="container">
+      <Breadcrumbs locale={locale} items={[{ label: "Blog", href: `/${locale}/blog/` }]} />
+      <p class="eyebrow">Blog</p>
+      <h1>{siteConfig.business.name} Blog</h1>
+      <p>Tips, guides, and updates about {t(siteConfig.business.primaryService, locale)}, local service advice, and helpful information for customers in {siteConfig.business.serviceArea}.</p>
+    </div>
+  </section>
+  <section class="section">
+    <div class="container">
+      <div class="blog-filters" id="blog-filters">
+        <button class="blog-filter-btn blog-filter-btn-active" data-category="all" type="button">All</button>
+        {categories.map((cat) => (
+          <button class="blog-filter-btn" data-category={cat.id} type="button">{t(cat.label, locale)}</button>
+        ))}
+        <input class="blog-search" type="search" placeholder="Search posts..." id="blog-search" />
+        <select class="blog-sort" id="blog-sort">
+          <option value="newest">Newest First</option>
+          <option value="oldest">Oldest First</option>
+        </select>
+      </div>
+      <div class="grid grid-3" id="blog-grid">
+        {allPosts.map((post) => (
+          <div data-category={post.data.category} data-title={t(post.data.title, locale).toLowerCase()} data-excerpt={t(post.data.excerpt, locale).toLowerCase()} data-date={post.data.date}>
+            <BlogCard post={post} locale={locale} />
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
 </BaseLayout>
+<script is:inline>
+  (function () {
+    var grid = document.getElementById("blog-grid");
+    var searchInput = document.getElementById("blog-search");
+    var sortSelect = document.getElementById("blog-sort");
+    if (!grid) return;
+    var items = Array.from(grid.children);
+
+    function filterAndSort() {
+      var search = (searchInput ? searchInput.value : "").toLowerCase();
+      var sort = sortSelect ? sortSelect.value : "newest";
+      var activeCategory = "all";
+      document.querySelectorAll(".blog-filter-btn").forEach(function (btn) {
+        if (btn.classList.contains("blog-filter-btn-active")) {
+          activeCategory = btn.getAttribute("data-category");
+        }
+      });
+
+      var filtered = items.filter(function (item) {
+        var cat = item.getAttribute("data-category");
+        var title = item.getAttribute("data-title") || "";
+        var excerpt = item.getAttribute("data-excerpt") || "";
+        var matchCat = activeCategory === "all" || cat === activeCategory;
+        var matchSearch = !search || title.indexOf(search) !== -1 || excerpt.indexOf(search) !== -1;
+        return matchCat && matchSearch;
+      });
+
+      filtered.sort(function (a, b) {
+        var da = a.getAttribute("data-date") || "";
+        var db = b.getAttribute("data-date") || "";
+        return sort === "newest" ? db.localeCompare(da) : da.localeCompare(db);
+      });
+
+      grid.innerHTML = "";
+      filtered.forEach(function (item) { grid.appendChild(item); });
+    }
+
+    document.querySelectorAll(".blog-filter-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        document.querySelectorAll(".blog-filter-btn").forEach(function (b) { b.classList.remove("blog-filter-btn-active"); });
+        btn.classList.add("blog-filter-btn-active");
+        filterAndSort();
+      });
+    });
+
+    if (searchInput) searchInput.addEventListener("input", filterAndSort);
+    if (sortSelect) sortSelect.addEventListener("change", filterAndSort);
+  })();
+</script>

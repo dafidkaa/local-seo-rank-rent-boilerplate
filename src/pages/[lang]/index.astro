@@ -1,6 +1,6 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import Hero from "@/components/Hero.astro";
+import HeroSlider from "@/components/HeroSlider.astro";
 import ServiceCard from "@/components/ServiceCard.astro";
 import ProcessSection from "@/components/ProcessSection.astro";
 import ReviewsSection from "@/components/ReviewsSection.astro";
@@ -33,15 +33,9 @@ const processSteps = [
 ];
 ---
 <BaseLayout seo={pageSeo}>
-  <Hero
-    eyebrow={`Local ${t(siteConfig.business.primaryService, locale)} Experts`}
-    title={`We Are The Best ${t(siteConfig.business.primaryService, locale)} In ${siteConfig.business.city}`}
-    text={`Offering reliable ${t(siteConfig.business.primaryService, locale)} in ${siteConfig.business.city}, ${siteConfig.business.region}, and surrounding areas. We help local customers solve ${t(siteConfig.business.customerProblem, locale)} with clear communication, professional service, and simple scheduling.`}
-    image={siteConfig.brand.heroImage}
-    primaryHref={localizedPath(locale, "contact")}
-    primaryText={t(siteConfig.business.cta, locale)}
-    secondaryHref={`tel:${siteConfig.business.phone}`}
-    secondaryText={`Call Now: ${siteConfig.business.phone}`}
+  <HeroSlider
+    slides={siteConfig.heroSlides}
+    locale={locale}
     badges={["Licensed & Insured", "Fast Response", "Free Estimates"]}
   />
   <section class="section section-light">

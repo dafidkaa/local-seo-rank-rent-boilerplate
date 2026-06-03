@@ -1,0 +1,23 @@
+---
+import BlogCard from "./BlogCard.astro";
+import type { Locale } from "@/site.config";
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+  posts: CollectionEntry<"blog">[];
+  locale: Locale;
+}
+
+const { posts, locale } = Astro.props;
+---
+
+{posts.length > 0 && (
+  <section class="section section-light">
+    <div class="container">
+      <h2>Related Posts</h2>
+      <div class="grid grid-3" style="margin-top:28px">
+        {posts.map((post) => <BlogCard post={post} locale={locale} />)}
+      </div>
+    </div>
+  </section>
+)}

@@ -22,6 +22,21 @@ export type ServiceItem = {
   }>;
 };
 
+export type HeroSlide = {
+  image: string;
+  title: LocalizedText;
+  text: LocalizedText;
+  primaryText: LocalizedText;
+  primaryHref: string;
+  secondaryText?: LocalizedText;
+  secondaryHref?: string;
+};
+
+export type BlogCategory = {
+  id: string;
+  label: LocalizedText;
+};
+
 export const siteConfig = {
   siteUrl: "https://example.com",
   defaultLocale: "en" as Locale,
@@ -156,22 +171,36 @@ export const siteConfig = {
       faq: []
     }))
   })) satisfies ServiceItem[],
-  blogPosts: [
+  heroSlides: [
     {
-      id: "how-to-choose-a-local-service-provider",
-      title: { en: "How To Choose A Local Service Provider", hr: "Kako odabrati lokalnog pruzatelja usluga" },
-      excerpt: { en: "A practical guide for comparing local service companies without wasting time.", hr: "Praktican vodic za usporedbu lokalnih tvrtki bez gubljenja vremena." },
-      date: "2026-01-15",
-      image: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=900&q=80"
+      image: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1920&q=80",
+      title: { en: "We Are The Best Local Service In Austin", hr: "Mi smo najbolja lokalna usluga u Austinu" },
+      text: { en: "Offering reliable local service in Austin, Texas, and surrounding areas. We help customers solve problems with clear communication, professional service, and simple scheduling.", hr: "Nudimo pouzdanu lokalnu uslugu u Austinu, Teksasu i okolnim podrucjima." },
+      primaryText: { en: "Get A Free Estimate", hr: "Zatrazite besplatnu procjenu" },
+      primaryHref: "contact",
+      secondaryText: { en: "Call Now", hr: "Pozovite sada" },
+      secondaryHref: "tel:+1 555 010 2020"
     },
     {
-      id: "questions-to-ask-before-booking",
-      title: { en: "Questions To Ask Before Booking A Service", hr: "Pitanja koja treba postaviti prije rezervacije usluge" },
-      excerpt: { en: "Use these questions to understand pricing, scheduling, scope, and follow-up.", hr: "Ova pitanja pomazu razumjeti cijene, termine, opseg i pracenje." },
-      date: "2026-02-04",
-      image: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=900&q=80"
+      image: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=1920&q=80",
+      title: { en: "Professional Service You Can Trust", hr: "Profesionalna usluga kojoj mozete vjerovati" },
+      text: { en: "From first contact to completed service, we keep things clear, simple, and professional. No surprises, no hidden costs.", hr: "Od prvog kontakta do zavrsene usluge, odrzavamo stvari jasnim i profesionalnim." },
+      primaryText: { en: "Contact Us Today", hr: "Kontaktirajte nas danas" },
+      primaryHref: "contact"
+    },
+    {
+      image: "https://images.unsplash.com/photo-1521791055366-0d553872125f?auto=format&fit=crop&w=1920&q=80",
+      title: { en: "Serving The Entire Austin Metro Area", hr: "Sluzimo cijelom podrucju metropola Austin" },
+      text: { en: "Whether you are in Austin, Round Rock, Cedar Park, or nearby communities, our team is ready to help.", hr: "Bilo da ste u Austinu, Round Rocku, Cedar Parku ili obližnjim zajednicama, nas tim je spreman pomoci." },
+      primaryText: { en: "View Service Areas", hr: "Pogledajte podrucja usluge" },
+      primaryHref: "service-area"
     }
-  ]
+  ] satisfies HeroSlide[],
+  blogCategories: [
+    { id: "guides", label: { en: "Guides", hr: "Vodici" } },
+    { id: "tips", label: { en: "Tips", hr: "Savjeti" } },
+    { id: "company-news", label: { en: "Company News", hr: "Vijesti" } }
+  ] satisfies BlogCategory[]
 };
 
 export const allServices = [...siteConfig.mainServices, ...siteConfig.secondaryCategories];
