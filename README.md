@@ -2,6 +2,8 @@
 
 A production-ready Astro boilerplate for building multi-language local service websites optimized for SEO, AEO (Answer Engine Optimization), and GEO (Generative Engine Optimization). Designed for Rank-and-Rent workflows: clone, configure one file, build, deploy.
 
+**This is a template**, not a production site. All business data is placeholder — replace it with real data before deploying.
+
 ---
 
 ## Table of Contents
@@ -445,14 +447,28 @@ The `public/_headers` file configures:
 
 ## GitHub Actions CI/CD
 
-The workflow at `.github/workflows/deploy.yml` handles building and deploying.
+This boilerplate includes a **ready-to-use** deployment workflow at `.github/workflows/deploy.yml`. It is **disabled by default** (push trigger is commented out) so it won't accidentally deploy the template itself.
+
+### Activating for Your Site
+
+1. Set the required GitHub repository secrets (see Cloudflare Pages Deployment above)
+2. Edit `.github/workflows/deploy.yml` and uncomment the `push` trigger:
+
+```yaml
+on:
+  push:
+    branches: [main]    # Uncomment this to auto-deploy on push
+  workflow_dispatch:     # Always available for manual deploys
+```
+
+3. Push to `main` — the workflow will build and deploy automatically
 
 ### Triggers
 
 | Event | Behavior |
 |---|---|
-| Push to `main` | Builds and deploys the default config (dualmark) |
-| Manual dispatch | Lets you choose which config to deploy |
+| Manual dispatch | Choose a site config and deploy on demand |
+| Push to `main` | Auto-deploy (enable by uncommenting in the workflow file) |
 
 ### How It Works
 
@@ -463,14 +479,14 @@ The workflow at `.github/workflows/deploy.yml` handles building and deploying.
 5. Runs `npm run build` (which runs `astro check`, `astro build`, and sitemap generation)
 6. Deploys the `dist/` folder to Cloudflare Pages using `cloudflare/pages-action`
 
-### Adding a Second Site
+### Deploying Multiple Sites from One Repo
 
-To deploy a different site from the same repo, duplicate the workflow file:
+Duplicate the workflow file for each site and use different secrets:
 
 ```yaml
 # .github/workflows/deploy-isitagentready.yml
 # Change the default in workflow_dispatch.inputs.site to "isitagentready"
-# Use different secrets: CF_API_TOKEN_SITE2, CF_ACCOUNT_ID_SITE2, etc.
+# Use different secrets: CLOUDFLARE_PROJECT_NAME_IAR, SITE_URL_IAR, etc.
 ```
 
 ---

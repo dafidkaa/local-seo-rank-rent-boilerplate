@@ -2,7 +2,7 @@
 
 ## Architecture
 
-Astro 4 static site generator with route-based i18n. Zero client-side JS framework. All content driven by a single config file.
+Astro 4 static site generator with route-based i18n. Zero client-side JS framework. All content driven by a single config file. This is a **boilerplate/template** — not a production site.
 
 ## Key File Map
 
@@ -49,7 +49,7 @@ npm run check        # TypeScript/Astro type checking only
 npm run setup        # Interactive config wizard
 ```
 
-Deploy workflow: `.github/workflows/deploy.yml` — builds and deploys to Cloudflare Pages.
+Deploy workflow: `.github/workflows/deploy.yml` — disabled by default in the template. Uncomment the push trigger and set secrets to activate for a real site.
 
 ## Conventions
 
