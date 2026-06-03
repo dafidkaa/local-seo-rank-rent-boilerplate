@@ -46,6 +46,7 @@ const { locale, currentPath = "" } = Astro.props as { locale: Locale; currentPat
         </div>
       </details>
       <a href={localizedPath(locale, "blog")}>Blog</a>
+      <a href={localizedPath(locale, "faq")}>FAQ</a>
       <a href={localizedPath(locale, "contact")}>Contact</a>
       <details class="dropdown">
         <summary>{locale.toUpperCase()}</summary>

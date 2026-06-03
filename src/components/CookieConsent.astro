@@ -1,0 +1,71 @@
+---
+import { siteConfig } from "@/site.config";
+Astro.props;
+const requireConsent = siteConfig.integrations.requireCookieConsent;
+if (!requireConsent) return;
+---
+
+<div class="cookie-consent" id="cookie-consent" role="dialog" aria-label="Cookie consent" style="display:none">
+  <div class="cookie-consent-text">
+    <p>We use cookies for analytics to improve your experience. You can customize your preferences or accept all cookies.</p>
+  </div>
+  <div class="cookie-consent-actions">
+    <button class="button button-primary cookie-btn" id="cookie-accept" type="button">Accept</button>
+    <button class="button button-secondary cookie-btn" id="cookie-decline" type="button">Decline</button>
+    <button class="cookie-customize-btn" id="cookie-customize" type="button" aria-expanded="false" aria-controls="cookie-panel">Customize</button>
+  </div>
+  <div class="cookie-consent-panel" id="cookie-panel" style="display:none">
+    <label class="cookie-toggle-label">
+      <input type="checkbox" id="cookie-analytics" checked />
+      <span><strong>Analytics</strong> — Help us improve by tracking visits and interactions.</span>
+    </label>
+    <label class="cookie-toggle-label">
+      <input type="checkbox" id="cookie-marketing" />
+      <span><strong>Marketing</strong> — Used for advertising and retargeting.</span>
+    </label>
+    <button class="button button-primary cookie-btn" id="cookie-save" type="button" style="margin-top:8px">Save Preferences</button>
+  </div>
+</div>
+<script is:inline>
+  (function() {
+    var bar = document.getElementById("cookie-consent");
+    if (!bar) return;
+    var stored = null;
+    try { stored = JSON.parse(localStorage.getItem("cookie_consent")); } catch(e) {}
+    if (stored) {
+      window.__cookieConsent = stored;
+      bar.style.display = "none";
+      return;
+    }
+    bar.style.display = "flex";
+    var panel = document.getElementById("cookie-panel");
+
+    function save(consent) {
+      window.__cookieConsent = consent;
+      localStorage.setItem("cookie_consent", JSON.stringify(consent));
+      bar.style.display = "none";
+      window.dispatchEvent(new CustomEvent("cookieConsentChanged", { detail: consent }));
+    }
+
+    document.getElementById("cookie-accept").addEventListener("click", function() {
+      save({ analytics: true, marketing: true });
+    });
+
+    document.getElementById("cookie-decline").addEventListener("click", function() {
+      save({ analytics: false, marketing: false });
+    });
+
+    document.getElementById("cookie-customize").addEventListener("click", function() {
+      var isOpen = panel.style.display !== "none";
+      panel.style.display = isOpen ? "none" : "block";
+      this.setAttribute("aria-expanded", String(!isOpen));
+    });
+
+    document.getElementById("cookie-save").addEventListener("click", function() {
+      save({
+        analytics: document.getElementById("cookie-analytics").checked,
+        marketing: document.getElementById("cookie-marketing").checked
+      });
+    });
+  })();
+</script>

@@ -5,17 +5,55 @@ import Breadcrumbs from "@/components/Breadcrumbs.astro";
 import EstimateForm from "@/components/EstimateForm.astro";
 import ProcessSection from "@/components/ProcessSection.astro";
 import MapSection from "@/components/MapSection.astro";
+import FinalCta from "@/components/FinalCta.astro";
 import { siteConfig, type Locale } from "@/site.config";
 import { localizedPath, t } from "@/lib/routes";
 import { localBusinessSchema, seo } from "@/lib/seo";
 export function getStaticPaths() { return siteConfig.locales.map((locale) => ({ params: { lang: locale.code } })); }
 const locale = Astro.params.lang as Locale;
 const pageSeo = seo({ locale, path: "contact", title: `Contact ${siteConfig.business.name} | ${t(siteConfig.business.primaryService, locale)} In ${siteConfig.business.city}`, description: `Contact ${siteConfig.business.name} for ${t(siteConfig.business.primaryService, locale)} in ${siteConfig.business.city}. Call, email, or request a free estimate online.`, schema: [localBusinessSchema(locale), { "@context": "https://schema.org", "@type": "ContactPage", name: `Contact ${siteConfig.business.name}` }] });
+const contactFaq = [
+  { q: "How quickly will I hear back after submitting the form?", a: "We review every estimate request within one business day and typically respond within a few hours during business hours." },
+  { q: "Is the estimate really free?", a: "Yes. All online estimates are provided at no cost and with no obligation. We believe you should know what to expect before making any commitment." },
+  { q: "What areas do you serve?", a: `We serve the entire ${siteConfig.business.serviceArea} area, including ${siteConfig.locations.slice(0, 5).map(l => l.name).join(", ")}, and surrounding communities.` },
+  { q: "Can I call instead of using the form?", a: `Absolutely. Call us at ${siteConfig.business.phone} during business hours and we will be happy to help directly.` },
+  { q: "What information should I include in my request?", a: "The more detail you provide — including your address, the type of service needed, and any time constraints — the faster and more accurate our response will be." }
+];
 ---
 <BaseLayout seo={pageSeo}>
   <Hero eyebrow="Contact" title={`Contact ${siteConfig.business.name}`} text={`Request ${t(siteConfig.business.primaryService, locale)} in ${siteConfig.business.city}, ${siteConfig.business.region}, and surrounding areas.`} image={siteConfig.brand.heroImage} primaryHref="#estimate-form" primaryText="Get My Free Estimate" secondaryHref={`tel:${siteConfig.business.phone}`} secondaryText={`Call ${siteConfig.business.phone}`} />
   <div class="container"><Breadcrumbs locale={locale} items={[{ label: "Contact", href: localizedPath(locale, "contact") }]} /></div>
-  <ProcessSection title={`How Our ${t(siteConfig.business.primaryService, locale)} Process Works`} steps={[{title:"Reach Out",text:"Call or send the form."},{title:"Project Review",text:"We review your request and location."},{title:"Service Appointment",text:"We schedule the next step."},{title:"Follow-Up",text:"You receive clear next steps."}]} />
-  <section class="section"><div class="container split"><div><h2>Contact Details</h2><p><strong>Phone:</strong> <a href={`tel:${siteConfig.business.phone}`}>{siteConfig.business.phone}</a></p><p><strong>Email:</strong> <a href={`mailto:${siteConfig.business.email}`}>{siteConfig.business.email}</a></p><p><strong>Address:</strong> {siteConfig.business.address}</p><p><strong>Hours:</strong> Mon-Fri 8:00AM-5:00PM</p></div><div class="card"><div class="card-body"><EstimateForm locale={locale} /></div></div></div></section>
+  <ProcessSection title={`How Our ${t(siteConfig.business.primaryService, locale)} Process Works`} steps={[{title:"Reach Out",text:"Call or send the form with a few details about what you need."},{title:"Project Review",text:"We review your request, confirm your location, and prepare a response."},{title:"Service Appointment",text:"We schedule a convenient time and confirm the details with you."},{title:"Follow-Up",text:"After the service is complete, we make sure everything meets your expectations."}]} />
+  <section class="section"><div class="container split">
+    <div>
+      <h2>Contact Details</h2>
+      <p>Reach out by phone, email, or use the form to request a free estimate. We respond to every inquiry during business hours.</p>
+      <p><strong>Phone:</strong> <a href={`tel:${siteConfig.business.phone}`}>{siteConfig.business.phone}</a></p>
+      <p><strong>Email:</strong> <a href={`mailto:${siteConfig.business.email}`}>{siteConfig.business.email}</a></p>
+      <p><strong>Address:</strong> {siteConfig.business.address}</p>
+      <p><strong>Hours:</strong></p>
+      <ul>
+        {Object.entries(siteConfig.business.hours).map(([day, hours]) => <li><strong>{day}:</strong> {hours}</li>)}
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-body" id="estimate-form">
+        <EstimateForm locale={locale} />
+      </div>
+    </div>
+  </div></section>
   <MapSection title={`${siteConfig.business.name} Service Area Map`} text={`${siteConfig.business.name} serves ${siteConfig.business.city}, ${siteConfig.business.region}, and nearby areas.`} />
+  <section class="section"><div class="container" style="max-width:850px">
+    <p class="eyebrow">Common Questions</p>
+    <h2>Contact FAQ</h2>
+    <div style="margin-top:20px">
+      {contactFaq.map((item) => (
+        <details style="margin-bottom:12px;border:1px solid var(--color-border);border-radius:var(--radius);padding:14px 18px">
+          <summary style="cursor:pointer;font-weight:700">{item.q}</summary>
+          <p style="margin-top:10px">{item.a}</p>
+        </details>
+      ))}
+    </div>
+  </div></section>
+  <FinalCta locale={locale} title={`Ready to Get Started?`} text={`Fill out the quick form above or call us at ${siteConfig.business.phone} for ${t(siteConfig.business.primaryService, locale)} in ${siteConfig.business.city} and nearby areas.`} />
 </BaseLayout>

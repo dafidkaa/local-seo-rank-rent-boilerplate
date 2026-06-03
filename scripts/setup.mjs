@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { readFileSync, writeFileSync } from "node:fs";
+import { writeFileSync } from "node:fs";
 import { createInterface } from "node:readline/promises";
 import { stdin as input, stdout as output } from "node:process";
 
@@ -51,7 +51,7 @@ async function askYesNo(rl, label, fallback) {
 }
 
 function generateConfig(data) {
-  const { business, locales, brand, services, locations, integrations, heroSlides, blogCategories } = data;
+  const { business, locales, brand, services, locations, integrations, heroSlides, blogCategories, legalLastUpdated } = data;
 
   const localeEntries = locales
     .map(
@@ -125,6 +125,8 @@ ${indent}}`;
     )
     .join(",\n");
 
+  const legalDate = legalLastUpdated || new Date().toISOString().split("T")[0];
+
   return `export type Locale = ${locales.map((l) => `"${l.code}"`).join(" | ")};
 
 export type LocaleConfig = {
@@ -167,6 +169,7 @@ export type BlogCategory = {
 export const siteConfig = {
   siteUrl: "${integrations.siteUrl}",
   defaultLocale: "${locales[0].code}" as Locale,
+  legalLastUpdated: "${legalDate}",
   locales: [
 ${localeEntries}
   ],
@@ -211,12 +214,15 @@ ${localeEntries}
   },
   integrations: {
     gtmId: "${integrations.gtmId}",
+    ga4MeasurementId: "${integrations.ga4MeasurementId}",
+    clarityProjectId: "${integrations.clarityProjectId}",
     googleAdsConversionId: "${integrations.googleAdsConversionId}",
     metaPixelId: "${integrations.metaPixelId}",
     calendlyUrl: "${integrations.calendlyUrl}",
     crmWebhookUrl: "${integrations.crmWebhookUrl}",
     reviewWidgetEmbedHtml: "${integrations.reviewWidgetEmbedHtml}",
-    googleMapEmbedUrl: "${integrations.googleMapEmbedUrl}"
+    googleMapEmbedUrl: "${integrations.googleMapEmbedUrl}",
+    requireCookieConsent: ${integrations.requireCookieConsent}
   },
   locations: [
 ${locationEntries}
@@ -271,6 +277,18 @@ async function collectBusiness(rl, locales) {
   const email = await askRequired(rl, "Email address");
   const address = await ask(rl, "Address", `Serving ${serviceArea}`);
 
+  heading("Business Hours");
+  const weekdayDefault = "8:00AM-5:00PM";
+  const hours = {
+    Monday: await ask(rl, "Monday", weekdayDefault),
+    Tuesday: await ask(rl, "Tuesday", weekdayDefault),
+    Wednesday: await ask(rl, "Wednesday", weekdayDefault),
+    Thursday: await ask(rl, "Thursday", weekdayDefault),
+    Friday: await ask(rl, "Friday", weekdayDefault),
+    Saturday: await ask(rl, "Saturday", "8:00AM-2:00PM"),
+    Sunday: await ask(rl, "Sunday", "Closed")
+  };
+
   const descriptionByLocale = {};
   const problemByLocale = {};
   const outcomeByLocale = {};
@@ -308,15 +326,7 @@ async function collectBusiness(rl, locales) {
     phone,
     email,
     address,
-    hours: {
-      Monday: "8:00AM-5:00PM",
-      Tuesday: "8:00AM-5:00PM",
-      Wednesday: "8:00AM-5:00PM",
-      Thursday: "8:00AM-5:00PM",
-      Friday: "8:00AM-5:00PM",
-      Saturday: "8:00AM-2:00PM",
-      Sunday: "Closed"
-    },
+    hours,
     description: descriptionByLocale,
     customerProblem: problemByLocale,
     customerOutcome: outcomeByLocale,
@@ -463,12 +473,15 @@ async function collectIntegrations(rl) {
   return {
     siteUrl: await ask(rl, "Production site URL", "https://example.com"),
     gtmId: await ask(rl, "GTM ID", "GTM-XXXXXXX"),
+    ga4MeasurementId: await ask(rl, "GA4 Measurement ID", ""),
+    clarityProjectId: await ask(rl, "Microsoft Clarity Project ID", ""),
     googleAdsConversionId: await ask(rl, "Google Ads conversion ID", ""),
     metaPixelId: await ask(rl, "Meta Pixel ID", ""),
     calendlyUrl: await ask(rl, "Calendly / booking URL", ""),
     crmWebhookUrl: await ask(rl, "CRM webhook URL", ""),
     reviewWidgetEmbedHtml: await ask(rl, "Review widget HTML", ""),
-    googleMapEmbedUrl: await ask(rl, "Google Maps embed URL", "")
+    googleMapEmbedUrl: await ask(rl, "Google Maps embed URL", ""),
+    requireCookieConsent: await askYesNo(rl, "Require cookie consent banner?", false)
   };
 }
 
@@ -539,6 +552,7 @@ async function main() {
     const locations = await collectLocations(rl);
     const services = await collectServices(rl, locales, business.primaryService);
     const integrations = await collectIntegrations(rl);
+    const legalLastUpdated = await ask(rl, "Legal pages last updated date (YYYY-MM-DD)", new Date().toISOString().split("T")[0]);
     const heroSlides = await collectHeroSlides(rl, locales, business);
     const blogCategories = await collectBlogCategories(rl, locales);
 
@@ -557,20 +571,13 @@ async function main() {
       locations,
       integrations,
       heroSlides,
-      blogCategories
+      blogCategories,
+      legalLastUpdated
     });
 
     writeFileSync("src/site.config.ts", configContent, "utf-8");
 
-    const astroConfigPath = "astro.config.mjs";
-    let astroConfig = readFileSync(astroConfigPath, "utf-8");
-    astroConfig = astroConfig.replace(
-      /site:\s*"https:\/\/[^"]*"/,
-      `site: "${integrations.siteUrl}"`
-    );
-    writeFileSync(astroConfigPath, astroConfig, "utf-8");
-
-    success("\n  Done! site.config.ts and astro.config.mjs updated.");
+    success("\n  Done! site.config.ts generated.");
     console.log(`\n  Next steps:`);
     console.log(`    1. Replace placeholder images with real images`);
     console.log(`    2. Add unique content to subservice and location pages`);

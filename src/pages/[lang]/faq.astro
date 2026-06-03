@@ -1,0 +1,69 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Hero from "@/components/Hero.astro";
+import Breadcrumbs from "@/components/Breadcrumbs.astro";
+import FinalCta from "@/components/FinalCta.astro";
+import { siteConfig, type Locale } from "@/site.config";
+import { localizedPath, t } from "@/lib/routes";
+import { breadcrumbSchema, faqSchema, seo } from "@/lib/seo";
+export function getStaticPaths() { return siteConfig.locales.map((locale) => ({ params: { lang: locale.code } })); }
+const locale = Astro.params.lang as Locale;
+const faqData = {
+  general: {
+    label: "General",
+    questions: [
+      { q: `What does ${siteConfig.business.name} do?`, a: `${siteConfig.business.name} provides ${t(siteConfig.business.primaryService, locale)} and related services to residential and commercial customers in ${siteConfig.business.serviceArea}. We focus on clear communication, reliable scheduling, and professional results.` },
+      { q: "How long have you been in business?", a: `We have been serving the ${siteConfig.business.serviceArea} area since ${siteConfig.business.foundedYear}. Our team brings years of hands-on experience to every project.` },
+      { q: "Are you licensed and insured?", a: "Yes. We are fully licensed and insured to operate in our service area. We carry appropriate coverage for the services we provide." },
+      { q: `What areas do you serve?`, a: `We serve ${siteConfig.business.serviceArea}, including ${siteConfig.locations.slice(0, 5).map(l => l.name).join(", ")}, and surrounding communities. Contact us to confirm service availability in your area.` }
+    ]
+  },
+  services: {
+    label: "Services",
+    questions: [
+      { q: `What types of ${t(siteConfig.business.primaryService, locale)} do you offer?`, a: `We offer a range of ${t(siteConfig.business.primaryService, locale)} including ${siteConfig.mainServices.slice(0, 3).map(s => t(s.title, locale)).join(", ")}, and more. Visit our services page for the full list.` },
+      { q: "Do you handle both residential and commercial projects?", a: "Yes. We serve homeowners, property managers, and local businesses across our service area." },
+      { q: "Can I request a specific service that is not listed?", a: "Contact us with the details. If it falls within our scope of work, we will be happy to help or refer you to a trusted partner." }
+    ]
+  },
+  pricing: {
+    label: "Pricing & Estimates",
+    questions: [
+      { q: "Are estimates really free?", a: "Yes. All estimates are provided at no cost and with no obligation. We believe you should understand the scope and cost before making any commitment." },
+      { q: "How do you determine pricing?", a: "Pricing is based on the scope of work, materials needed, and time required. We provide a clear breakdown so you know exactly what you are paying for." },
+      { q: "Do you offer any guarantees on pricing?", a: "We stand behind our estimates. If the scope changes during the project, we communicate the difference and get your approval before proceeding." }
+    ]
+  },
+  scheduling: {
+    label: "Scheduling",
+    questions: [
+      { q: "How quickly can you start?", a: "Availability varies, but we typically schedule within a few days of confirmation. For urgent requests, call us directly and we will do our best to accommodate." },
+      { q: "What are your business hours?", a: `Our regular hours are Monday through Friday, 8:00 AM to 5:00 PM, and Saturday 8:00 AM to 2:00 PM. Sunday we are closed.` },
+      { q: "What happens if I need to reschedule?", a: "No problem. Contact us as soon as possible and we will find a time that works. We ask for at least 24 hours notice when possible." }
+    ]
+  }
+};
+const allQuestions = Object.values(faqData).flatMap(cat => cat.questions.map(q => ({ question: q.q, answer: q.a })));
+const pageSeo = seo({ locale, path: "faq", title: `Frequently Asked Questions | ${siteConfig.business.name}`, description: `Common questions about ${t(siteConfig.business.primaryService, locale)} in ${siteConfig.business.city}. Get answers about services, pricing, scheduling, and service areas.`, schema: [faqSchema(allQuestions), breadcrumbSchema([{ name: "Home", url: localizedPath(locale) }, { name: "FAQ", url: localizedPath(locale, "faq") }])] });
+---
+<BaseLayout seo={pageSeo}>
+  <Hero eyebrow="FAQ" title="Frequently Asked Questions" text={`Find answers to common questions about ${t(siteConfig.business.primaryService, locale)} in ${siteConfig.business.city} and ${siteConfig.business.serviceArea}.`} image={siteConfig.brand.heroImage} primaryHref={localizedPath(locale, "contact")} primaryText={t(siteConfig.business.cta, locale)} />
+  <div class="container"><Breadcrumbs locale={locale} items={[{ label: "FAQ", href: localizedPath(locale, "faq") }]} /></div>
+  {Object.entries(faqData).map(([_key, category]) => (
+    <section class="section">
+      <div class="container" style="max-width:850px">
+        <p class="eyebrow">{category.label}</p>
+        <h2>{category.label} Questions</h2>
+        <div style="margin-top:20px">
+          {category.questions.map((item) => (
+            <details style="margin-bottom:12px;border:1px solid var(--color-border);border-radius:var(--radius);padding:14px 18px">
+              <summary style="cursor:pointer;font-weight:700">{item.q}</summary>
+              <p style="margin-top:10px">{item.a}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+  ))}
+  <FinalCta locale={locale} title={`Still Have Questions?`} text={`Contact ${siteConfig.business.name} for ${t(siteConfig.business.primaryService, locale)} in ${siteConfig.business.city}. Call ${siteConfig.business.phone} or submit a free estimate request.`} />
+</BaseLayout>

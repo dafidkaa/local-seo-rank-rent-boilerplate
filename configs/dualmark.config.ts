@@ -1,4 +1,3 @@
-// Active site config — switched from configs/dualmark.config.ts by switch-config.mjs
 export type Locale = "en";
 
 export type LocaleConfig = {

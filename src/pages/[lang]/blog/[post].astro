@@ -5,8 +5,8 @@ import ReadingProgress from "@/components/ReadingProgress.astro";
 import ShareButtons from "@/components/ShareButtons.astro";
 import RelatedPosts from "@/components/RelatedPosts.astro";
 import FinalCta from "@/components/FinalCta.astro";
-import { siteConfig, type Locale } from "@/site.config";
-import { localizedPath, t, blogPostPath } from "@/lib/routes";
+import { allServices, siteConfig, type Locale } from "@/site.config";
+import { localizedPath, t, blogPostPath, servicePath, dateLocale } from "@/lib/routes";
 import { articleSchema, breadcrumbSchema, seo } from "@/lib/seo";
 import { getCollection } from "astro:content";
 
@@ -50,9 +50,6 @@ const relatedServices = (post.data.relatedServices ?? [])
   })
   .filter(Boolean);
 
-import { allServices } from "@/site.config";
-import { servicePath } from "@/lib/routes";
-
 const postUrl = `${siteConfig.siteUrl}${blogPostPath(locale, post.slug)}`;
 const pageSeo = seo({
   locale,
@@ -67,6 +64,7 @@ const pageSeo = seo({
       url: postUrl,
       image: post.data.image,
       datePublished: post.data.date,
+      dateModified: post.data.updatedAt ?? post.data.date,
       wordCount,
       articleBody: bodyText.slice(0, 5000)
     }),
@@ -77,6 +75,10 @@ const pageSeo = seo({
     ])
   ]
 });
+
+const author = post.data.author;
+const updatedAt = post.data.updatedAt;
+const tags = post.data.tags ?? [];
 ---
 
 <BaseLayout seo={pageSeo}>
@@ -90,16 +92,29 @@ const pageSeo = seo({
       <span class="blog-card-category" style="margin-bottom:12px;display:inline-block">{post.data.category}</span>
       <h1>{t(post.data.title, locale)}</h1>
       <p style="font-size:0.95rem;color:var(--color-muted);margin-bottom:8px">
-        <time datetime={post.data.date}>{new Date(post.data.date).toLocaleDateString(locale === "hr" ? "hr-HR" : "en-US", { year: "numeric", month: "long", day: "numeric" })}</time>
+        <time datetime={post.data.date}>{new Date(post.data.date).toLocaleDateString(dateLocale(locale), { year: "numeric", month: "long", day: "numeric" })}</time>
+        {updatedAt && (
+          <> &middot; Updated: <time datetime={updatedAt}>{new Date(updatedAt).toLocaleDateString(dateLocale(locale), { year: "numeric", month: "long", day: "numeric" })}</time></>
+        )}
         &middot; {readingTime} min read
         &middot; {wordCount} words
+        {author && <> &middot; By {author}</>}
       </p>
+      {tags.length > 0 && (
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">
+          {tags.map((tag: string) => <span class="blog-card-category">{tag}</span>)}
+        </div>
+      )}
       <ShareButtons url={postUrl} title={t(post.data.title, locale)} />
     </div>
   </section>
   <section class="section">
     <article class="container prose" style="max-width:800px">
       <img src={post.data.image} alt={t(post.data.title, locale)} width="900" height="506" loading="eager" decoding="async" style="border-radius:var(--radius);aspect-ratio:16/9;object-fit:cover;margin-bottom:2em" />
+      <div class="blog-toc" id="blog-toc" style="display:none">
+        <h3>Table of Contents</h3>
+        <ol id="blog-toc-list"></ol>
+      </div>
       <Content />
     </article>
   </section>
@@ -122,3 +137,24 @@ const pageSeo = seo({
     text={`Request a free estimate in ${siteConfig.business.city} and nearby areas.`}
   />
 </BaseLayout>
+<script is:inline>
+  (function() {
+    var article = document.querySelector("article.prose");
+    var tocDiv = document.getElementById("blog-toc");
+    var tocList = document.getElementById("blog-toc-list");
+    if (!article || !tocDiv || !tocList) return;
+    var headings = article.querySelectorAll("h2, h3");
+    if (headings.length < 2) return;
+    headings.forEach(function(h, i) {
+      var id = "heading-" + i;
+      h.id = id;
+      var li = document.createElement("li");
+      var a = document.createElement("a");
+      a.href = "#" + id;
+      a.textContent = h.textContent;
+      li.appendChild(a);
+      tocList.appendChild(li);
+    });
+    tocDiv.style.display = "block";
+  })();
+</script>

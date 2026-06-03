@@ -1,9 +1,67 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import Breadcrumbs from "@/components/Breadcrumbs.astro";
 import { siteConfig, type Locale } from "@/site.config";
-import { seo } from "@/lib/seo";
+import { localizedPath, dateLocale } from "@/lib/routes";
+import { breadcrumbSchema, seo } from "@/lib/seo";
 export function getStaticPaths() { return siteConfig.locales.map((locale) => ({ params: { lang: locale.code } })); }
 const locale = Astro.params.lang as Locale;
-const pageSeo = seo({ locale, path: "privacy-policy", title: `Privacy Policy | ${siteConfig.business.name}`, description: `Privacy policy for ${siteConfig.business.name}.` });
+const pageSeo = seo({ locale, path: "privacy-policy", title: `Privacy Policy | ${siteConfig.business.name}`, description: `Privacy policy for ${siteConfig.business.name}. Learn how we collect, use, and protect your personal information.`, schema: [breadcrumbSchema([{ name: "Home", url: localizedPath(locale) }, { name: "Privacy Policy", url: localizedPath(locale, "privacy-policy") }])] });
 ---
-<BaseLayout seo={pageSeo}><section class="section"><div class="container" style="max-width:850px"><h1>Privacy Policy</h1><p>This template privacy policy explains that form information is used to respond to service inquiries, route leads to connected CRM/email systems, and measure conversions when tracking tools are configured. Replace with legal language approved for your market before launch.</p></div></section></BaseLayout>
+<BaseLayout seo={pageSeo}>
+  <section class="section"><div class="container" style="max-width:850px">
+    <Breadcrumbs locale={locale} items={[{ label: "Privacy Policy", href: localizedPath(locale, "privacy-policy") }]} />
+    <h1>Privacy Policy</h1>
+    <p><em>Last updated: {new Date(siteConfig.legalLastUpdated).toLocaleDateString(dateLocale(locale), { year: "numeric", month: "long", day: "numeric" })}</em></p>
+    <h2>1. Information We Collect</h2>
+    <p>When you use our website or submit a service request, we may collect the following information:</p>
+    <ul>
+      <li><strong>Contact information:</strong> Name, phone number, email address, and service address provided through our estimate form.</li>
+      <li><strong>Service details:</strong> Information about the service you are requesting, including project descriptions and scheduling preferences.</li>
+      <li><strong>Usage data:</strong> Pages visited, time spent on the site, browser type, device information, and referring URLs — collected automatically through cookies and analytics tools.</li>
+    </ul>
+    <h2>2. How We Use Your Information</h2>
+    <p>We use the information we collect to:</p>
+    <ul>
+      <li>Respond to your service inquiries and provide estimates</li>
+      <li>Schedule and coordinate service appointments</li>
+      <li>Communicate with you about your request</li>
+      <li>Improve our website and service offerings</li>
+      <li>Comply with legal obligations</li>
+    </ul>
+    <h2>3. Form Submissions</h2>
+    <p>When you submit our estimate form, your information is sent to our team for the purpose of responding to your inquiry. Form data may be routed to a CRM or email system we use to manage customer communications. By submitting the form, you consent to this processing.</p>
+    <h2>4. Cookies And Analytics</h2>
+    <p>We use cookies and similar technologies to understand how visitors use our website. We may use:</p>
+    <ul>
+      <li><strong>Google Analytics 4:</strong> To track page visits, user behavior, and conversions. This data is aggregated and anonymous.</li>
+      <li><strong>Microsoft Clarity:</strong> To understand user interactions through heatmaps and session recordings.</li>
+    </ul>
+    <p>If cookie consent is enabled for this site, you will be asked to accept or decline analytics cookies before they are set.</p>
+    <h2>5. Third-Party Services</h2>
+    <p>We may share your information with trusted third parties who help us operate our business, including:</p>
+    <ul>
+      <li>CRM and lead management tools</li>
+      <li>Email service providers</li>
+      <li>Analytics platforms (Google, Microsoft)</li>
+    </ul>
+    <p>We do not sell your personal information to third parties.</p>
+    <h2>6. Data Security</h2>
+    <p>We take reasonable measures to protect your personal information from unauthorized access, disclosure, or destruction. However, no method of electronic transmission or storage is completely secure.</p>
+    <h2>7. Your Rights</h2>
+    <p>Depending on your location, you may have the right to:</p>
+    <ul>
+      <li>Access the personal information we hold about you</li>
+      <li>Request correction or deletion of your data</li>
+      <li>Opt out of analytics tracking</li>
+      <li>Lodge a complaint with a supervisory authority</li>
+    </ul>
+    <h2>8. Contact Us</h2>
+    <p>If you have questions about this privacy policy or how your data is handled, please contact us:</p>
+    <ul>
+      <li>Email: <a href={`mailto:${siteConfig.business.email}`}>{siteConfig.business.email}</a></li>
+      <li>Phone: <a href={`tel:${siteConfig.business.phone}`}>{siteConfig.business.phone}</a></li>
+    </ul>
+    <p>This template privacy policy should be reviewed and customized by a legal professional before launch.</p>
+  </div></section>
+</BaseLayout>

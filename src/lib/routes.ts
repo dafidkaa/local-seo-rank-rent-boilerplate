@@ -40,3 +40,8 @@ export const getParentForChildRoute = (parentId: string, childId: string) => {
 };
 
 export const blogPostPath = (locale: Locale, postId: string) => localizedPath(locale, `blog/${postId}`);
+
+export const dateLocale = (locale: Locale): string => {
+  const map: Record<string, string> = { en: "en-US", hr: "hr-HR" };
+  return map[locale as string] ?? "en-US";
+};

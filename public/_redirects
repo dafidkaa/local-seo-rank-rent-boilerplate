@@ -1,0 +1,2 @@
+# Old/alternate domain redirects (uncomment and customize)
+# olddomain.com/* https://yourdomain.com/:splat 301

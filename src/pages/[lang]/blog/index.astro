@@ -3,7 +3,7 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 import Breadcrumbs from "@/components/Breadcrumbs.astro";
 import BlogCard from "@/components/BlogCard.astro";
 import { siteConfig, type Locale } from "@/site.config";
-import { t } from "@/lib/routes";
+import { t, dateLocale } from "@/lib/routes";
 import { seo } from "@/lib/seo";
 import { getCollection } from "astro:content";
 
@@ -15,6 +15,8 @@ const locale = Astro.params.lang as Locale;
 const allPosts = (await getCollection("blog")).sort(
   (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
 );
+const featured = allPosts[0];
+const rest = allPosts.slice(1);
 const categories = siteConfig.blogCategories;
 const pageSeo = seo({
   locale,
@@ -33,6 +35,26 @@ const pageSeo = seo({
       <p>Tips, guides, and updates about {t(siteConfig.business.primaryService, locale)}, local service advice, and helpful information for customers in {siteConfig.business.serviceArea}.</p>
     </div>
   </section>
+  {featured && (
+    <section class="section">
+      <div class="container">
+        <p class="eyebrow">Latest Post</p>
+        <div class="blog-featured">
+          <a href={`/${locale}/blog/${featured.slug}/`} class="blog-featured-card" style="text-decoration:none;color:inherit">
+            <img src={featured.data.image} alt={t(featured.data.title, locale)} width="900" height="506" loading="eager" decoding="async" />
+            <div class="blog-featured-body">
+              <span class="blog-card-category">{featured.data.category}</span>
+              <h2 style="margin:10px 0 8px;font-size:1.5rem">{t(featured.data.title, locale)}</h2>
+              <p style="color:var(--color-muted);margin:0">{t(featured.data.excerpt, locale)}</p>
+              <p style="font-size:0.85rem;color:var(--color-muted);margin-top:10px">
+                <time datetime={featured.data.date}>{new Date(featured.data.date).toLocaleDateString(dateLocale(locale), { year: "numeric", month: "long", day: "numeric" })}</time>
+              </p>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+  )}
   <section class="section">
     <div class="container">
       <div class="blog-filters" id="blog-filters">
@@ -47,7 +69,7 @@ const pageSeo = seo({
         </select>
       </div>
       <div class="grid grid-3" id="blog-grid">
-        {allPosts.map((post) => (
+        {rest.map((post) => (
           <div data-category={post.data.category} data-title={t(post.data.title, locale).toLowerCase()} data-excerpt={t(post.data.excerpt, locale).toLowerCase()} data-date={post.data.date}>
             <BlogCard post={post} locale={locale} />
           </div>

@@ -2,17 +2,75 @@
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import Hero from "@/components/Hero.astro";
 import Breadcrumbs from "@/components/Breadcrumbs.astro";
+import ServiceCard from "@/components/ServiceCard.astro";
 import FinalCta from "@/components/FinalCta.astro";
-import { siteConfig, type Locale } from "@/site.config";
-import { localizedPath, t } from "@/lib/routes";
-import { breadcrumbSchema, localBusinessSchema, seo } from "@/lib/seo";
+import { allServices, siteConfig, type Locale } from "@/site.config";
+import { localizedPath, servicePath, locationPath, t } from "@/lib/routes";
+import { aboutPageSchema, breadcrumbSchema, localBusinessSchema, seo } from "@/lib/seo";
 export function getStaticPaths() { return siteConfig.locales.map((locale) => ({ params: { lang: locale.code } })); }
 const locale = Astro.params.lang as Locale;
-const pageSeo = seo({ locale, path: "about", title: `About ${siteConfig.business.name} | ${t(siteConfig.business.primaryService, locale)} In ${siteConfig.business.city}`, description: `Learn about ${siteConfig.business.name}, a local ${t(siteConfig.business.primaryService, locale)} provider serving ${siteConfig.business.city} and ${siteConfig.business.serviceArea}.`, schema: [localBusinessSchema(locale), breadcrumbSchema([{ name: "Home", url: localizedPath(locale) }, { name: "About", url: localizedPath(locale, "about") }])] });
+const pageSeo = seo({ locale, path: "about", title: `About ${siteConfig.business.name} | ${t(siteConfig.business.primaryService, locale)} In ${siteConfig.business.city}`, description: `Learn about ${siteConfig.business.name}, a local ${t(siteConfig.business.primaryService, locale)} provider serving ${siteConfig.business.city} and ${siteConfig.business.serviceArea}.`, schema: [localBusinessSchema(locale), aboutPageSchema(locale), breadcrumbSchema([{ name: "Home", url: localizedPath(locale) }, { name: "About", url: localizedPath(locale, "about") }])] });
 ---
 <BaseLayout seo={pageSeo}>
   <Hero eyebrow="About" title={`About ${siteConfig.business.name}`} text={`Learn how ${siteConfig.business.name} became a trusted ${t(siteConfig.business.primaryService, locale)} provider in ${siteConfig.business.city} since ${siteConfig.business.foundedYear}.`} image={siteConfig.brand.teamImage} primaryHref={localizedPath(locale, "contact")} primaryText={t(siteConfig.business.cta, locale)} />
   <div class="container"><Breadcrumbs locale={locale} items={[{ label: "About", href: localizedPath(locale, "about") }]} /></div>
-  <section class="section"><div class="container" style="max-width:850px"><h2>Company Story</h2>{["Origin story and why the business started.", "Mission, standards, and values.", "Experience, training, certifications, and team expectations.", "Community involvement and local roots.", "Vision for the future.", "Invitation to contact the business."].map((item) => <p>{item} Replace this paragraph with real, verifiable details before launch. The boilerplate keeps these prompts visible so you do not accidentally publish invented trust claims.</p>)}</div></section>
+  <section class="section"><div class="container" style="max-width:850px">
+    <p class="eyebrow">Our Story</p>
+    <h2>Company Story</h2>
+    <p>{siteConfig.business.name} was founded in {siteConfig.business.foundedYear} to solve a simple problem: customers in {siteConfig.business.city} needed reliable {t(siteConfig.business.primaryService, locale)} without the runaround. No missed appointments, no vague pricing, no confusing communication — just professional service delivered on time and done right.</p>
+    <p>What started as a small local operation has grown into a trusted service provider for the entire {siteConfig.business.serviceArea} area. Our growth comes from one principle: treat every customer the way we would want to be treated. That means showing up when we say we will, explaining the work clearly, and following through on every commitment.</p>
+    <p>Replace these paragraphs with the real founding story, owner background, and verifiable details before launch.</p>
+  </div></section>
+  <section class="section section-light"><div class="container">
+    <p class="eyebrow">What We Do</p>
+    <h2>Our Services</h2>
+    <p>We provide a full range of {t(siteConfig.business.primaryService, locale)} solutions for residential and commercial customers across {siteConfig.business.serviceArea}.</p>
+    <div class="grid grid-3" style="margin-top:28px">
+      {allServices.slice(0, 6).map((service) => <ServiceCard title={t(service.title, locale)} description={t(service.short, locale)} image={service.image} href={servicePath(locale, service)} alt={`${t(service.title, locale)} in ${siteConfig.business.city}`} />)}
+    </div>
+  </div></section>
+  <section class="section"><div class="container split">
+    <div>
+      <p class="eyebrow">Our Approach</p>
+      <h2>Values That Drive Our Work</h2>
+      <h3>Clear Communication, Professional Results</h3>
+      <p>Every project begins with a conversation. We listen first, explain next, and only then start the work. Our customers in {siteConfig.business.city} trust us because we keep them informed at every step — from initial estimate to final walkthrough.</p>
+      <p>We believe that professional service means more than just doing the job. It means showing respect for your time, your property, and your expectations. That is the standard we hold ourselves to on every single call.</p>
+    </div>
+    <img class="image-frame" src={siteConfig.brand.alternateHeroImage} alt={`${siteConfig.business.name} team values and approach`} width="900" height="506" loading="lazy" decoding="async" />
+  </div></section>
+  <section class="section section-light"><div class="container">
+    <p class="eyebrow">Service Area</p>
+    <h2>Communities We Serve</h2>
+    <p>{siteConfig.business.name} provides {t(siteConfig.business.primaryService, locale)} throughout {siteConfig.business.serviceArea}. We know these neighborhoods, understand the local needs, and respond quickly because we are local too.</p>
+    <div class="grid grid-3" style="margin-top:28px">
+      {siteConfig.locations.slice(0, 9).map((location) => (
+        <a href={locationPath(locale, location.id)} class="card" style="text-decoration:none">
+          <div class="card-body">
+            <h3>{location.name}</h3>
+            <p>{location.detail}</p>
+          </div>
+        </a>
+      ))}
+    </div>
+  </div></section>
+  <section class="section"><div class="container split">
+    <img class="image-frame" src={siteConfig.brand.teamImage} alt={`${siteConfig.business.name} experienced team`} width="900" height="506" loading="lazy" decoding="async" />
+    <div>
+      <p class="eyebrow">Experience</p>
+      <h2>Trained And Ready</h2>
+      <p>Our team brings years of hands-on experience to every job. We invest in training, proper tools, and continuing education so we can handle any {t(siteConfig.business.primaryService, locale)} challenge in {siteConfig.business.city} and beyond.</p>
+      <p>We are licensed, insured, and committed to doing things the right way — not the fast way. Our reputation in {siteConfig.business.serviceArea} was built one satisfied customer at a time.</p>
+    </div>
+  </div></section>
+  <section class="section section-light"><div class="container" style="max-width:850px;text-align:center">
+    <p class="eyebrow">Our Commitment</p>
+    <h2>Customer-First Service</h2>
+    <p>At {siteConfig.business.name}, our commitment is simple: we show up on time, communicate clearly, deliver quality work, and stand behind what we do. If something is not right, we make it right. That is our promise to every customer in {siteConfig.business.serviceArea}.</p>
+    <div class="actions" style="justify-content:center">
+      <a class="button button-primary" href={localizedPath(locale, "contact")}>{t(siteConfig.business.cta, locale)}</a>
+      <a class="button button-secondary" href={localizedPath(locale, "blog")}>Read Our Blog</a>
+    </div>
+  </div></section>
   <FinalCta locale={locale} title={`Talk With ${siteConfig.business.name}`} text={`Request a free estimate for ${t(siteConfig.business.primaryService, locale)} in ${siteConfig.business.city} and nearby areas.`} />
 </BaseLayout>

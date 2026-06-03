@@ -1,9 +1,46 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import Breadcrumbs from "@/components/Breadcrumbs.astro";
 import { siteConfig, type Locale } from "@/site.config";
-import { seo } from "@/lib/seo";
+import { localizedPath, dateLocale } from "@/lib/routes";
+import { breadcrumbSchema, seo } from "@/lib/seo";
 export function getStaticPaths() { return siteConfig.locales.map((locale) => ({ params: { lang: locale.code } })); }
 const locale = Astro.params.lang as Locale;
-const pageSeo = seo({ locale, path: "terms-and-conditions", title: `Terms And Conditions | ${siteConfig.business.name}`, description: `Terms and conditions for ${siteConfig.business.name}.` });
+const pageSeo = seo({ locale, path: "terms-and-conditions", title: `Terms And Conditions | ${siteConfig.business.name}`, description: `Terms and conditions for using ${siteConfig.business.name} services and website.`, schema: [breadcrumbSchema([{ name: "Home", url: localizedPath(locale) }, { name: "Terms & Conditions", url: localizedPath(locale, "terms-and-conditions") }])] });
 ---
-<BaseLayout seo={pageSeo}><section class="section"><div class="container" style="max-width:850px"><h1>Terms And Conditions</h1><p>This template terms page covers service inquiry disclaimers, estimate requests, no-guarantee scheduling language, and website use. Replace with legal language approved for your market before launch.</p></div></section></BaseLayout>
+<BaseLayout seo={pageSeo}>
+  <section class="section"><div class="container" style="max-width:850px">
+    <Breadcrumbs locale={locale} items={[{ label: "Terms & Conditions", href: localizedPath(locale, "terms-and-conditions") }]} />
+    <h1>Terms And Conditions</h1>
+    <p><em>Last updated: {new Date(siteConfig.legalLastUpdated).toLocaleDateString(dateLocale(locale), { year: "numeric", month: "long", day: "numeric" })}</em></p>
+    <h2>1. Service Inquiries</h2>
+    <p>By submitting a service inquiry through our website, you agree to be contacted by {siteConfig.business.name} regarding your request. Submitting a form does not create a binding contract for service. All inquiries are subject to availability and confirmation.</p>
+    <h2>2. Estimates</h2>
+    <p>Estimates provided through our website or by phone are preliminary and based on the information you provide. Final pricing may vary depending on the scope of work identified during an on-site assessment. We will always communicate any changes before proceeding.</p>
+    <h2>3. Scheduling</h2>
+    <p>Service appointments are scheduled based on availability. We make every effort to honor scheduled times, but unforeseen circumstances (weather, emergencies, supply delays) may require rescheduling. We will notify you as soon as possible if any changes occur.</p>
+    <h2>4. Service Disclaimer</h2>
+    <p>{siteConfig.business.name} provides services with reasonable care and skill. While we strive for complete satisfaction, results may vary depending on conditions beyond our control. We do not guarantee specific outcomes unless explicitly stated in a written agreement.</p>
+    <h2>5. Limitation Of Liability</h2>
+    <p>To the maximum extent permitted by law, {siteConfig.business.name} shall not be liable for any indirect, incidental, or consequential damages arising from the use of our services or website. Our total liability for any claim shall not exceed the amount paid for the specific service in question.</p>
+    <h2>6. Website Use</h2>
+    <p>You may use this website for personal, non-commercial purposes. You agree not to:</p>
+    <ul>
+      <li>Reproduce, distribute, or modify the content of this website without permission</li>
+      <li>Use automated tools to scrape or collect data from this website</li>
+      <li>Submit false or misleading information through our forms</li>
+      <li>Attempt to interfere with the proper functioning of this website</li>
+    </ul>
+    <h2>7. Intellectual Property</h2>
+    <p>All content on this website — including text, images, logos, and design elements — is the property of {siteConfig.business.legalName} or its licensors and is protected by applicable intellectual property laws.</p>
+    <h2>8. Changes To These Terms</h2>
+    <p>We may update these terms from time to time. Any changes will be posted on this page with an updated revision date. Continued use of our website or services after changes are posted constitutes acceptance of the revised terms.</p>
+    <h2>9. Contact</h2>
+    <p>For questions about these terms, please contact us:</p>
+    <ul>
+      <li>Email: <a href={`mailto:${siteConfig.business.email}`}>{siteConfig.business.email}</a></li>
+      <li>Phone: <a href={`tel:${siteConfig.business.phone}`}>{siteConfig.business.phone}</a></li>
+    </ul>
+    <p>This template terms page should be reviewed and customized by a legal professional before launch.</p>
+  </div></section>
+</BaseLayout>

@@ -9,19 +9,18 @@ A production-ready Astro boilerplate for building multi-language local service w
 - [Overview](#overview)
 - [Tech Stack](#tech-stack)
 - [Quick Start](#quick-start)
+- [Two-Site Template](#two-site-template)
 - [Project Structure](#project-structure)
 - [Configuration Reference](#configuration-reference)
-- [Page System](#page-system)
-- [Reusable Components](#reusable-components)
 - [SEO, AEO, and GEO Features](#seo-aeo-and-geo-features)
+- [Analytics and Tracking](#analytics-and-tracking)
 - [Multi-Language Setup](#multi-language-setup)
+- [Cloudflare Pages Deployment](#cloudflare-pages-deployment)
+- [GitHub Actions CI/CD](#github-actions-cicd)
+- [Forms and CRM Integration](#forms-and-crm-integration)
 - [Image Optimization](#image-optimization)
-- [Forms and Conversion Tracking](#forms-and-conversion-tracking)
-- [Trust and Reviews](#trust-and-reviews)
-- [Scripts](#scripts)
-- [Workflow: Creating a New Site](#workflow-creating-a-new-site)
-- [Deployment](#deployment)
 - [Launch Checklist](#launch-checklist)
+- [Troubleshooting](#troubleshooting)
 - [Agent Instructions](#agent-instructions)
 
 ---
@@ -32,11 +31,13 @@ This boilerplate generates a **static multi-page website** from a single configu
 
 - Service pages with subservice children
 - Location landing pages with city-specific slugs
-- Blog posts
+- Blog posts and category pages
 - Service area hubs
-- Contact, about, legal, and thank-you pages
+- Contact, about, FAQ, legal, and thank-you pages
 - Full JSON-LD structured data on every page
 - Sitemap, robots.txt, hreflang alternates, and canonical URLs
+- Optional cookie consent banner with GA4 and Microsoft Clarity integration
+- Webhook-based form submission with honeypot spam filtering
 
 The build output is plain HTML — no JavaScript framework runtime shipped to the browser.
 
@@ -50,8 +51,9 @@ The build output is plain HTML — no JavaScript framework runtime shipped to th
 | **TypeScript** | Type-safe configuration and helpers |
 | **Vanilla CSS** | Styling via CSS custom properties, no framework |
 | **Node.js** | Build tooling and setup wizard |
+| **Cloudflare Pages** | Deployment target with GitHub Actions CI/CD |
 
-No React, Vue, Tailwind, or other runtime dependencies. The site ships zero client-side JavaScript beyond a tiny mobile menu toggle and optional conversion tracking scripts.
+No React, Vue, Tailwind, or other runtime dependencies. The site ships zero client-side JavaScript beyond a tiny mobile menu toggle, optional analytics, and form submission handling.
 
 ---
 
@@ -74,50 +76,109 @@ npm run dev
 
 Open `http://localhost:4321/en/` in your browser.
 
-Alternatively, skip the wizard and edit `src/site.config.ts` directly.
+Alternatively, skip the wizard and edit `src/site.config.ts` directly, or switch to an example config:
+
+```bash
+node scripts/switch-config.mjs dualmark
+```
+
+---
+
+## Two-Site Template
+
+The boilerplate ships with two complete example configurations demonstrating different business types:
+
+### dualmark.dev — Local Service Business
+
+A digital marketing agency in Austin, Texas. Demonstrates:
+- Multiple service locations (9 cities)
+- Local SEO services with GBP optimization
+- Multi-service structure with subservices
+- Local business schema and geo-targeting
+
+### isitagentready.com — SaaS / AI Tool
+
+An AI readiness assessment platform. Demonstrates:
+- Remote/online-only business with a single location
+- Different CTA style ("Run Free Audit", "Get Your Score")
+- Fewer location pages, more tool-focused content
+- Software company schema type
+
+### Switching Configs
+
+```bash
+node scripts/switch-config.mjs dualmark       # Copy dualmark config to src/site.config.ts
+node scripts/switch-config.mjs isitagentready  # Copy isitagentready config to src/site.config.ts
+```
+
+Each config is a self-contained TypeScript file with all types, data, and exports.
 
 ---
 
 ## Project Structure
 
 ```
-├── astro.config.mjs          # Astro config: site URL, image patterns, output mode
-├── package.json               # Dependencies and scripts
-├── tsconfig.json              # TypeScript config with path aliases
+├── astro.config.mjs              # Astro config: site URL (env-driven), image patterns, output mode
+├── package.json                   # Dependencies and scripts
+├── tsconfig.json                  # TypeScript config with path aliases
+├── configs/                       # Example site configurations
+│   ├── dualmark.config.ts         # Local SEO agency example
+│   └── isitagentready.config.ts   # AI/SaaS tool example
+├── scripts/
+│   ├── setup.mjs                  # Interactive CLI wizard for new sites
+│   ├── switch-config.mjs          # Switch between configs (copies to src/site.config.ts)
+│   └── generate-sitemap.mjs       # Post-build sitemap generator
+├── .github/workflows/
+│   └── deploy.yml                 # GitHub Actions: build & deploy to Cloudflare Pages
+├── public/
+│   ├── images/                    # Static images
+│   ├── _headers                   # Cloudflare Pages security/caching headers
+│   ├── _redirects                 # Cloudflare Pages redirect rules
+│   ├── llms.txt                   # LLM-friendly site summary
+│   └── llms-full.txt              # Full LLM-friendly site content
 ├── src/
-│   ├── site.config.ts         # THE configuration file — all business data lives here
-│   ├── env.d.ts               # TypeScript environment declarations
+│   ├── site.config.ts             # THE configuration file — all business data lives here
+│   ├── env.d.ts                   # TypeScript environment declarations
 │   ├── styles/
-│   │   └── global.css         # All styles: custom properties, layout, components
+│   │   └── global.css             # All styles: custom properties, layout, components
 │   ├── lib/
-│   │   ├── routes.ts          # Route helpers: localizedPath, locationSlug, servicePath, etc.
-│   │   └── seo.ts             # SEO helpers: meta, canonical, hreflang, JSON-LD schemas
+│   │   ├── routes.ts              # Route helpers: localizedPath, locationSlug, servicePath, etc.
+│   │   └── seo.ts                 # SEO helpers: meta, canonical, hreflang, JSON-LD schemas
 │   ├── components/
-│   │   ├── Header.astro       # Sticky header with nav, dropdowns, language switcher
-│   │   ├── Footer.astro       # 4-column footer with links and hours
-│   │   ├── Hero.astro         # Full-viewport hero with image, overlay, CTAs, badges
-│   │   ├── EstimateForm.astro # Lead capture form with honeypot and tracking
-│   │   ├── ServiceCard.astro  # Service link card with image
-│   │   ├── LocationCard.astro # Location link card with image overlay
-│   │   ├── ProcessSection.astro # Numbered process steps grid
-│   │   ├── ReviewsSection.astro # Review widget or trust block fallback
-│   │   ├── FaqSection.astro   # FAQ accordion with details/summary
-│   │   ├── FinalCta.astro     # CTA section with form split layout
-│   │   ├── MobileCta.astro    # Sticky bottom CTA bar on mobile
-│   │   ├── MapSection.astro   # Google Maps embed or placeholder
-│   │   └── ScheduleWidget.astro # Calendly/booking iframe or placeholder
+│   │   ├── Header.astro           # Sticky header with nav, dropdowns, language switcher
+│   │   ├── Footer.astro           # 4-column footer with links and hours
+│   │   ├── Hero.astro             # Full-viewport hero with image, overlay, CTAs, badges
+│   │   ├── HeroSlider.astro       # Multi-slide hero carousel
+│   │   ├── EstimateForm.astro     # Lead capture form with honeypot, webhook, and tracking
+│   │   ├── ServiceCard.astro      # Service link card with image
+│   │   ├── LocationCard.astro     # Location link card with image overlay
+│   │   ├── ProcessSection.astro   # Numbered process steps grid
+│   │   ├── ReviewsSection.astro   # Review widget or trust block fallback
+│   │   ├── FaqSection.astro       # FAQ accordion with details/summary
+│   │   ├── FinalCta.astro         # CTA section with form split layout
+│   │   ├── MobileCta.astro        # Sticky bottom CTA bar on mobile
+│   │   ├── MapSection.astro       # Google Maps embed or placeholder
+│   │   ├── ScheduleWidget.astro   # Calendly/booking iframe or placeholder
+│   │   ├── BlogCard.astro         # Blog post card for listings
+│   │   ├── RelatedPosts.astro     # Related blog posts widget
+│   │   ├── ShareButtons.astro     # Social share buttons
+│   │   ├── Breadcrumbs.astro      # Breadcrumb navigation with schema
+│   │   ├── ReadingProgress.astro  # Reading progress bar for blog posts
+│   │   └── CookieConsent.astro    # Cookie consent banner with customize option
 │   ├── layouts/
-│   │   └── BaseLayout.astro   # HTML shell: head with SEO meta, header, footer, mobile CTA
+│   │   └── BaseLayout.astro       # HTML shell: head with SEO meta, header, footer, mobile CTA
 │   └── pages/
-│       ├── index.astro        # Root redirect to default locale
-│       ├── robots.txt.ts      # Dynamic robots.txt
-│       ├── sitemap.xml.ts     # Dynamic sitemap with all routes
-│       ├── sitemap-index.xml.ts # Sitemap index
-│       └── [lang]/            # All per-locale pages
+│       ├── index.astro            # Root redirect to default locale
+│       ├── 404.astro              # Custom 404 page
+│       ├── robots.txt.ts          # Dynamic robots.txt
+│       ├── sitemap.xml.ts         # Dynamic sitemap with all routes
+│       ├── sitemap-index.xml.ts   # Sitemap index
+│       └── [lang]/                # All per-locale pages
 │           ├── index.astro              # Homepage
 │           ├── home-page-2.astro        # Alternate homepage for A/B testing
 │           ├── about.astro              # About page
 │           ├── contact.astro            # Contact page with form and map
+│           ├── faq.astro                # FAQ page
 │           ├── service-area.astro       # Service area hub 1
 │           ├── service-area-hub-2.astro # Service area hub 2
 │           ├── thank-you.astro          # Form submission confirmation
@@ -128,9 +189,6 @@ Alternatively, skip the wizard and edit `src/site.config.ts` directly.
 │           └── blog/
 │               ├── index.astro          # Blog hub
 │               └── [post].astro         # Blog post
-├── scripts/
-│   ├── setup.mjs              # Interactive CLI wizard for new sites
-│   └── generate-sitemap.mjs   # Post-build sitemap generator
 └── docs/
     └── template-requirements-map.md  # Requirements-to-implementation mapping
 ```
@@ -150,7 +208,7 @@ type LocaleConfig = {
   code: Locale;
   label: string;     // Display label for language switcher
   path: string;      // URL prefix: "/en", "/hr"
-  connector: string; // Word used in location slugs: "in", "u", "en", "à"
+  connector: string; // Word used in location slugs: "in", "u", "en", "a"
 };
 type ServiceItem = {
   id: string;                        // URL slug: "carpet-cleaning"
@@ -168,18 +226,28 @@ type ServiceItem = {
 
 ### Config Sections
 
-| Section | What It Controls |
-|---|---|
-| `siteUrl` | Production domain for canonical URLs, sitemap, robots.txt |
-| `defaultLocale` | Fallback locale, root redirect target |
-| `locales[]` | Available languages, their URL paths and slug connectors |
-| `business` | Name, phone, email, address, hours, description, CTA text |
-| `brand` | Primary/secondary colors, images, logo text |
-| `integrations` | GTM, Google Ads, Meta Pixel, Calendly, CRM webhook, map, reviews |
-| `locations[]` | Cities served — each generates a full location landing page |
-| `mainServices[]` | Core service pages with subservice children |
-| `secondaryCategories[]` | Supporting service categories (auto-generates 6 subservices each) |
-| `blogPosts[]` | Blog post entries with title, excerpt, date, image |
+| Section | Field | What It Controls |
+|---|---|---|
+| `siteUrl` | | Production domain for canonical URLs, sitemap, robots.txt |
+| `defaultLocale` | | Fallback locale, root redirect target |
+| `legalLastUpdated` | | Date string (YYYY-MM-DD) shown on privacy policy and terms pages |
+| `locales[]` | | Available languages, their URL paths and slug connectors |
+| `business` | | Name, phone, email, address, hours, description, CTA text |
+| `brand` | | Primary/secondary colors, images, logo text |
+| `integrations` | `gtmId` | Google Tag Manager container ID |
+| | `ga4MeasurementId` | Google Analytics 4 measurement ID (e.g. `G-XXXXXXXXXX`) |
+| | `clarityProjectId` | Microsoft Clarity project ID |
+| | `googleAdsConversionId` | Google Ads conversion tracking ID |
+| | `metaPixelId` | Meta (Facebook) Pixel ID |
+| | `calendlyUrl` | Calendly or other booking widget URL |
+| | `crmWebhookUrl` | Webhook URL for form submissions (CRM, Zapier, etc.) |
+| | `reviewWidgetEmbedHtml` | HTML embed code for review widget |
+| | `googleMapEmbedUrl` | Google Maps embed URL |
+| | `requireCookieConsent` | Show cookie consent banner before loading analytics |
+| `locations[]` | | Cities served — each generates a full location landing page |
+| `mainServices[]` | | Core service pages with subservice children |
+| `secondaryCategories[]` | | Supporting service categories (auto-generates 6 subservices each) |
+| `blogCategories[]` | | Blog post categories for the blog hub page |
 
 ### Adding a New Language
 
@@ -198,55 +266,10 @@ locales: [
   { code: "de" as Locale, label: "Deutsch", path: "/de", connector: "in" }
 ],
 
-primaryService: { en: "Carpet Cleaning", hr: "Čišćenje tepiha", de: "Teppichreinigung" },
+primaryService: { en: "Carpet Cleaning", hr: "Ciscenje tepiha", de: "Teppichreinigung" },
 ```
 
 All pages, routes, hreflang alternates, sitemaps, and slugs are generated automatically.
-
----
-
-## Page System
-
-The boilerplate generates these route families **per locale**:
-
-| Route | Template | Description |
-|---|---|---|
-| `/{lang}/` | `index.astro` | Homepage with hero, services grid, process, reviews, CTA |
-| `/{lang}/home-page-2/` | `home-page-2.astro` | Alternate homepage for A/B testing |
-| `/{lang}/about/` | `about.astro` | About page with company story |
-| `/{lang}/contact/` | `contact.astro` | Contact page with form, details, map |
-| `/{lang}/service-area/` | `service-area.astro` | Service area hub with all location cards |
-| `/{lang}/service-area-hub-2/` | `service-area-hub-2.astro` | Alternate hub for second region or testing |
-| `/{lang}/{service-slug}/` | `[slug].astro` | Service page with intent grid, team, subservices, FAQ |
-| `/{lang}/{service-slug}/{subservice-slug}/` | `[parent]/[child].astro` | Subservice page with detailed copy, related services, FAQ |
-| `/{lang}/{service-name}-{connector}-{city}/` | `[slug].astro` | Location landing page with services, map, nearby areas |
-| `/{lang}/blog/` | `blog/index.astro` | Blog hub listing all posts |
-| `/{lang}/blog/{post-slug}/` | `blog/[post].astro` | Blog post with Article schema |
-| `/{lang}/privacy-policy/` | `privacy-policy.astro` | Privacy policy |
-| `/{lang}/terms-and-conditions/` | `terms-and-conditions.astro` | Terms and conditions |
-| `/{lang}/thank-you/` | `thank-you.astro` | Form submission confirmation (noindex) |
-
-**Total pages**: Fixed pages (11) + services (8) + subservices (39) + locations (9) + blog posts (2) = **69 pages per locale**. With 2 locales: **137+ pages**.
-
----
-
-## Reusable Components
-
-| Component | Props | Used On |
-|---|---|---|
-| `Header.astro` | `locale`, `currentPath` | All pages (via BaseLayout) |
-| `Footer.astro` | `locale` | All pages (via BaseLayout) |
-| `Hero.astro` | `eyebrow`, `title`, `text`, `image`, `primaryHref`, `primaryText`, `secondaryHref`, `secondaryText`, `badges` | All page types |
-| `EstimateForm.astro` | `locale`, `service` | Contact, homepage, service pages, CTA sections |
-| `ServiceCard.astro` | `title`, `description`, `image`, `href`, `alt` | Homepage, service pages, blog hub |
-| `LocationCard.astro` | `title`, `href`, `image` | Service area hubs, location pages, subservice pages |
-| `ProcessSection.astro` | `title`, `subtitle`, `steps[]` | Homepage, service pages, contact |
-| `ReviewsSection.astro` | `title` | Homepage, service pages |
-| `FaqSection.astro` | `faqs[]` | Service pages, location pages, subservice pages |
-| `FinalCta.astro` | `locale`, `title`, `text`, `service` | Most page types |
-| `MobileCta.astro` | `locale` | All pages (via BaseLayout) |
-| `MapSection.astro` | `title`, `text` | Contact page, location pages |
-| `ScheduleWidget.astro` | `title`, `text` | Secondary service category pages |
 
 ---
 
@@ -259,7 +282,7 @@ The boilerplate generates these route families **per locale**:
 - Open Graph tags (`og:title`, `og:description`, `og:image`, `og:url`, `og:type`)
 - Twitter Card `summary_large_image`
 - `<link rel="alternate" hreflang="{lang}">` for every locale + `x-default`
-- Conditional `noindex` on thank-you page
+- Conditional `noindex` on thank-you and 404 pages
 
 ### Structured Data (JSON-LD)
 
@@ -269,7 +292,8 @@ The boilerplate generates these route families **per locale**:
 | `WebSite` | Homepage |
 | `Service` | Service pages, location pages, subservice pages |
 | `BreadcrumbList` | About, service pages, location pages, subservice pages, blog posts |
-| `FAQPage` | Service pages, location pages, subservice pages |
+| `FAQPage` | Service pages, location pages, subservice pages, FAQ page |
+| `HowTo` | Process section on homepage and service pages |
 | `ContactPage` | Contact page |
 | `Article` | Blog posts |
 
@@ -278,6 +302,7 @@ The boilerplate generates these route families **per locale**:
 - FAQ sections with `<details>/<summary>` semantic HTML
 - `FAQPage` JSON-LD schema for Google rich results and AI answer engines
 - Question-and-answer format targeting long-tail conversational queries
+- `llms.txt` and `llms-full.txt` files for LLM crawlers
 
 ### GEO (Generative Engine Optimization)
 
@@ -292,6 +317,36 @@ The boilerplate generates these route families **per locale**:
 - `/sitemap-index.xml` pointing to the sitemap
 - `/robots.txt` with sitemap reference
 - Post-build sitemap generator (`scripts/generate-sitemap.mjs`) as a fallback
+
+---
+
+## Analytics and Tracking
+
+### Supported Platforms
+
+| Platform | Config Field | What It Does |
+|---|---|---|
+| Google Tag Manager | `integrations.gtmId` | Container that manages all other tags |
+| Google Analytics 4 | `integrations.ga4MeasurementId` | Direct GA4 pageview and event tracking |
+| Microsoft Clarity | `integrations.clarityProjectId` | Session recordings and heatmaps |
+| Google Ads | `integrations.googleAdsConversionId` | Conversion tracking on form submission |
+| Meta Pixel | `integrations.metaPixelId` | Facebook/Instagram conversion tracking |
+
+### Cookie Consent
+
+Set `integrations.requireCookieConsent` to `true` to show a cookie consent banner before loading any analytics scripts. When enabled:
+
+- GA4, Clarity, and GTM scripts are blocked until the user consents
+- Users can customize which categories to accept (analytics, marketing)
+- Consent state is persisted in localStorage
+- The banner is accessible with `aria-live` and `aria-expanded` attributes
+
+### Event Tracking
+
+The estimate form fires these events on submission:
+- `window.dataLayer.push({ event: "lead_form_submit" })` — Google Tag Manager
+- `window.fbq("track", "Lead")` — Meta Pixel
+- `window.gtag("event", "conversion", ...)` — Google Ads
 
 ---
 
@@ -314,9 +369,160 @@ Location page URLs use the locale's connector word:
 
 | Locale | URL Pattern | Example |
 |---|---|---|
-| English (`en`, connector: `in`) | `/en/{service}-in-{city}/` | `/en/carpet-cleaning-in-austin/` |
-| Croatian (`hr`, connector: `u`) | `/hr/{service}-u-{city}/` | `/hr/ciscenje-tepiha-u-austinu/` |
-| German (`de`, connector: `in`) | `/de/{service}-in-{city}/` | `/de/teppichreinigung-in-berlin/` |
+| English (`en`, connector: `in`) | `/en/{service}-in-{city}/` | `/en/local-seo-in-austin/` |
+| Croatian (`hr`, connector: `u`) | `/hr/{service}-u-{city}/` | `/hr/lokalni-seo-u-austinu/` |
+
+---
+
+## Cloudflare Pages Deployment
+
+### Prerequisites
+
+- A [Cloudflare account](https://dash.cloudflare.com/sign-up) (free tier works)
+- A GitHub repository with your site code
+- A custom domain (optional — `*.pages.dev` subdomain works for testing)
+
+### Step 1: Create a Cloudflare Pages Project
+
+```bash
+# Install Wrangler CLI
+npm install -g wrangler
+
+# Login to Cloudflare
+wrangler login
+
+# Create a Pages project
+wrangler pages project create my-site --production-branch main
+```
+
+Or create the project via the Cloudflare Dashboard: Workers & Pages > Create application > Pages > Connect to Git.
+
+### Step 2: Configure Custom Domain
+
+1. Go to your Pages project > Custom domains
+2. Add your domain (e.g. `dualmark.dev`)
+3. Cloudflare will provide DNS instructions:
+   - If using Cloudflare DNS: add a CNAME record pointing to your project
+   - If using another registrar: update nameservers to Cloudflare's, or add a CNAME
+
+### Step 3: Set GitHub Secrets
+
+In your GitHub repository, go to Settings > Secrets and variables > Actions. Add these **repository secrets**:
+
+| Secret | Description | Example |
+|---|---|---|
+| `CLOUDFLARE_API_TOKEN` | Cloudflare API token with Pages edit permissions | Create at dash.cloudflare.com/profile/api-tokens |
+| `CLOUDFLARE_ACCOUNT_ID` | Your Cloudflare account ID | Found in Workers & Pages overview |
+| `CLOUDFLARE_PROJECT_NAME` | Your Pages project name | `my-site` |
+
+Optionally, set a **repository variable**:
+
+| Variable | Description | Example |
+|---|---|---|
+| `SITE_URL` | Production URL for canonical links | `https://dualmark.dev` |
+
+### Step 4: Deploy
+
+Push to `main` to trigger automatic deployment, or use manual dispatch:
+
+1. Go to Actions tab in GitHub
+2. Select "Deploy to Cloudflare Pages"
+3. Click "Run workflow"
+4. Choose the site config to deploy (dualmark or isitagentready)
+
+### Security Headers
+
+The `public/_headers` file configures:
+
+- `X-Frame-Options: DENY` — Prevents clickjacking
+- `X-Content-Type-Options: nosniff` — Prevents MIME type sniffing
+- `Referrer-Policy: strict-origin-when-cross-origin` — Limits referrer leakage
+- `Permissions-Policy` — Disables camera, microphone, geolocation
+- Immutable caching for `/_astro/*` assets (1 year)
+- Hourly caching for XML and TXT files
+
+---
+
+## GitHub Actions CI/CD
+
+The workflow at `.github/workflows/deploy.yml` handles building and deploying.
+
+### Triggers
+
+| Event | Behavior |
+|---|---|
+| Push to `main` | Builds and deploys the default config (dualmark) |
+| Manual dispatch | Lets you choose which config to deploy |
+
+### How It Works
+
+1. Checks out the code
+2. Sets up Node.js 20 with npm cache
+3. Runs `npm ci` for clean install
+4. Runs `node scripts/switch-config.mjs {site}` to copy the chosen config
+5. Runs `npm run build` (which runs `astro check`, `astro build`, and sitemap generation)
+6. Deploys the `dist/` folder to Cloudflare Pages using `cloudflare/pages-action`
+
+### Adding a Second Site
+
+To deploy a different site from the same repo, duplicate the workflow file:
+
+```yaml
+# .github/workflows/deploy-isitagentready.yml
+# Change the default in workflow_dispatch.inputs.site to "isitagentready"
+# Use different secrets: CF_API_TOKEN_SITE2, CF_ACCOUNT_ID_SITE2, etc.
+```
+
+---
+
+## Forms and CRM Integration
+
+### Estimate Form (`EstimateForm.astro`)
+
+Fields:
+- First name, last name (required)
+- Phone with validation pattern (required)
+- Email (required)
+- Service address / zip code (required)
+- Service needed dropdown (populated from config, required)
+- Project details (optional textarea)
+- Honeypot field for spam filtering (hidden, rejects if filled)
+
+### Submission Flow
+
+1. Form validates all required fields client-side
+2. If `crmWebhookUrl` is set in config, submits via `fetch POST` with JSON body
+3. If no webhook URL, falls back to standard form submission
+4. Redirects to `/{lang}/thank-you/` on success
+5. Fires tracking events (GTM, Meta, Google Ads) on successful submission
+
+### Webhook Payload
+
+```json
+{
+  "firstName": "...",
+  "lastName": "...",
+  "phone": "...",
+  "email": "...",
+  "address": "...",
+  "service": "...",
+  "details": "...",
+  "source": "estimate-form",
+  "page": "/en/contact/"
+}
+```
+
+### Connecting a CRM
+
+Set `integrations.crmWebhookUrl` to your webhook endpoint:
+
+| CRM | How to Get Webhook URL |
+|---|---|
+| Zapier | Create a "Webhooks by Zapier" trigger |
+| Make (Integromat) | Create a Custom Webhook module |
+| GoHighLevel | Settings > Integrations > Webhooks |
+| HubSpot | Workflows > Create webhook action |
+| Pipedrive | Settings > Integrations > API > Webhooks |
 
 ---
 
@@ -350,148 +556,6 @@ The `image.remotePatterns` in `astro.config.mjs` is already configured for `imag
 
 ---
 
-## Forms and Conversion Tracking
-
-### Estimate Form (`EstimateForm.astro`)
-
-Fields:
-- First name, last name (required)
-- Phone with validation pattern (required)
-- Email (required)
-- Service address / zip code (required)
-- Service needed dropdown (populated from config, required)
-- Project details (optional textarea)
-- Honeypot field for spam filtering
-
-The form submits via GET to `/{lang}/thank-you/` by default. For production, change the `action` attribute and method to POST, and connect to your CRM or server endpoint.
-
-### Conversion Tracking
-
-The form fires these events on submission:
-- `window.dataLayer.push({ event: "lead_form_submit" })` — Google Tag Manager
-- `window.fbq("track", "Lead")` — Meta Pixel
-- `window.gtag("event", "conversion", ...)` — Google Ads
-
-Update the Google Ads conversion ID in `EstimateForm.astro` line 35.
-
----
-
-## Trust and Reviews
-
-The boilerplate **does not generate fake reviews, ratings, or testimonials**.
-
-When `siteConfig.integrations.reviewWidgetEmbedHtml` is empty, the `ReviewsSection` component renders a trust block with generic trust signals (clear scheduling, respectful communication, professional follow-through).
-
-To add real reviews, set `reviewWidgetEmbedHtml` to the embed code from:
-- Google Business Profile (via widget tools)
-- Trustindex
-- EmbedSocial
-- Trustmary
-- Elfsight
-- Any CRM-native review widget
-
----
-
-## Scripts
-
-| Command | What It Does |
-|---|---|
-| `npm run dev` | Start Astro dev server on `localhost:4321` |
-| `npm run build` | Run `astro check` + `astro build` + sitemap generator |
-| `npm run preview` | Preview the built site locally |
-| `npm run check` | TypeScript and Astro type checking only |
-| `npm run setup` | Interactive CLI wizard to configure a new niche |
-
----
-
-## Workflow: Creating a New Site
-
-### Step 1 — Clone and Install
-
-```bash
-cp -r /path/to/local-seo-rank-rent-boilerplate /path/to/new-site-name
-cd /path/to/new-site-name
-rm -rf node_modules dist .astro
-npm install
-```
-
-### Step 2 — Configure
-
-```bash
-npm run setup
-```
-
-The wizard collects: business info, locales, locations, services, brand settings, integrations. It writes `src/site.config.ts` and updates `astro.config.mjs`.
-
-Or edit `src/site.config.ts` directly.
-
-### Step 3 — Replace Images
-
-Replace Unsplash placeholder URLs in `site.config.ts` with real images. For best results, use local WebP images in `src/assets/`.
-
-### Step 4 — Write Content
-
-Content that needs real copy (search for `Replace` or `placeholder` in page templates):
-
-| Priority | What | Where |
-|---|---|---|
-| High | Subservice descriptions | `site.config.ts` → `children[].short` |
-| High | Subservice FAQs | `site.config.ts` → `children[].faq` |
-| High | Location details | `site.config.ts` → `locations[].detail` |
-| Medium | Homepage welcome section | `[lang]/index.astro` |
-| Medium | About page story | `[lang]/about.astro` |
-| Medium | Blog post bodies | `[lang]/blog/[post].astro` |
-| Medium | Customer intent blocks | `[lang]/[slug].astro` service template |
-| Required | Privacy policy text | `[lang]/privacy-policy.astro` |
-| Required | Terms and conditions text | `[lang]/terms-and-conditions.astro` |
-
-### Step 5 — Design Polish
-
-Edit `src/styles/global.css` CSS custom properties for visual changes:
-
-```css
-:root {
-  --color-primary: #your-brand-color;
-  --color-secondary: #your-accent-color;
-  --font-body: "Your Font", sans-serif;
-  --radius: 12px;
-}
-```
-
-### Step 6 — Build and Deploy
-
-```bash
-npm run build
-```
-
-Deploy the `dist/` folder to Netlify, Vercel, Cloudflare Pages, or any static host.
-
----
-
-## Deployment
-
-### Netlify / Vercel / Cloudflare Pages
-
-| Setting | Value |
-|---|---|
-| Build command | `npm run build` |
-| Publish directory | `dist` |
-| Node version | 18+ |
-
-### Manual / Any Static Host
-
-Upload the contents of `dist/` to your web server or CDN.
-
-### Post-Launch
-
-1. Submit `https://yourdomain.com/sitemap-index.xml` to Google Search Console
-2. Set up or claim the Google Business Profile
-3. Request indexing for priority pages
-4. Add real reviews via the review widget integration
-5. Start publishing blog posts
-
----
-
 ## Launch Checklist
 
 - [ ] Replace all placeholder business data with real verified information
@@ -502,13 +566,45 @@ Upload the contents of `dist/` to your web server or CDN.
 - [ ] Add a real review widget or verify the trust block is acceptable
 - [ ] Add legal-approved privacy policy and terms text
 - [ ] Update `siteConfig.siteUrl` to the production domain
-- [ ] Add GTM, Google Ads, and Meta Pixel IDs in `integrations`
-- [ ] Connect the estimate form to a CRM or server endpoint
+- [ ] Update `legalLastUpdated` to the current date
+- [ ] Add GTM, GA4, and Clarity IDs in `integrations`
+- [ ] Set `requireCookieConsent` if analytics require consent (GDPR/ePrivacy)
+- [ ] Connect the estimate form to a CRM webhook
 - [ ] Add a real Google Maps embed URL
 - [ ] Run `npm run build` and verify no errors
-- [ ] Deploy to production hosting
+- [ ] Set up Cloudflare Pages project and configure DNS
+- [ ] Set GitHub repository secrets for CI/CD
+- [ ] Deploy to production
 - [ ] Submit sitemap to Google Search Console
 - [ ] Request indexing for key pages
+
+---
+
+## Troubleshooting
+
+### Build Errors
+
+| Error | Fix |
+|---|---|
+| `Type 'string' is not assignable to type 'Locale'` | Add `as Locale` after string literals in config |
+| `satisfies ServiceItem[]` type error | Check that every `LocalizedText` field has all locale keys |
+| Missing locale in `LocalizedText` | Every `Record<Locale, string>` must include all locales defined in the union type |
+
+### Config Switch Issues
+
+| Problem | Fix |
+|---|---|
+| `Config not found: dualmark` | Ensure `configs/dualmark.config.ts` exists |
+| `Missing required export "siteConfig"` | Config files must export `siteConfig` and `allServices` |
+| Build uses wrong config | `switch-config.mjs` overwrites `src/site.config.ts` — check the file header comment |
+
+### Cloudflare Deployment
+
+| Problem | Fix |
+|---|---|
+| 404 on all pages | Ensure build command is `npm run build` and publish directory is `dist` |
+| Headers not applied | Verify `public/_headers` is in the repo — CF Pages reads it from the build output |
+| Domain not resolving | Check DNS settings: CNAME to your Pages project or update nameservers |
 
 ---
 
@@ -520,7 +616,8 @@ This section is intended for AI coding agents working with this boilerplate.
 
 - **Astro 4 static site** with route-based i18n under `src/pages/[lang]/`
 - **Single config file** at `src/site.config.ts` drives all content
-- **13 Astro components** in `src/components/` — all props-based, no client-side state
+- **Multi-config system** via `scripts/switch-config.mjs` copies from `configs/` to `src/site.config.ts`
+- **20 Astro components** in `src/components/` — all props-based, no client-side state
 - **2 dynamic route files** handle all service, location, and subservice pages:
   - `[slug].astro` resolves to either a service page or a location page based on slug pattern
   - `[parent]/[child].astro` resolves to subservice pages
@@ -538,6 +635,7 @@ This section is intended for AI coding agents working with this boilerplate.
 - The `allServices` export combines `mainServices` and `secondaryCategories` for iteration
 - Page templates receive an `seo` prop via `BaseLayout` — construct it using the `seo()` helper from `src/lib/seo.ts`
 - CSS uses custom properties in `global.css` — no CSS modules, no framework
+- Config files must export `siteConfig`, `allServices`, and all type exports (`Locale`, `ServiceItem`, `HeroSlide`, `BlogCategory`)
 
 ### Common Tasks
 

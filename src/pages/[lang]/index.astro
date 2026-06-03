@@ -7,7 +7,7 @@ import ReviewsSection from "@/components/ReviewsSection.astro";
 import FinalCta from "@/components/FinalCta.astro";
 import { allServices, siteConfig, type Locale } from "@/site.config";
 import { localizedPath, servicePath, t } from "@/lib/routes";
-import { localBusinessSchema, seo, websiteSchema } from "@/lib/seo";
+import { howToSchema, localBusinessSchema, organizationSchema, searchActionSchema, seo } from "@/lib/seo";
 
 export function getStaticPaths() {
   return siteConfig.locales.map((locale) => ({ params: { lang: locale.code } }));
@@ -16,7 +16,6 @@ export function getStaticPaths() {
 const locale = Astro.params.lang as Locale;
 const title = `${t(siteConfig.business.primaryService, locale)} In ${siteConfig.business.city} | ${siteConfig.business.name}`;
 const description = `Need ${t(siteConfig.business.primaryService, locale)} in ${siteConfig.business.city}? Contact ${siteConfig.business.name} for reliable local service, clear communication, and free estimates.`;
-const pageSeo = seo({ locale, title, description, schema: [localBusinessSchema(locale), websiteSchema(locale)] });
 const questions = [
   `Need help with ${t(siteConfig.business.customerProblem, locale)}?`,
   `Looking for a local ${t(siteConfig.business.primaryService, locale)} provider who responds quickly?`,
@@ -31,6 +30,7 @@ const processSteps = [
   { title: "We Provide The Service", text: "The team completes the work with clear communication and professional care." },
   { title: "We Inspect The Service", text: "We review the result and make sure the next step is clear before closing out." }
 ];
+const pageSeo = seo({ locale, title, description, schema: [localBusinessSchema(locale), organizationSchema(locale), searchActionSchema(locale), howToSchema(processSteps.map((s) => ({ name: s.title, text: s.text })))] });
 ---
 <BaseLayout seo={pageSeo}>
   <HeroSlider

@@ -107,6 +107,81 @@ export const articleSchema = (input: {
   }
 });
 
+export const organizationSchema = (locale: Locale) => ({
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: siteConfig.business.name,
+  legalName: siteConfig.business.legalName,
+  url: buildCanonical(locale),
+  logo: siteConfig.brand.ogImage,
+  foundingDate: siteConfig.business.foundedYear,
+  contactPoint: {
+    "@type": "ContactPoint",
+    telephone: siteConfig.business.phone,
+    email: siteConfig.business.email,
+    contactType: "customer service",
+    areaServed: siteConfig.business.serviceArea
+  },
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: siteConfig.business.city,
+    addressRegion: siteConfig.business.region,
+    addressCountry: siteConfig.business.country
+  }
+});
+
+export const webPageSchema = (locale: Locale, name: string, url: string, description?: string) => ({
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  name,
+  url,
+  description: description ?? "",
+  isPartOf: {
+    "@type": "WebSite",
+    name: siteConfig.business.name,
+    url: buildCanonical(locale)
+  }
+});
+
+export const searchActionSchema = (locale: Locale) => ({
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: siteConfig.business.name,
+  url: buildCanonical(locale),
+  potentialAction: {
+    "@type": "SearchAction",
+    target: {
+      "@type": "EntryPoint",
+      urlTemplate: `${buildCanonical(locale)}blog/?q={search_term_string}`
+    },
+    "query-input": "required name=search_term_string"
+  }
+});
+
+export const howToSchema = (steps: Array<{ name: string; text: string }>) => ({
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  name: "How Our Service Works",
+  step: steps.map((step, index) => ({
+    "@type": "HowToStep",
+    position: index + 1,
+    name: step.name,
+    text: step.text
+  }))
+});
+
+export const aboutPageSchema = (locale: Locale) => ({
+  "@context": "https://schema.org",
+  "@type": "AboutPage",
+  name: `About ${siteConfig.business.name}`,
+  url: buildCanonical(locale, "about"),
+  mainEntity: {
+    "@type": "Organization",
+    name: siteConfig.business.name,
+    url: buildCanonical(locale)
+  }
+});
+
 export const faqSchema = (questions: Array<{ question: string; answer: string }>) => ({
   "@context": "https://schema.org",
   "@type": "FAQPage",

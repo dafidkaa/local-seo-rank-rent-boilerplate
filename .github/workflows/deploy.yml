@@ -1,0 +1,41 @@
+name: Deploy to Cloudflare Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      site:
+        description: "Site config to deploy (dualmark | isitagentready)"
+        required: true
+        default: "dualmark"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Switch site config
+        run: node scripts/switch-config.mjs ${{ github.event.inputs.site || 'dualmark' }}
+
+      - name: Build site
+        run: npm run build
+        env:
+          SITE_URL: ${{ github.event.inputs.site == 'isitagentready' && vars.SITE_URL_IAR || vars.SITE_URL || '' }}
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: ${{ github.event.inputs.site == 'isitagentready' && secrets.CLOUDFLARE_PROJECT_NAME_IAR || secrets.CLOUDFLARE_PROJECT_NAME }}
+          directory: dist
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}

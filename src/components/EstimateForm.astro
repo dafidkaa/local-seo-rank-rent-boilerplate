@@ -1,10 +1,13 @@
 ---
-import { allServices, type Locale } from "@/site.config";
-import { t } from "@/lib/routes";
+import { allServices, siteConfig, type Locale } from "@/site.config";
+import { localizedPath, t } from "@/lib/routes";
 const { locale, service = "" } = Astro.props as { locale: Locale; service?: string };
+const webhookUrl = siteConfig.integrations.crmWebhookUrl;
+const privacyUrl = localizedPath(locale, "privacy-policy");
+const termsUrl = localizedPath(locale, "terms-and-conditions");
 ---
 
-<form id="estimate-form" class="form" method="get" action={`/${locale}/thank-you/`} data-conversion-form>
+<form class="form estimate-form" data-conversion-form data-webhook={webhookUrl} data-locale={locale}>
   <input type="hidden" name="locale" value={locale} />
   <label class="honeypot">Company <input name="company" tabindex="-1" autocomplete="off" /></label>
   <div class="grid grid-2">
@@ -23,16 +26,62 @@ const { locale, service = "" } = Astro.props as { locale: Locale; service?: stri
     </select>
   </label>
   <label>Project Details<textarea name="details" rows="5"></textarea></label>
+  <label class="form-checkbox-label">
+    <input type="checkbox" name="terms" required />
+    <span>I agree to the <a href={privacyUrl} target="_blank">Privacy Policy</a> and <a href={termsUrl} target="_blank">Terms & Conditions</a> and consent to having my data processed for this inquiry.</span>
+  </label>
   <button class="button button-primary" type="submit">Get My Free Estimate</button>
+  <div class="form-error" aria-live="polite"></div>
   <small>We respect your privacy. Your information is only used to respond to your request.</small>
 </form>
 <script is:inline>
-  document.querySelectorAll("[data-conversion-form]").forEach((form) => {
-    form.addEventListener("submit", () => {
+  document.querySelectorAll("[data-conversion-form]").forEach(function(form) {
+    form.addEventListener("submit", function(e) {
+      e.preventDefault();
+      var webhook = form.getAttribute("data-webhook") || "";
+      var locale = form.getAttribute("data-locale") || "en";
+      var errorEl = form.querySelector(".form-error");
+      if (errorEl) errorEl.textContent = "";
+
+      var data = {};
+      var fields = form.querySelectorAll("input, select, textarea");
+      fields.forEach(function(field) {
+        if (field.closest(".honeypot")) return;
+        if (field.type === "checkbox") {
+          data[field.name] = field.checked;
+        } else {
+          data[field.name] = field.value;
+        }
+      });
+
       window.dataLayer = window.dataLayer || [];
       window.dataLayer.push({ event: "lead_form_submit" });
       if (window.fbq) window.fbq("track", "Lead");
       if (window.gtag) window.gtag("event", "conversion", { send_to: "AW-CONVERSION_ID/LABEL" });
+
+      if (!webhook) {
+        window.location.href = "/" + locale + "/thank-you/";
+        return;
+      }
+
+      var btn = form.querySelector('button[type="submit"]');
+      if (btn) { btn.disabled = true; btn.textContent = "Sending..."; }
+
+      fetch(webhook, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+        mode: "cors"
+      }).then(function(response) {
+        if (response.ok) {
+          window.location.href = "/" + locale + "/thank-you/";
+        } else {
+          throw new Error("Server error: " + response.status);
+        }
+      }).catch(function() {
+        if (errorEl) errorEl.textContent = "Something went wrong. Please try again or call us directly.";
+        if (btn) { btn.disabled = false; btn.textContent = "Get My Free Estimate"; }
+      });
     });
   });
 </script>

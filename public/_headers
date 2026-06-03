@@ -1,0 +1,16 @@
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.clarity.ms https://connect.facebook.net; img-src 'self' https://images.unsplash.com data: https://www.facebook.com https://www.google.com https://www.googleadservices.com; style-src 'self' 'unsafe-inline'; frame-src https://www.google.com https://calendly.com; connect-src 'self' https://www.google-analytics.com https://www.googletagmanager.com
+  X-Robots-Tag: index, follow
+
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.xml
+  Cache-Control: public, max-age=3600
+
+/*.txt
+  Cache-Control: public, max-age=3600

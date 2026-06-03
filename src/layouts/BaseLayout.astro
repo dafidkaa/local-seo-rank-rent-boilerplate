@@ -2,9 +2,14 @@
 import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
 import MobileCta from "@/components/MobileCta.astro";
+import CookieConsent from "@/components/CookieConsent.astro";
 import "@/styles/global.css";
+import { siteConfig } from "@/site.config";
 
 const { seo } = Astro.props;
+const ga4Id = siteConfig.integrations.ga4MeasurementId;
+const clarityId = siteConfig.integrations.clarityProjectId;
+const requireConsent = siteConfig.integrations.requireCookieConsent;
 ---
 
 <!doctype html>
@@ -12,6 +17,9 @@ const { seo } = Astro.props;
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;750;800;900&display=swap" rel="stylesheet" />
     <title>{seo.title}</title>
     <meta name="description" content={seo.description} />
     <link rel="canonical" href={seo.canonical} />
@@ -25,21 +33,108 @@ const { seo } = Astro.props;
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
     {seo.schema?.map((item: unknown) => <script is:inline type="application/ld+json" set:html={JSON.stringify(item)} />)}
+    <script is:inline>if('scrollRestoration' in history){history.scrollRestoration='manual';}window.scrollTo(0,0);</script>
+    <script define:vars={{ ga4Id, clarityId, requireConsent }} is:inline>
+      (function(){
+        function loadAnalytics(){
+          if(window.__analyticsLoaded) return;
+          window.__analyticsLoaded = true;
+          if(typeof ga4Id==='string' && ga4Id){
+            var s=document.createElement('script');
+            s.async=true;
+            s.src='https://www.googletagmanager.com/gtag/js?id='+ga4Id;
+            document.head.appendChild(s);
+            window.dataLayer=window.dataLayer||[];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js',new Date());
+            gtag('config',ga4Id);
+            window.gtag=gtag;
+          }
+          if(typeof clarityId==='string' && clarityId){
+            (function(c,l,a,r,i,t,y){
+              c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+              t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+              y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+            })(window,document,"clarity","script",clarityId);
+          }
+        }
+        if(requireConsent){
+          try{
+            var stored=JSON.parse(localStorage.getItem("cookie_consent"));
+            if(stored && stored.analytics) loadAnalytics();
+          }catch(e){}
+          window.addEventListener("cookieConsentChanged",function(e){
+            if(e.detail && e.detail.analytics) loadAnalytics();
+          });
+        }else{
+          loadAnalytics();
+        }
+      })();
+    </script>
   </head>
   <body>
+    <a href="#main-content" class="skip-link">Skip to content</a>
+    <CookieConsent locale={Astro.params.lang ?? "en"} />
     <Header locale={Astro.params.lang ?? "en"} currentPath={seo.path ?? ""} />
-    <main>
+    <main id="main-content">
       <slot />
     </main>
     <Footer locale={Astro.params.lang ?? "en"} />
     <MobileCta locale={Astro.params.lang ?? "en"} />
     <script is:inline>
-      document.querySelectorAll("[data-mobile-toggle]").forEach((button) => {
-        button.addEventListener("click", () => {
-          const menu = document.querySelector("[data-mobile-menu]");
-          menu?.setAttribute("data-open", menu.getAttribute("data-open") === "true" ? "false" : "true");
+      document.querySelectorAll("[data-mobile-toggle]").forEach(function(button){
+        button.addEventListener("click",function(){
+          var menu=document.querySelector("[data-mobile-menu]");
+          menu?.setAttribute("data-open",menu.getAttribute("data-open")==="true"?"false":"true");
         });
       });
+    </script>
+    <script is:inline>
+      (function(){
+        document.addEventListener('click',function(e){
+          var link=e.target.closest('a[href^="tel:"]');
+          if(link){
+            if(window.gtag) window.gtag('event','phone_click',{link_url:link.href});
+            if(window.clarity) window.clarity("set","phone_click",link.href);
+          }
+          var cta=e.target.closest('a.button-primary, button.button-primary');
+          if(cta){
+            if(window.gtag) window.gtag('event','cta_click',{link_url:cta.href||'',link_text:cta.textContent||''});
+          }
+        });
+        document.querySelectorAll('details').forEach(function(d){
+          d.addEventListener('toggle',function(){
+            if(d.open && window.gtag){
+              var q=d.querySelector('summary');
+              if(q) window.gtag('event','faq_expand',{question:q.textContent||''});
+            }
+          });
+        });
+        var scrollMarks={25:false,50:false,75:false,100:false};
+        function onScroll(){
+          var h=document.documentElement.scrollHeight-window.innerHeight;
+          if(h<=0) return;
+          var pct=Math.round((window.scrollY/h)*100);
+          [25,50,75,100].forEach(function(m){
+            if(pct>=m && !scrollMarks[m]){
+              scrollMarks[m]=true;
+              if(window.gtag) window.gtag('event','scroll_depth',{percent:m});
+            }
+          });
+        }
+        window.addEventListener('scroll',onScroll,{passive:true});
+        var searchEl=document.getElementById('blog-search');
+        if(searchEl){
+          searchEl.addEventListener('input',function(){
+            if(window.gtag) window.gtag('event','blog_filter',{type:'search',value:searchEl.value});
+          });
+        }
+        document.querySelectorAll('.blog-filter-btn').forEach(function(btn){
+          btn.addEventListener('click',function(){
+            if(window.gtag) window.gtag('event','blog_filter',{type:'category',value:btn.getAttribute('data-category')||''});
+          });
+        });
+      })();
     </script>
   </body>
 </html>

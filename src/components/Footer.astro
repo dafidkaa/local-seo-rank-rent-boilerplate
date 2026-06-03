@@ -13,14 +13,12 @@ const { locale } = Astro.props as { locale: Locale };
         <p>{siteConfig.business.name} provides {t(siteConfig.business.primaryService, locale)} in {siteConfig.business.city}, {siteConfig.business.region}, and surrounding areas. We help local customers with reliable service, clear communication, and simple scheduling.</p>
       </section>
       <section>
-        <h3>Contact Us</h3>
-        <p><a href={`tel:${siteConfig.business.phone}`}>{siteConfig.business.phone}</a></p>
-        <p><a href={`mailto:${siteConfig.business.email}`}>{siteConfig.business.email}</a></p>
-        <p>{siteConfig.business.address}</p>
-      </section>
-      <section>
-        <h3>Hours Of Operation</h3>
-        {Object.entries(siteConfig.business.hours).map(([day, hours]) => <p>{day}: {hours}</p>)}
+        <h3>Quick Links</h3>
+        <p><a href={localizedPath(locale)}>Home</a></p>
+        <p><a href={localizedPath(locale, "about")}>About</a></p>
+        <p><a href={localizedPath(locale, "blog")}>Blog</a></p>
+        <p><a href={localizedPath(locale, "faq")}>FAQ</a></p>
+        <p><a href={localizedPath(locale, "contact")}>Contact</a></p>
       </section>
       <section>
         <h3>Service Area</h3>
@@ -28,19 +26,33 @@ const { locale } = Astro.props as { locale: Locale };
           <p><a href={locationPath(locale, location.id)}>{location.name}</a></p>
         ))}
       </section>
+      <section>
+        <h3>Contact Us</h3>
+        <p><a href={`tel:${siteConfig.business.phone}`}>{siteConfig.business.phone}</a></p>
+        <p><a href={`mailto:${siteConfig.business.email}`}>{siteConfig.business.email}</a></p>
+        <p>{siteConfig.business.address}</p>
+        <h3>Hours Of Operation</h3>
+        {Object.entries(siteConfig.business.hours).map(([day, hours]) => <p>{day}: {hours}</p>)}
+      </section>
     </div>
     <div class="footer-bottom">
-      <span>© {new Date().getFullYear()} {siteConfig.business.name}. All Rights Reserved.</span>
+      <span>&copy; {new Date().getFullYear()} {siteConfig.business.name}. All Rights Reserved.</span>
       <span>
-        <a href={localizedPath(locale, "privacy-policy")}>Privacy Policy</a> ·
-        <a href={localizedPath(locale, "terms-and-conditions")}>Terms & Conditions</a> ·
+        <a href={localizedPath(locale, "privacy-policy")}>Privacy Policy</a> &middot;
+        <a href={localizedPath(locale, "terms-and-conditions")}>Terms & Conditions</a> &middot;
         <a href="/sitemap-index.xml">Sitemap</a>
       </span>
     </div>
-    <p style="margin-top:24px">
-      {allServices.slice(0, 6).map((service) => (
-        <a href={servicePath(locale, service)}> {t(service.title, locale)} </a>
+    <div style="margin-top:24px">
+      {allServices.slice(0, 9).map((service) => (
+        <a href={servicePath(locale, service)} style="margin-right:10px;font-size:0.85rem;color:#d1d5db"> {t(service.title, locale)} </a>
       ))}
-    </p>
+    </div>
+    <div class="crawler-links">
+      <a href="/sitemap-index.xml">Sitemap</a>
+      <a href="/robots.txt">Robots.txt</a>
+      <a href="/llms.txt">llms.txt</a>
+      <a href="/llms-full.txt">llms-full.txt</a>
+    </div>
   </div>
 </footer>
