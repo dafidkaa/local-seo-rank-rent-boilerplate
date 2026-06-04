@@ -17,9 +17,12 @@ const requireConsent = siteConfig.integrations.requireCookieConsent;
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Fonts: Plus Jakarta Sans (display) + DM Sans (body) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;750;800;900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+    <!-- Brand CSS variables — driven by site.config.ts brand section -->
+    <style set:html={`:root{--brand-primary:${siteConfig.brand.primary};--brand-secondary:${siteConfig.brand.secondary};--brand-accent:${siteConfig.brand.accent};--brand-accent-dark:${siteConfig.brand.accentDark};--brand-hero-overlay:${siteConfig.brand.heroOverlay};--brand-font-display:"${siteConfig.brand.fontDisplay}";--brand-font-body:"${siteConfig.brand.fontBody}";}`} />
     <title>{seo.title}</title>
     <meta name="description" content={seo.description} />
     <link rel="canonical" href={seo.canonical} />
@@ -81,14 +84,7 @@ const requireConsent = siteConfig.integrations.requireCookieConsent;
     </main>
     <Footer locale={Astro.params.lang ?? "en"} />
     <MobileCta locale={Astro.params.lang ?? "en"} />
-    <script is:inline>
-      document.querySelectorAll("[data-mobile-toggle]").forEach(function(button){
-        button.addEventListener("click",function(){
-          var menu=document.querySelector("[data-mobile-menu]");
-          menu?.setAttribute("data-open",menu.getAttribute("data-open")==="true"?"false":"true");
-        });
-      });
-    </script>
+    <!-- Mobile toggle handled in Header.astro -->
     <script is:inline>
       (function(){
         document.addEventListener('click',function(e){

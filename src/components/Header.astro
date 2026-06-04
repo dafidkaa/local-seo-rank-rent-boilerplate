@@ -1,62 +1,152 @@
 ---
 import { allServices, siteConfig, type Locale } from "@/site.config";
 import { localizedPath, locationPath, servicePath, subservicePath, t } from "@/lib/routes";
+import { ui } from "@/i18n";
 
-const { locale, currentPath = "" } = Astro.props as { locale: Locale; currentPath?: string };
+interface Props {
+  locale: Locale;
+  currentPath?: string;
+}
+
+const { locale, currentPath = "" } = Astro.props;
 ---
 
-<header class="site-header">
-  <div class="utility">
-    <div class="container">
-      <span>Mon-Fri 8:00AM-5:00PM</span>
-      <a href={`tel:${siteConfig.business.phone}`}>Call Now: {siteConfig.business.phone}</a>
+<!-- Utility bar -->
+<div class="utility-bar">
+  <div class="container">
+    <div class="utility-bar-inner">
+      <div class="utility-bar-items">
+        <span class="utility-bar-item">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          {ui("utilityBar.available", locale)}
+        </span>
+        <span class="utility-bar-item">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          {ui("utilityBar.licensed", locale)}
+        </span>
+        <span class="utility-bar-item">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><path d="M12 22V7M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>
+          {ui("utilityBar.freeQuote", locale)}
+        </span>
+      </div>
+      <a href={`tel:${siteConfig.business.phone}`} class="utility-bar-phone">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.01 1.18 2 2 0 012 .01h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
+        {ui("utilityBar.callUs", locale)} {siteConfig.business.phone}
+      </a>
     </div>
   </div>
-  <div class="container nav-row">
-    <a class="logo" href={localizedPath(locale)}>{siteConfig.brand.logoText}</a>
-    <button class="button button-secondary mobile-toggle" type="button" data-mobile-toggle aria-label="Open menu">Menu</button>
-    <nav class="nav-links" data-mobile-menu data-open="false" aria-label="Main navigation">
-      <a href={localizedPath(locale)}>Home</a>
-      <a href={localizedPath(locale, "about")}>About</a>
-      <details class="dropdown">
-        <summary>Services</summary>
-        <div class="dropdown-menu">
-          {allServices.map((service) => (
-            <div>
-              <a href={servicePath(locale, service)}><strong>{t(service.title, locale)}</strong></a>
-              {service.children.slice(0, 6).map((child) => (
-                <a href={subservicePath(locale, service, child.id)}>Learn more about {t(child.title, locale)}</a>
-              ))}
-            </div>
-          ))}
-        </div>
-      </details>
-      <details class="dropdown">
-        <summary>Service Area</summary>
-        <div class="dropdown-menu">
-          <div>
-            <a href={localizedPath(locale, "service-area")}><strong>Service Area Hub</strong></a>
-            <a href={localizedPath(locale, "service-area-hub-2")}><strong>Service Area Hub 2</strong></a>
-          </div>
-          <div>
-            {siteConfig.locations.slice(0, 9).map((location) => (
-              <a href={locationPath(locale, location.id)}>{location.name}</a>
+</div>
+
+<!-- Main header -->
+<header class="site-header" id="site-header">
+  <div class="container">
+    <div class="nav-row">
+
+      <!-- Logo -->
+      <a class="logo" href={localizedPath(locale)} aria-label={siteConfig.business.name}>
+        {siteConfig.brand.logoText.replace(siteConfig.brand.logoAccent, "")}
+        <span class="logo-accent">{siteConfig.brand.logoAccent}</span>
+        {siteConfig.brand.logoText.split(siteConfig.brand.logoAccent)[1] ?? ""}
+      </a>
+
+      <!-- Mobile toggle -->
+      <button class="mobile-toggle" type="button" data-mobile-toggle aria-label={ui("a11y.openMenu", locale)} aria-expanded="false" aria-controls="main-nav">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        Menu
+      </button>
+
+      <!-- Nav -->
+      <nav class="nav-links" id="main-nav" data-mobile-menu data-open="false" aria-label="Main navigation">
+
+        <a class="nav-link" href={localizedPath(locale)}>{ui("nav.home", locale)}</a>
+
+        <!-- Services dropdown -->
+        <details class="dropdown">
+          <summary class="nav-link">{ui("nav.services", locale)}</summary>
+          <div class="dropdown-menu">
+            {allServices.map((service) => (
+              <div>
+                <a href={servicePath(locale, service)}>
+                  <strong>{t(service.title, locale)}</strong>
+                </a>
+                {service.children.slice(0, 5).map((child) => (
+                  <a href={subservicePath(locale, service, child.id)}>{t(child.title, locale)}</a>
+                ))}
+              </div>
             ))}
           </div>
-        </div>
-      </details>
-      <a href={localizedPath(locale, "blog")}>Blog</a>
-      <a href={localizedPath(locale, "faq")}>FAQ</a>
-      <a href={localizedPath(locale, "contact")}>Contact</a>
-      <details class="dropdown">
-        <summary>{locale.toUpperCase()}</summary>
-        <div class="dropdown-menu language-menu">
-          {siteConfig.locales.map((item) => (
-            <a href={localizedPath(item.code, currentPath)} aria-current={item.code === locale ? "page" : undefined}>{item.label}</a>
-          ))}
-        </div>
-      </details>
-      <a class="button button-primary" href={localizedPath(locale, "contact")}>{t(siteConfig.business.cta, locale)}</a>
-    </nav>
+        </details>
+
+        <!-- Locations dropdown -->
+        <details class="dropdown">
+          <summary class="nav-link">{ui("nav.locations", locale)}</summary>
+          <div class="dropdown-menu" style="grid-template-columns: repeat(3, 1fr);">
+            <div>
+              <a href={localizedPath(locale, "service-area")}>
+                <strong>{ui("nav.allLocations", locale)}</strong>
+              </a>
+              {siteConfig.locations.slice(0, 9).map((location) => (
+                <a href={locationPath(locale, location.id)}>{location.name}</a>
+              ))}
+            </div>
+          </div>
+        </details>
+
+        <a class="nav-link" href={localizedPath(locale, "blog")}>{ui("nav.blog", locale)}</a>
+        <a class="nav-link" href={localizedPath(locale, "about")}>{ui("nav.about", locale)}</a>
+
+        <!-- Language switcher -->
+        <details class="dropdown">
+          <summary class="nav-link" aria-label={ui("a11y.changeLanguage", locale)}>
+            {locale.toUpperCase()}
+          </summary>
+          <div class="dropdown-menu language-menu">
+            {siteConfig.locales.map((item) => (
+              <div>
+                <a href={localizedPath(item.code, currentPath)} aria-current={item.code === locale ? "page" : undefined}>
+                  {item.label}
+                </a>
+              </div>
+            ))}
+          </div>
+        </details>
+
+        <!-- Primary CTA -->
+        <a class="btn btn-primary" href={localizedPath(locale, "contact")} style="margin-left:8px;min-height:44px;padding:12px 22px;font-size:0.85rem;">
+          {ui("nav.getEstimate", locale)}
+        </a>
+
+      </nav>
+    </div>
   </div>
 </header>
+
+<script is:inline>
+(function () {
+  // Mobile menu toggle
+  var btn = document.querySelector("[data-mobile-toggle]");
+  var menu = document.querySelector("[data-mobile-menu]");
+  if (btn && menu) {
+    btn.addEventListener("click", function () {
+      var isOpen = menu.getAttribute("data-open") === "true";
+      menu.setAttribute("data-open", isOpen ? "false" : "true");
+      btn.setAttribute("aria-expanded", isOpen ? "false" : "true");
+    });
+  }
+
+  // Sticky header shadow
+  var header = document.getElementById("site-header");
+  if (header) {
+    window.addEventListener("scroll", function () {
+      header.classList.toggle("scrolled", window.scrollY > 20);
+    }, { passive: true });
+  }
+
+  // Close dropdowns on outside click
+  document.addEventListener("click", function (e) {
+    document.querySelectorAll("details.dropdown[open]").forEach(function (d) {
+      if (!d.contains(e.target)) d.removeAttribute("open");
+    });
+  });
+})();
+</script>

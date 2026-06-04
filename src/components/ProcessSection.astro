@@ -1,21 +1,65 @@
 ---
-const { title, subtitle, steps } = Astro.props;
+/**
+ * ProcessSection — Dark-background numbered steps
+ * Premium design: large numbers, connecting line, dark bg for contrast
+ */
+import { ui } from "@/i18n";
+import { siteConfig, type Locale } from "@/site.config";
+import { t } from "@/lib/routes";
+
+interface Props {
+  locale: Locale;
+  title?: string;
+  subtitle?: string;
+  steps?: Array<{ title: string; text: string }>;
+}
+
+const { locale, title, subtitle, steps } = Astro.props;
+
+const defaultSteps = ui("process.steps", locale) as unknown as Array<{title:string;text:string}>;
+const displaySteps = steps ?? (Array.isArray(defaultSteps) ? defaultSteps : []);
+
+const heading  = title    ?? ui("process.heading",    locale);
+const subhead  = subtitle ?? ui("process.subheading", locale)
+  .replace("{service}", t(siteConfig.business.primaryService, locale))
+  .replace("{city}",    siteConfig.business.city);
 ---
-<section class="section section-light">
+
+<section class="section section-charcoal ps-section">
   <div class="container">
-    <p class="eyebrow">Simple Process</p>
-    <h2>{title}</h2>
-    {subtitle && <p>{subtitle}</p>}
-    <div class="grid grid-4" style="margin-top:28px">
-      {steps.map((step: { title: string; text: string }, index: number) => (
-        <article class="card">
-          <div class="card-body">
-            <span class="icon-mark">{index + 1}</span>
-            <h3>{step.title}</h3>
-            <p>{step.text}</p>
+    <div class="ps-header">
+      <p class="eyebrow">{ui("process.eyebrow", locale)}</p>
+      <h2 class="ps-heading">{heading}</h2>
+      <p class="ps-subheading">{subhead}</p>
+    </div>
+    <div class="ps-steps">
+      {displaySteps.map((step, index) => (
+        <div class="ps-step">
+          <div class="ps-step-number" aria-hidden="true">
+            <span>{String(index + 1).padStart(2, "0")}</span>
           </div>
-        </article>
+          <div class="ps-step-content">
+            <h3 class="ps-step-title">{step.title}</h3>
+            <p class="ps-step-body">{step.text}</p>
+          </div>
+        </div>
       ))}
     </div>
   </div>
 </section>
+
+<style>
+.ps-section { background:#0f172a; }
+.ps-header { text-align:center; max-width:640px; margin:0 auto 64px; }
+.ps-heading { color:white; margin:0 0 16px; }
+.ps-subheading { color:rgba(255,255,255,0.65); font-size:1.05rem; margin:0; }
+.ps-steps { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:0; position:relative; }
+.ps-steps::before { content:""; position:absolute; top:36px; left:calc(12.5% + 20px); right:calc(12.5% + 20px); height:1px; background:linear-gradient(to right,transparent,rgba(245,158,11,0.3) 20%,rgba(245,158,11,0.3) 80%,transparent); pointer-events:none; }
+.ps-step { display:flex; flex-direction:column; align-items:center; text-align:center; padding:0 24px; }
+.ps-step-number { width:72px; height:72px; border-radius:50%; background:rgba(245,158,11,0.12); border:2px solid rgba(245,158,11,0.3); display:flex; align-items:center; justify-content:center; margin-bottom:24px; flex-shrink:0; position:relative; z-index:1; transition:background 0.3s,border-color 0.3s; }
+.ps-step:hover .ps-step-number { background:rgba(245,158,11,0.2); border-color:var(--brand-accent,#f59e0b); }
+.ps-step-number span { font-family:var(--font-display); font-size:1.4rem; font-weight:900; color:var(--brand-accent,#f59e0b); line-height:1; }
+.ps-step-title { font-family:var(--font-display); font-size:1.05rem; font-weight:800; color:white; margin:0 0 10px; }
+.ps-step-body { font-size:0.9rem; color:rgba(255,255,255,0.6); line-height:1.65; margin:0; }
+@media(max-width:768px){.ps-steps{grid-template-columns:1fr;gap:40px}.ps-steps::before{display:none}.ps-step{flex-direction:row;text-align:left;gap:20px}.ps-step-number{flex-shrink:0}}
+</style>

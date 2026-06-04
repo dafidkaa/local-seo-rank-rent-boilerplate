@@ -1,58 +1,109 @@
 ---
 import { allServices, siteConfig, type Locale } from "@/site.config";
 import { localizedPath, locationPath, servicePath, t } from "@/lib/routes";
+import { ui } from "@/i18n";
+
 const { locale } = Astro.props as { locale: Locale };
+const serviceName = t(siteConfig.business.primaryService, locale);
 ---
 
-<footer class="footer">
+<footer class="site-footer">
   <div class="container">
     <div class="footer-grid">
-      <section>
-        <h2>{siteConfig.business.name}</h2>
-        <h3>Who We Are</h3>
-        <p>{siteConfig.business.name} provides {t(siteConfig.business.primaryService, locale)} in {siteConfig.business.city}, {siteConfig.business.region}, and surrounding areas. We help local customers with reliable service, clear communication, and simple scheduling.</p>
-      </section>
-      <section>
-        <h3>Quick Links</h3>
-        <p><a href={localizedPath(locale)}>Home</a></p>
-        <p><a href={localizedPath(locale, "about")}>About</a></p>
-        <p><a href={localizedPath(locale, "blog")}>Blog</a></p>
-        <p><a href={localizedPath(locale, "faq")}>FAQ</a></p>
-        <p><a href={localizedPath(locale, "contact")}>Contact</a></p>
-      </section>
-      <section>
-        <h3>Service Area</h3>
-        {siteConfig.locations.slice(0, 6).map((location) => (
-          <p><a href={locationPath(locale, location.id)}>{location.name}</a></p>
-        ))}
-      </section>
-      <section>
-        <h3>Contact Us</h3>
-        <p><a href={`tel:${siteConfig.business.phone}`}>{siteConfig.business.phone}</a></p>
-        <p><a href={`mailto:${siteConfig.business.email}`}>{siteConfig.business.email}</a></p>
-        <p>{siteConfig.business.address}</p>
-        <h3>Hours Of Operation</h3>
-        {Object.entries(siteConfig.business.hours).map(([day, hours]) => <p>{day}: {hours}</p>)}
-      </section>
+
+      <!-- Brand column -->
+      <div class="footer-brand">
+        <a class="footer-logo" href={localizedPath(locale)}>
+          {siteConfig.brand.logoText.replace(siteConfig.brand.logoAccent, "")}
+          <span class="footer-logo-accent">{siteConfig.brand.logoAccent}</span>
+          {siteConfig.brand.logoText.split(siteConfig.brand.logoAccent)[1] ?? ""}
+        </a>
+        <p class="footer-tagline">
+          {ui("footer.tagline", locale).replace("{service}", serviceName)}
+        </p>
+        <div class="footer-contact-list">
+          <div class="footer-contact-item">
+            <div class="footer-contact-icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.01 1.18 2 2 0 012 .01h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
+            </div>
+            <a href={`tel:${siteConfig.business.phone}`}>{siteConfig.business.phone}</a>
+          </div>
+          <div class="footer-contact-item">
+            <div class="footer-contact-icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            </div>
+            <a href={`mailto:${siteConfig.business.email}`}>{siteConfig.business.email}</a>
+          </div>
+          <div class="footer-contact-item">
+            <div class="footer-contact-icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            </div>
+            <span>{siteConfig.business.city}, {siteConfig.business.region}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Services column -->
+      <div>
+        <p class="footer-col-heading">{ui("footer.servicesHeading", locale)}</p>
+        <nav class="footer-links" aria-label="Footer services">
+          {allServices.slice(0, 8).map((service) => (
+            <a href={servicePath(locale, service)}>{t(service.title, locale)}</a>
+          ))}
+        </nav>
+      </div>
+
+      <!-- Locations column -->
+      <div>
+        <p class="footer-col-heading">{ui("footer.areasHeading", locale)}</p>
+        <nav class="footer-links" aria-label="Footer service areas">
+          {siteConfig.locations.slice(0, 8).map((location) => (
+            <a href={locationPath(locale, location.id)}>{location.name}</a>
+          ))}
+        </nav>
+      </div>
+
+      <!-- Hours column -->
+      <div>
+        <p class="footer-col-heading">{ui("footer.hours", locale)}</p>
+        <div class="footer-hours">
+          {Object.entries(siteConfig.business.hours).map(([day, hours]) => (
+            <div class="footer-hours-row">
+              <span class="footer-hours-day">{day.slice(0, 3)}</span>
+              <span>{hours}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
     </div>
-    <div class="footer-bottom">
-      <span>&copy; {new Date().getFullYear()} {siteConfig.business.name}. All Rights Reserved.</span>
-      <span>
-        <a href={localizedPath(locale, "privacy-policy")}>Privacy Policy</a> &middot;
-        <a href={localizedPath(locale, "terms-and-conditions")}>Terms & Conditions</a> &middot;
-        <a href="/sitemap-index.xml">Sitemap</a>
-      </span>
+  </div>
+
+  <!-- Footer bottom bar -->
+  <div style="border-top:1px solid rgba(255,255,255,0.08)">
+    <div class="container">
+      <div class="footer-bottom">
+        <span>
+          {ui("footer.copyright", locale)
+            .replace("{year}", String(new Date().getFullYear()))
+            .replace("{name}", siteConfig.business.name)}
+        </span>
+        <div class="footer-bottom-links">
+          <a href={localizedPath(locale, "privacy-policy")}>{ui("footer.links.privacy", locale)}</a>
+          <a href={localizedPath(locale, "terms-and-conditions")}>{ui("footer.links.terms", locale)}</a>
+          <a href="/sitemap-index.xml">{ui("footer.links.sitemap", locale)}</a>
+        </div>
+      </div>
     </div>
-    <div style="margin-top:24px">
-      {allServices.slice(0, 9).map((service) => (
-        <a href={servicePath(locale, service)} style="margin-right:10px;font-size:0.85rem;color:#d1d5db"> {t(service.title, locale)} </a>
-      ))}
-    </div>
-    <div class="crawler-links">
-      <a href="/sitemap-index.xml">Sitemap</a>
-      <a href="/robots.txt">Robots.txt</a>
-      <a href="/llms.txt">llms.txt</a>
-      <a href="/llms-full.txt">llms-full.txt</a>
-    </div>
+  </div>
+
+  <!-- SEO crawler links (hidden) -->
+  <div class="crawler-links" aria-hidden="true">
+    {allServices.map((service) => (
+      <a href={servicePath(locale, service)}>{t(service.title, locale)}</a>
+    ))}
+    <a href="/sitemap-index.xml">Sitemap</a>
+    <a href="/robots.txt">Robots.txt</a>
+    <a href="/llms.txt">llms.txt</a>
   </div>
 </footer>
