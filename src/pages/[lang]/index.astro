@@ -1,277 +1,671 @@
 ---
+/**
+ * HOMEPAGE — 1,500-word content density, 12+ sections
+ * Follows: PROMPT.md, DESIGN-home-services.md, pasted_content_2.txt, pasted_content_3.txt
+ *
+ * Sections:
+ *  1. HeroSlider (full-height, 3 slides, popup CTA)
+ *  2. Trust bar (stats)
+ *  3. Problems section (pain points)
+ *  4. Welcome / About split (image + copy)
+ *  5. Services grid (ServiceCard)
+ *  6. Why Choose Us (icon cards + stats)
+ *  7. Process section (numbered steps)
+ *  8. Image-rich split section (work in progress photo + copy)
+ *  9. Service area section (LocationCard grid)
+ * 10. Reviews section
+ * 11. Blog preview (BlogCard)
+ * 12. Final CTA + form
+ */
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import HeroSlider from "@/components/HeroSlider.astro";
 import ServiceCard from "@/components/ServiceCard.astro";
 import ProcessSection from "@/components/ProcessSection.astro";
 import ReviewsSection from "@/components/ReviewsSection.astro";
 import FinalCta from "@/components/FinalCta.astro";
-import { siteConfig, allServices, type Locale } from "@/site.config";
-import { t, localizedPath, servicePath } from "@/lib/routes";
-import { seo, localBusinessSchema, organizationSchema, searchActionSchema, howToSchema } from "@/lib/seo";
+import LocationCard from "@/components/LocationCard.astro";
+import BlogCard from "@/components/BlogCard.astro";
+import FaqSection from "@/components/FaqSection.astro";
+import { allServices, siteConfig, type Locale } from "@/site.config";
+import { getCollection } from "astro:content";
+import { localizedPath, locationPath, servicePath, t } from "@/lib/routes";
+import { websiteSchema, localBusinessSchema, seo } from "@/lib/seo";
 import { ui } from "@/i18n";
 
 export function getStaticPaths() {
-  return siteConfig.locales.map((locale) => ({ params: { lang: locale.code }, props: { locale: locale.code } }));
+  return siteConfig.locales.map((locale) => ({ params: { lang: locale.code } }));
 }
-interface Props { locale: Locale; }
-const { locale } = Astro.props;
 
-const title       = `${t(siteConfig.business.primaryService, locale)} In ${siteConfig.business.city} | ${siteConfig.business.name}`;
-const description = t(siteConfig.business.description, locale);
-
-const processSteps = siteConfig.process?.steps ?? [
-  { title: ui("process.steps.0.title", locale) || "Contact Us",          text: ui("process.steps.0.body", locale) || "Call or submit a quick online form." },
-  { title: ui("process.steps.1.title", locale) || "Get a Free Estimate", text: ui("process.steps.1.body", locale) || "We give you a clear upfront price." },
-  { title: ui("process.steps.2.title", locale) || "We Do the Work",      text: ui("process.steps.2.body", locale) || "Licensed technicians arrive on time." },
-  { title: ui("process.steps.3.title", locale) || "You're Satisfied",    text: ui("process.steps.3.body", locale) || "We don't leave until you're happy." },
-];
-
-const whyReasons = Object.values((siteConfig as any).why?.reasons ?? {}).slice(0, 4) as Array<{title:string;body:string}>;
+const locale = Astro.params.lang as Locale;
+const city        = siteConfig.business.city;
+const serviceName = t(siteConfig.business.primaryService, locale);
+const name        = siteConfig.business.name;
+const phone       = siteConfig.business.phone;
+const email       = siteConfig.business.email;
+const year        = siteConfig.business.foundedYear;
+const area        = siteConfig.business.serviceArea;
 
 const pageSeo = seo({
   locale,
-  title,
-  description,
-  schema: [
-    localBusinessSchema(locale),
-    organizationSchema(locale),
-    searchActionSchema(locale),
-    howToSchema(processSteps.map((s) => ({ name: s.title, text: s.text }))),
-  ],
+  path: "",
+  title: `${serviceName} In ${city} | ${name}`,
+  description: `${name} provides professional ${serviceName} in ${city} and surrounding areas. Licensed, insured, free estimates. Call ${phone} or request a quote online.`,
+  schema: [websiteSchema(locale), localBusinessSchema(locale)],
 });
 
-const serviceName = t(siteConfig.business.primaryService, locale);
-const city = siteConfig.business.city;
+const allPosts = (await getCollection("blog")).filter((p) => !p.data.draft).sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
+const recentPosts = allPosts.slice(0, 3);
+
+// Homepage FAQ — AEO-optimised direct answers
+const homeFaqs = [
+  {
+    question: `How quickly can you respond to a ${serviceName.toLowerCase()} call in ${city}?`,
+    answer: `${name} offers same-day and emergency response across ${city} and ${area}. In most cases we can be on-site within 1–3 hours of your call.`
+  },
+  {
+    question: `Are your ${serviceName.toLowerCase()} technicians licensed and insured?`,
+    answer: `Yes. Every technician at ${name} is fully licensed, bonded, and insured. We carry full liability insurance and all required local licences for ${city}.`
+  },
+  {
+    question: `Do you provide free estimates for ${serviceName.toLowerCase()} in ${city}?`,
+    answer: `Yes. We provide free, no-obligation estimates for all ${serviceName.toLowerCase()} work in ${city} and surrounding areas. There is no charge to assess the job and give you a clear upfront price.`
+  },
+  {
+    question: `What areas do you serve besides ${city}?`,
+    answer: `We serve ${area}. Our location pages list every community we cover with the same fast, professional service.`
+  },
+  {
+    question: `What makes ${name} different from other ${serviceName.toLowerCase()} companies in ${city}?`,
+    answer: `We combine same-day availability, transparent upfront pricing, and a 100% satisfaction guarantee. We have been serving ${city} since ${year} and every job is backed by our written guarantee.`
+  },
+];
 ---
 <BaseLayout seo={pageSeo}>
 
-  <!-- ── Hero Slider ─────────────────────────────────────────────────────── -->
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       1. HERO SLIDER — full-height, 3 slides, popup CTA
+  ═══════════════════════════════════════════════════════════════════════════ -->
   <HeroSlider
-    slides={siteConfig.heroSlides}
     locale={locale}
+    slides={siteConfig.heroSlides ?? []}
     badges={[
-      ui("hero.trust.licensed", locale),
-      ui("hero.trust.sameDay", locale),
-      ui("hero.trust.freeEstimate", locale),
+      locale === "hr" ? "Licencirani i osigurani" : "Licensed & Insured",
+      locale === "hr" ? "Usluga isti dan" : "Same-Day Service",
+      locale === "hr" ? "Besplatne procjene" : "Free Estimates",
     ]}
   />
 
-  <!-- ── Problems Section ────────────────────────────────────────────────── -->
-  <section class="section" style="background:var(--color-surface-alt)" aria-labelledby="problems-heading">
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       2. TRUST BAR — social proof numbers below the fold
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  <section class="trust-bar-section" aria-label="Key statistics">
     <div class="container">
-      <div class="section-header center">
-        <p class="eyebrow">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-          {ui("problems.eyebrow", locale)}
-        </p>
-        <h2 id="problems-heading">
-          {ui("problems.heading", locale).replace("{service}", serviceName).replace("{city}", city)}
-        </h2>
+      <div class="trust-stat-grid">
+        {[
+          { value: siteConfig.stats?.jobsCompleted ?? "500+",       label: locale === "hr" ? "Završenih poslova" : "Jobs Completed" },
+          { value: (siteConfig.stats?.yearsInBusiness ?? "12+"),    label: locale === "hr" ? "Godina iskustva" : "Years in Business" },
+          { value: (siteConfig.stats?.averageRating ?? "4.9") + "★", label: locale === "hr" ? "Prosječna ocjena" : "Average Rating" },
+          { value: "100%",                                           label: locale === "hr" ? "Zadovoljstvo zajamčeno" : "Satisfaction Guaranteed" },
+        ].map((stat) => (
+          <div class="trust-stat-item">
+            <span class="trust-stat-number">{stat.value}</span>
+            <span class="trust-stat-label">{stat.label}</span>
+          </div>
+        ))}
       </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       3. PROBLEMS SECTION — pain-point recognition
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  <section class="section section-light" id="problems" aria-labelledby="problems-heading">
+    <div class="container">
+      <p class="eyebrow">{ui("problems.eyebrow", locale)}</p>
+      <h2 id="problems-heading">{ui("problems.heading", locale).replace("{service}", serviceName).replace("{city}", city)}</h2>
+      <p class="section-lead">{locale === "hr" ? "Prepoznajete li neku od ovih situacija?" : "Do any of these sound familiar?"}</p>
       <div class="problems-grid">
         {[
-          ui("problems.p1", locale).replace("{city}", city),
+          ui("problems.p1", locale),
           ui("problems.p2", locale),
-          ui("problems.p3", locale),
+          ui("problems.p3", locale).replace("{city}", city),
           ui("problems.p4", locale).replace("{city}", city),
           ui("problems.p5", locale),
           ui("problems.p6", locale),
         ].map((problem) => (
           <div class="problem-card">
-            <div class="problem-icon" aria-hidden="true">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            </div>
-            <p class="problem-text">{problem}</p>
+            <span class="problem-check" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </span>
+            <p>{problem}</p>
           </div>
         ))}
       </div>
     </div>
   </section>
 
-  <!-- ── Welcome / About Section ─────────────────────────────────────────── -->
-  <section class="welcome-section" aria-labelledby="welcome-heading">
-    <div class="container">
-      <div class="welcome-grid">
-        <!-- Image side -->
-        <div class="welcome-image-wrap">
-          <img
-            src={siteConfig.brand.images?.team ?? siteConfig.brand.teamImage ?? "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=900&q=80"}
-            alt={`${siteConfig.business.name} team providing ${serviceName} in ${city}`}
-            class="welcome-image"
-            width="900"
-            height="675"
-            loading="lazy"
-            decoding="async"
-          />
-          <div class="welcome-badge" aria-hidden="true">
-            {siteConfig.business.yearFounded ? `Est. ${siteConfig.business.yearFounded}` : ui("welcome.badge", locale)}
-          </div>
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       4. WELCOME / ABOUT SPLIT — image + copy, Est. badge
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  <section class="section" id="about" aria-labelledby="welcome-heading">
+    <div class="container welcome-split">
+      <div class="welcome-image-wrap">
+        <img
+          src={siteConfig.brand.teamImage}
+          alt={`${name} team providing ${serviceName} in ${city}`}
+          width="900" height="600"
+          loading="lazy" decoding="async"
+          class="welcome-img"
+        />
+        <div class="welcome-badge" aria-label={`Established ${year}`}>
+          <span class="welcome-badge-year">Est. {year}</span>
+          <span class="welcome-badge-label">Trusted Local Experts</span>
         </div>
-        <!-- Copy side -->
-        <div class="welcome-copy">
-          <p class="eyebrow">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-            {ui("welcome.eyebrow", locale)}
-          </p>
-          <h2 id="welcome-heading">
-            {ui("welcome.heading", locale).replace("{name}", siteConfig.business.name)}
-          </h2>
-          <p class="welcome-lead">
-            {t(siteConfig.business.description, locale)}
-          </p>
-          <ul class="welcome-checklist" role="list">
-            <li>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-              {ui("welcome.check1", locale).replace("{city}", city)}
-            </li>
-            <li>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-              {ui("welcome.check2", locale)}
-            </li>
-            <li>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-              {ui("welcome.check3", locale)}
-            </li>
-          </ul>
-          <a class="btn btn-primary btn-lg" href={localizedPath(locale, "contact")}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.01 1.18 2 2 0 012 .01h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
-            {t(siteConfig.business.cta, locale)}
-          </a>
+      </div>
+      <div class="welcome-copy">
+        <p class="eyebrow">{ui("welcome.eyebrow", locale)}</p>
+        <h2 id="welcome-heading">{ui("welcome.heading", locale).replace("{name}", name)}</h2>
+        <p class="welcome-lead">{name} is {city}'s trusted residential and commercial {serviceName.toLowerCase()} provider. Licensed, insured, and serving the greater {area} since {year} — with same-day service, transparent pricing, and a 100% satisfaction guarantee on every job.</p>
+        <p>We believe great {serviceName.toLowerCase()} starts with honest communication. Before any work begins, we explain exactly what needs to be done, how long it will take, and what it will cost. No surprises, no upsells, no pressure. Just professional service delivered by people who care about getting it right.</p>
+        <ul class="welcome-list" role="list">
+          <li>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            Serving {city} and surrounding communities since {year}
+          </li>
+          <li>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            Licensed, bonded, and insured professionals
+          </li>
+          <li>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            100% satisfaction guarantee on every job
+          </li>
+          <li>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            Free, no-obligation estimates — same day available
+          </li>
+        </ul>
+        <div class="welcome-actions">
+          <button class="btn btn-primary" data-open-form-popup aria-label="Get a free estimate">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.63A2 2 0 012 .18h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
+            Get a Free Estimate
+          </button>
+          {phone && (
+            <a href={`tel:${phone}`} class="btn btn-outline" aria-label={`Call ${name}`}>
+              Call {phone}
+            </a>
+          )}
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ── Services Section ─────────────────────────────────────────────────── -->
-  <section class="section" style="background:var(--color-surface-alt)" id="services" aria-labelledby="services-heading">
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       5. SERVICES GRID — ServiceCard components
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  <section class="section section-light" id="services" aria-labelledby="services-heading">
     <div class="container">
-      <div class="section-header center">
-        <p class="eyebrow">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
-          {ui("services.eyebrow", locale)}
-        </p>
-        <h2 id="services-heading">
-          {city} {serviceName} {ui("services.headingSuffix", locale) || "Services"}
-        </h2>
-        <p>
-          Whether you need {allServices.slice(0, 3).map((s) => t(s.title, locale)).join(", ")}, or help choosing the right option, {siteConfig.business.name} makes the process simple.
-        </p>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:clamp(16px,2.5vw,24px)">
-        {allServices.slice(0, 9).map((service) => (
+      <p class="eyebrow">{ui("services.eyebrow", locale)}</p>
+      <h2 id="services-heading">{city} {serviceName} Services</h2>
+      <p class="section-lead">
+        Whether you need {allServices.slice(0,3).map((s) => t(s.title, locale)).join(", ")}, or help choosing the right option, {name} makes the process simple.
+      </p>
+      <div class="grid grid-3" style="margin-top:clamp(32px,5vw,48px)">
+        {allServices.map((service) => (
           <ServiceCard
             title={t(service.title, locale)}
             description={t(service.short, locale)}
             image={service.image}
             href={servicePath(locale, service)}
-            alt={`${t(service.title, locale)} for local customers in ${city}`}
+            alt={`${t(service.title, locale)} in ${city}`}
           />
         ))}
       </div>
     </div>
   </section>
 
-  <!-- ── Why Choose Us ────────────────────────────────────────────────────── -->
-  <section class="section section-charcoal" aria-labelledby="why-heading">
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       6. WHY CHOOSE US — icon cards on dark background + stats row
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  <section class="section section-charcoal" id="why" aria-labelledby="why-heading">
     <div class="container">
-      <div class="section-header center">
-        <p class="eyebrow" style="color:var(--brand-accent)">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-          {ui("why.eyebrow", locale)}
-        </p>
-        <h2 id="why-heading" style="color:white">
-          {ui("why.heading", locale).replace("{city}", city).replace("{service}", serviceName)}
-        </h2>
-        <p style="color:rgba(255,255,255,.65)">
-          {ui("why.subheading", locale).replace("{name}", siteConfig.business.name).replace("{city}", city)}
-        </p>
-      </div>
+      <p class="eyebrow" style="color:var(--brand-accent)">{ui("why.eyebrow", locale)}</p>
+      <h2 id="why-heading" style="color:#fff">{ui("why.heading", locale).replace("{name}", name)}</h2>
+      <p class="section-lead" style="color:rgba(255,255,255,.7)">{ui("why.subheading", locale).replace("{city}", city)}</p>
       <div class="why-grid">
         {[
-          { icon: "clock",   title: ui("why.reasons.licensed.title", locale),     text: ui("why.reasons.licensed.body", locale) },
-          { icon: "shield",  title: ui("why.reasons.pricing.title", locale),       text: ui("why.reasons.pricing.body", locale).replace("{city}", city) },
-          { icon: "star",    title: ui("why.reasons.guarantee.title", locale),     text: ui("why.reasons.guarantee.body", locale) },
-          { icon: "map",     title: ui("why.reasons.local.title", locale),         text: ui("why.reasons.local.body", locale) },
+          { icon: "clock",   title: ui("why.reasons.speed.title", locale),     text: ui("why.reasons.speed.body", locale) },
+          { icon: "shield",  title: ui("why.reasons.licensed.title", locale),  text: ui("why.reasons.licensed.body", locale) },
+          { icon: "dollar",  title: ui("why.reasons.pricing.title", locale),   text: ui("why.reasons.pricing.body", locale).replace("{city}", city) },
+          { icon: "star",    title: ui("why.reasons.guarantee.title", locale), text: ui("why.reasons.guarantee.body", locale) },
+          { icon: "map",     title: ui("why.reasons.local.title", locale),     text: ui("why.reasons.local.body", locale) },
+          { icon: "phone",   title: "Available 24/7",                          text: `Emergency ${serviceName.toLowerCase()} calls answered around the clock in ${city}.` },
         ].map((card) => (
           <div class="why-card">
             <div class="why-icon" aria-hidden="true">
-              {card.icon === "clock" && (
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              )}
-              {card.icon === "shield" && (
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-              )}
-              {card.icon === "star" && (
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-              )}
-              {card.icon === "map" && (
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
-              )}
+              {card.icon === "clock" && <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>}
+              {card.icon === "shield" && <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>}
+              {card.icon === "dollar" && <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>}
+              {card.icon === "star" && <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>}
+              {card.icon === "map" && <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>}
+              {card.icon === "phone" && <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.63A2 2 0 012 .18h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>}
             </div>
             <h3 class="why-title">{card.title}</h3>
             <p class="why-text">{card.text}</p>
           </div>
         ))}
       </div>
-      <!-- Stats row -->
-      {siteConfig.stats && siteConfig.stats.length > 0 && (
-        <div class="stat-grid" style="margin-top:clamp(40px,6vw,64px)">
-          {siteConfig.stats.map((stat: any) => (
-            <div class="stat-item">
-              <div class="stat-number" style="color:var(--brand-accent)">{t(stat.value, locale)}</div>
-              <div class="stat-label" style="color:rgba(255,255,255,.65)">{t(stat.label, locale)}</div>
-            </div>
-          ))}
-        </div>
-      )}
+      <div class="stat-grid" style="margin-top:clamp(40px,6vw,64px)">
+        {[
+          { value: siteConfig.stats?.jobsCompleted ?? "500+",        label: locale === "hr" ? "Završenih poslova" : "Jobs Completed" },
+          { value: siteConfig.stats?.yearsInBusiness ?? "12+",       label: locale === "hr" ? "Godina iskustva" : "Years in Business" },
+          { value: (siteConfig.stats?.averageRating ?? "4.9") + "★", label: locale === "hr" ? "Prosječna ocjena" : "Average Rating" },
+          { value: siteConfig.stats?.responseTime ?? "1hr",          label: locale === "hr" ? "Prosječno vrijeme odgovora" : "Avg. Response Time" },
+        ].map((stat) => (
+          <div class="stat-item">
+            <div class="stat-number" style="color:var(--brand-accent)">{stat.value}</div>
+            <div class="stat-label" style="color:rgba(255,255,255,.65)">{stat.label}</div>
+          </div>
+        ))}
+      </div>
     </div>
   </section>
 
-  <!-- ── Process Section ──────────────────────────────────────────────────── -->
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       7. PROCESS SECTION — numbered steps
+  ═══════════════════════════════════════════════════════════════════════════ -->
   <ProcessSection
     title={`How Our ${serviceName} Process Works`}
-    subtitle={`Simple, fast, and professional ${serviceName.toLowerCase()} service in ${city}.`}
-    steps={siteConfig.process?.steps ?? [
-      { title: "Contact Us",          text: "Call or submit a quick online form. We respond within the hour." },
-      { title: "Get a Free Estimate", text: "We assess the job and give you a clear, upfront price — no surprises." },
-      { title: "We Do the Work",      text: "Our licensed technicians arrive on time and complete the job to the highest standard." },
-      { title: "You're Satisfied",   text: "We don't leave until the job is done right and you're completely happy." },
+    subtitle={`Simple, fast, and professional ${serviceName.toLowerCase()} service in ${city}. Here is what to expect when you contact us.`}
+    steps={[
+      { title: "Contact Us",          text: `Call ${phone} or submit a quick online form. We respond within the hour and confirm your appointment.` },
+      { title: "Get a Free Estimate", text: "We assess the job and give you a clear, upfront price — no hidden fees, no surprises, no pressure." },
+      { title: "We Do the Work",      text: `Our licensed technicians arrive on time in ${city} and complete the job to the highest professional standard.` },
+      { title: "You're Satisfied",    text: "We don't leave until the job is done right and you're completely happy. Every job is backed by our satisfaction guarantee." },
     ]}
   />
 
-  <!-- ── Reviews Section ──────────────────────────────────────────────────── -->
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       8. IMAGE-RICH SPLIT — work-in-progress photo + educational copy
+       (AEO: answers "what does this service include?")
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  <section class="section section-light" aria-labelledby="work-heading">
+    <div class="container work-split">
+      <div class="work-copy">
+        <p class="eyebrow">Our Work</p>
+        <h2 id="work-heading">What Professional {serviceName} Looks Like in {city}</h2>
+        <p>When you hire {name}, you get more than just a quick fix. You get a thorough, professional service delivered by technicians who understand the specific demands of {city} homes and businesses. Every job starts with a proper assessment, uses the right tools and materials, and ends with a clean, documented result.</p>
+        <p>We handle everything from routine maintenance and minor repairs to complex installations and emergency callouts. Our team is trained to work efficiently without cutting corners — because a job done right the first time saves you time and money in the long run.</p>
+        <h3>What Every Job Includes</h3>
+        <ul class="work-list" role="list">
+          <li>Full assessment and upfront written estimate</li>
+          <li>Professional-grade tools and materials</li>
+          <li>Clean, respectful work in your home or business</li>
+          <li>Clear explanation of the work completed</li>
+          <li>Post-service walkthrough and satisfaction check</li>
+          <li>Written warranty on all labour and parts</li>
+        </ul>
+        <button class="btn btn-primary" data-open-form-popup style="margin-top:24px" aria-label="Request a free estimate">
+          Request a Free Estimate
+        </button>
+      </div>
+      <div class="work-image-wrap">
+        <img
+          src={siteConfig.brand.alternateHeroImage ?? siteConfig.brand.heroImages?.[1] ?? siteConfig.brand.teamImage}
+          alt={`${name} professional ${serviceName.toLowerCase()} work in ${city}`}
+          width="900" height="600"
+          loading="lazy" decoding="async"
+          class="work-img"
+        />
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       9. SERVICE AREA SECTION — LocationCard grid
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  <section class="section" id="service-area" aria-labelledby="area-heading">
+    <div class="container">
+      <p class="eyebrow">{ui("locations.eyebrow", locale)}</p>
+      <h2 id="area-heading">{serviceName} Across {area}</h2>
+      <p class="section-lead">
+        {name} provides {serviceName.toLowerCase()} throughout {area}. Whether you are in {city} or a surrounding community, our team is nearby and ready to help.
+      </p>
+      <div class="grid grid-3" style="margin-top:clamp(32px,5vw,48px)">
+        {siteConfig.locations.map((location) => (
+          <LocationCard
+            title={location.name}
+            href={locationPath(locale, location.id)}
+            image={location.image}
+          />
+        ))}
+      </div>
+      <p style="margin-top:32px;text-align:center;color:var(--color-text-muted)">
+        Don't see your area? <a href={localizedPath(locale, "contact")} style="color:var(--brand-accent);font-weight:600">Contact us</a> — we may still be able to help.
+      </p>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       10. REVIEWS SECTION
+  ═══════════════════════════════════════════════════════════════════════════ -->
   <ReviewsSection
-    title={`Why Customers Choose ${siteConfig.business.name}`}
+    title={`Why ${city} Customers Choose ${name}`}
     locale={locale}
   />
 
-  <!-- ── Final CTA ─────────────────────────────────────────────────────────── -->
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       11. FAQ SECTION — AEO/GEO optimised
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  <FaqSection
+    title={`Frequently Asked Questions About ${serviceName} in ${city}`}
+    items={homeFaqs}
+  />
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       12. BLOG PREVIEW — 3 most recent posts
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  {recentPosts.length > 0 && (
+    <section class="section section-light" aria-labelledby="blog-preview-heading">
+      <div class="container">
+        <p class="eyebrow">{ui("blog.eyebrow", locale)}</p>
+        <h2 id="blog-preview-heading">{serviceName} Tips & Local Advice</h2>
+        <p class="section-lead">Helpful guides and advice for {city} residents and businesses.</p>
+        <div class="grid grid-3" style="margin-top:clamp(32px,5vw,48px)">
+          {recentPosts.map((post) => (
+            <BlogCard post={post} locale={locale} />
+          ))}
+        </div>
+        <div style="text-align:center;margin-top:40px">
+          <a href={localizedPath(locale, "blog")} class="btn btn-outline">
+            View All Articles →
+          </a>
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       13. FINAL CTA + FORM
+  ═══════════════════════════════════════════════════════════════════════════ -->
   <FinalCta
     locale={locale}
-    title={`Get A Free ${serviceName} Estimate`}
-    text={`Fill out the quick form to schedule a no-pressure, no-obligation quote for ${serviceName} in ${city} and nearby areas.`}
+    title={`Get A Free ${serviceName} Estimate in ${city}`}
+    text={`Fill out the quick form to schedule a no-pressure, no-obligation quote for ${serviceName} in ${city} and nearby areas. We respond within one business hour.`}
   />
 
 </BaseLayout>
 
 <style>
-  .welcome-copy {
+  /* ── Trust stat bar ─────────────────────────────────────────────────────── */
+  .trust-bar-section {
+    background: var(--brand-primary);
+    padding: clamp(24px, 4vw, 40px) 0;
+  }
+  .trust-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: rgba(255,255,255,.12);
+    border: 1px solid rgba(255,255,255,.12);
+  }
+  .trust-stat-item {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    gap: 0;
+    align-items: center;
+    gap: 4px;
+    padding: clamp(20px,3vw,32px) clamp(12px,2vw,24px);
+    background: var(--brand-primary);
+    text-align: center;
   }
+  .trust-stat-number {
+    font-family: var(--font-display);
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
+    font-weight: 800;
+    color: var(--brand-accent);
+    line-height: 1;
+  }
+  .trust-stat-label {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: rgba(255,255,255,.7);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+  }
+  @media (max-width: 640px) {
+    .trust-stat-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ── Problems grid ──────────────────────────────────────────────────────── */
+  .problems-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(12px, 2vw, 20px);
+    margin-top: clamp(28px, 4vw, 40px);
+  }
+  .problem-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: #fff;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: clamp(16px, 2.5vw, 24px);
+    box-shadow: var(--shadow-card);
+    transition: box-shadow .2s ease, transform .2s ease;
+  }
+  .problem-card:hover {
+    box-shadow: var(--shadow-hover);
+    transform: translateY(-2px);
+  }
+  .problem-check {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--brand-accent);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1px;
+  }
+  .problem-card p {
+    margin: 0;
+    font-size: 0.9375rem;
+    color: var(--color-text);
+    line-height: 1.55;
+  }
+  @media (max-width: 768px) {
+    .problems-grid { grid-template-columns: 1fr; }
+  }
+  @media (min-width: 769px) and (max-width: 1024px) {
+    .problems-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ── Welcome split ──────────────────────────────────────────────────────── */
+  .welcome-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(40px, 6vw, 80px);
+    align-items: center;
+  }
+  .welcome-image-wrap {
+    position: relative;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+  .welcome-img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3/2;
+    object-fit: cover;
+    display: block;
+  }
+  .welcome-badge {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    background: var(--brand-accent);
+    color: #fff;
+    padding: 12px 18px;
+    border-radius: var(--radius-md);
+    text-align: center;
+    box-shadow: 0 4px 16px rgba(0,0,0,.25);
+  }
+  .welcome-badge-year {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 800;
+    line-height: 1;
+  }
+  .welcome-badge-label {
+    display: block;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    margin-top: 3px;
+    opacity: .9;
+  }
+  .welcome-copy { display: flex; flex-direction: column; gap: 0; }
   .welcome-lead {
     font-size: 1.0625rem;
     color: var(--color-text-muted);
     line-height: 1.75;
-    margin-bottom: 4px;
+    margin-bottom: 16px;
+  }
+  .welcome-list {
+    list-style: none;
+    padding: 0;
+    margin: 16px 0 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .welcome-list li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9375rem;
+    color: var(--color-text);
+    font-weight: 500;
+  }
+  .welcome-list li svg { color: var(--brand-accent); flex-shrink: 0; }
+  .welcome-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+  @media (max-width: 768px) {
+    .welcome-split { grid-template-columns: 1fr; }
+    .welcome-image-wrap { order: -1; }
+  }
+
+  /* ── Work split ─────────────────────────────────────────────────────────── */
+  .work-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(40px, 6vw, 80px);
+    align-items: center;
+  }
+  .work-img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3/2;
+    object-fit: cover;
+    border-radius: var(--radius-lg);
+    display: block;
+    box-shadow: var(--shadow-hover);
+  }
+  .work-list {
+    list-style: none;
+    padding: 0;
+    margin: 16px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .work-list li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9375rem;
+    color: var(--color-text);
+  }
+  .work-list li::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--brand-accent);
+    flex-shrink: 0;
+  }
+  @media (max-width: 768px) {
+    .work-split { grid-template-columns: 1fr; }
+    .work-image-wrap { order: -1; }
+  }
+
+  /* ── Why grid ───────────────────────────────────────────────────────────── */
+  .why-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(16px, 2.5vw, 24px);
+    margin-top: clamp(32px, 5vw, 48px);
+  }
+  .why-card {
+    background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: var(--radius-md);
+    padding: clamp(20px, 3vw, 32px);
+    transition: background .2s ease, border-color .2s ease;
+  }
+  .why-card:hover {
+    background: rgba(255,255,255,.08);
+    border-color: rgba(255,255,255,.15);
+  }
+  .why-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-sm);
+    background: var(--brand-accent);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+  .why-title {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0 0 8px;
+  }
+  .why-text {
+    font-size: 0.875rem;
+    color: rgba(255,255,255,.65);
+    line-height: 1.65;
+    margin: 0;
+  }
+  @media (max-width: 768px) {
+    .why-grid { grid-template-columns: 1fr; }
+  }
+  @media (min-width: 769px) and (max-width: 1024px) {
+    .why-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ── Stats row ──────────────────────────────────────────────────────────── */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: rgba(255,255,255,.08);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: var(--radius-md);
+    overflow: hidden;
   }
   .stat-item {
-    background: rgba(255,255,255,.05);
+    background: rgba(255,255,255,.04);
     padding: clamp(24px,4vw,40px) clamp(16px,3vw,32px);
     text-align: center;
-    border: 1px solid rgba(255,255,255,.08);
   }
   .stat-number {
     font-family: var(--font-display);
@@ -284,6 +678,18 @@ const city = siteConfig.business.city;
     font-size: 0.875rem;
     font-weight: 500;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    letter-spacing: .06em;
+  }
+  @media (max-width: 640px) {
+    .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ── Section lead ───────────────────────────────────────────────────────── */
+  .section-lead {
+    font-size: clamp(1rem, 1.5vw, 1.125rem);
+    color: var(--color-text-muted);
+    max-width: 640px;
+    line-height: 1.7;
+    margin-top: 12px;
   }
 </style>
