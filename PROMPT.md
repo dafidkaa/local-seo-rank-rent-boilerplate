@@ -16,7 +16,23 @@ Your objective is to produce a website that looks and feels like a **$10,000 pro
 - **Niche:** [e.g., Plumbing, Towing, Roofing, Dental]
 - **Location:** [e.g., Austin TX, Chicago IL, Zagreb HR]
 - **Primary Language:** [e.g., en, hr]
-- **Niche Category:** [Choose one: Home Services, Transportation, Construction, Legal, Medical, Beauty]
+- **Niche Category:** [Choose one of the 16 supported niches below]
+  - `home-services` — Plumbing, HVAC, Roofing, Electrical, Landscaping, Pest Control
+  - `transportation` — Towing, Limo, Taxi, Courier, Moving Companies
+  - `construction` — Remodeling, Roofing, Home Extensions, Commercial Build-Outs
+  - `legal` — Personal Injury, Criminal Defense, Family Law, CPA, Consulting
+  - `medical` — Dental, Orthodontics, Chiropractic, Physical Therapy, Medical Spa
+  - `beauty` — Salon, Spa, Esthetics, Nail Care, Hair Styling
+  - `real-estate` — Real Estate Agents, Property Management, Rentals
+  - `automotive-repair-detailing` — Auto Repair, Oil Change, Detailing, Tires
+  - `professional-cleaning-services` — House Cleaning, Commercial Cleaning, Carpet Cleaning
+  - `pet-care-veterinary-services` — Veterinary, Pet Grooming, Boarding, Dog Training
+  - `fitness-gyms-personal-training` — Gyms, CrossFit, Yoga Studios, Personal Training
+  - `event-planning-catering-venues` — Event Planning, Catering, Wedding Venues
+  - `local-education-tutoring` — Tutoring, Test Prep, Music Lessons, Language Schools
+  - `home-security-smart-home-automation` — Security Systems, Smart Home, Alarm Monitoring
+  - `childcare-early-education` — Daycare, Preschool, After-School Programs
+  - `funeral-memorial-services` — Funeral Homes, Cremation, Memorial Planning
 
 ---
 
