@@ -1,87 +1,408 @@
 ---
+/**
+ * EstimateForm — Premium conversion form
+ * - Proper field labels (not placeholder-only)
+ * - Accessible: aria-required, aria-describedby, autocomplete
+ * - Loading state on submit button
+ * - Inline error handling
+ * - Honeypot spam protection
+ */
 import { allServices, siteConfig, type Locale } from "@/site.config";
 import { localizedPath, t } from "@/lib/routes";
-const { locale, service = "" } = Astro.props as { locale: Locale; service?: string };
+import { ui } from "@/i18n";
+
+interface Props {
+  locale: Locale;
+  service?: string;
+  variant?: "card" | "inline";
+}
+
+const { locale, service = "", variant = "card" } = Astro.props;
 const webhookUrl = siteConfig.integrations.crmWebhookUrl;
 const privacyUrl = localizedPath(locale, "privacy-policy");
-const termsUrl = localizedPath(locale, "terms-and-conditions");
+const termsUrl   = localizedPath(locale, "terms-and-conditions");
 ---
 
-<form class="form estimate-form" data-conversion-form data-webhook={webhookUrl} data-locale={locale}>
+<form
+  class={`estimate-form${variant === "card" ? " estimate-form--card" : ""}`}
+  data-conversion-form
+  data-webhook={webhookUrl}
+  data-locale={locale}
+  novalidate
+  aria-label={ui("form.ariaLabel", locale)}
+>
+  <!-- Honeypot -->
+  <div class="honeypot" aria-hidden="true">
+    <label>Company <input name="company" tabindex="-1" autocomplete="off" /></label>
+  </div>
+
   <input type="hidden" name="locale" value={locale} />
-  <label class="honeypot">Company <input name="company" tabindex="-1" autocomplete="off" /></label>
-  <div class="grid grid-2">
-    <label>First Name *<input name="firstName" required autocomplete="given-name" /></label>
-    <label>Last Name *<input name="lastName" required autocomplete="family-name" /></label>
+
+  <!-- Name row -->
+  <div class="form-row">
+    <div class="form-field">
+      <label class="form-label" for="ef-firstName">
+        {ui("form.firstName", locale)} <span class="req" aria-hidden="true">*</span>
+      </label>
+      <input
+        id="ef-firstName"
+        class="form-input"
+        name="firstName"
+        type="text"
+        required
+        autocomplete="given-name"
+        aria-required="true"
+        placeholder="John"
+      />
+    </div>
+    <div class="form-field">
+      <label class="form-label" for="ef-lastName">
+        {ui("form.lastName", locale)} <span class="req" aria-hidden="true">*</span>
+      </label>
+      <input
+        id="ef-lastName"
+        class="form-input"
+        name="lastName"
+        type="text"
+        required
+        autocomplete="family-name"
+        aria-required="true"
+        placeholder="Smith"
+      />
+    </div>
   </div>
-  <div class="grid grid-2">
-    <label>Phone Number *<input name="phone" required inputmode="tel" autocomplete="tel" pattern="^[0-9+() .-]{7,}$" /></label>
-    <label>Email Address *<input name="email" type="email" required autocomplete="email" /></label>
+
+  <!-- Contact row -->
+  <div class="form-row">
+    <div class="form-field">
+      <label class="form-label" for="ef-phone">
+        {ui("form.phone", locale)} <span class="req" aria-hidden="true">*</span>
+      </label>
+      <input
+        id="ef-phone"
+        class="form-input"
+        name="phone"
+        type="tel"
+        required
+        inputmode="tel"
+        autocomplete="tel"
+        aria-required="true"
+        pattern="^[0-9+() .\-]{7,}$"
+        placeholder="(512) 555-0100"
+      />
+    </div>
+    <div class="form-field">
+      <label class="form-label" for="ef-email">
+        {ui("form.email", locale)} <span class="req" aria-hidden="true">*</span>
+      </label>
+      <input
+        id="ef-email"
+        class="form-input"
+        name="email"
+        type="email"
+        required
+        autocomplete="email"
+        aria-required="true"
+        placeholder="john@example.com"
+      />
+    </div>
   </div>
-  <label>Service Address / Zip Code *<input name="serviceAddress" required autocomplete="street-address" /></label>
-  <label>Service Needed *
-    <select name="serviceNeeded" required>
-      <option value="">Select a service</option>
-      {allServices.map((item) => <option selected={service === item.id} value={item.id}>{t(item.title, locale)}</option>)}
-    </select>
-  </label>
-  <label>Project Details<textarea name="details" rows="5"></textarea></label>
-  <label class="form-checkbox-label">
-    <input type="checkbox" name="terms" required />
-    <span>I agree to the <a href={privacyUrl} target="_blank">Privacy Policy</a> and <a href={termsUrl} target="_blank">Terms & Conditions</a> and consent to having my data processed for this inquiry.</span>
-  </label>
-  <button class="button button-primary" type="submit">Get My Free Estimate</button>
-  <div class="form-error" aria-live="polite"></div>
-  <small>We respect your privacy. Your information is only used to respond to your request.</small>
+
+  <!-- Address -->
+  <div class="form-field">
+    <label class="form-label" for="ef-address">
+      {ui("form.address", locale)} <span class="req" aria-hidden="true">*</span>
+    </label>
+    <input
+      id="ef-address"
+      class="form-input"
+      name="serviceAddress"
+      type="text"
+      required
+      autocomplete="street-address"
+      aria-required="true"
+      placeholder="123 Main St, Austin TX 78701"
+    />
+  </div>
+
+  <!-- Service select -->
+  <div class="form-field">
+    <label class="form-label" for="ef-service">
+      {ui("form.service", locale)} <span class="req" aria-hidden="true">*</span>
+    </label>
+    <div class="form-select-wrap">
+      <select
+        id="ef-service"
+        class="form-select"
+        name="serviceNeeded"
+        required
+        aria-required="true"
+      >
+        <option value="">{ui("form.servicePlaceholder", locale)}</option>
+        {allServices.map((item) => (
+          <option selected={service === item.id} value={item.id}>
+            {t(item.title, locale)}
+          </option>
+        ))}
+      </select>
+    </div>
+  </div>
+
+  <!-- Details -->
+  <div class="form-field">
+    <label class="form-label" for="ef-details">
+      {ui("form.details", locale)}
+    </label>
+    <textarea
+      id="ef-details"
+      class="form-textarea"
+      name="details"
+      rows="3"
+      placeholder={ui("form.detailsPlaceholder", locale)}
+    ></textarea>
+  </div>
+
+  <!-- Consent -->
+  <div class="form-checkbox-row">
+    <input
+      type="checkbox"
+      id="ef-terms"
+      name="terms"
+      required
+      aria-required="true"
+    />
+    <label for="ef-terms">
+      {ui("form.consentPre", locale)}{" "}
+      <a href={privacyUrl} target="_blank" rel="noopener noreferrer">{ui("form.privacyPolicy", locale)}</a>
+      {" "}{ui("form.consentAnd", locale)}{" "}
+      <a href={termsUrl} target="_blank" rel="noopener noreferrer">{ui("form.terms", locale)}</a>.
+    </label>
+  </div>
+
+  <!-- Submit -->
+  <button
+    type="submit"
+    class="btn btn-primary form-submit"
+    data-submit-btn
+  >
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.01 1.18 2 2 0 012 .01h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
+    <span data-btn-text>{ui("form.submit", locale)}</span>
+  </button>
+
+  <!-- Error -->
+  <div class="form-error" role="alert" aria-live="polite" id="ef-error"></div>
+
+  <!-- Privacy note -->
+  <p class="form-privacy">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    {ui("form.privacy", locale)}
+  </p>
 </form>
+
+<style>
+  .estimate-form--card {
+    background: white;
+    border-radius: var(--radius-xl);
+    padding: clamp(24px, 4vw, 40px);
+    box-shadow: var(--shadow-xl);
+    border: 1px solid rgba(255,255,255,.15);
+  }
+
+  .form-field { margin-bottom: 18px; }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 0;
+  }
+  .form-row .form-field { margin-bottom: 18px; }
+
+  @media (max-width: 540px) {
+    .form-row { grid-template-columns: 1fr; }
+  }
+
+  .form-label {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 6px;
+    letter-spacing: 0.01em;
+  }
+  .form-label .req { color: #ef4444; margin-left: 2px; }
+
+  .form-input, .form-select, .form-textarea {
+    width: 100%;
+    padding: 13px 16px;
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    color: #0f172a;
+    background: #ffffff;
+    border: 1.5px solid #cbd5e1;
+    border-radius: var(--radius-md);
+    outline: none;
+    transition: border-color 200ms ease, box-shadow 200ms ease;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  .form-input::placeholder, .form-textarea::placeholder { color: #94a3b8; }
+  .form-input:focus, .form-select:focus, .form-textarea:focus {
+    border-color: var(--brand-accent);
+    box-shadow: 0 0 0 3px rgba(245,158,11,.14);
+  }
+  .form-input:invalid:not(:placeholder-shown) { border-color: #f87171; }
+
+  .form-select-wrap { position: relative; }
+  .form-select-wrap::after {
+    content: "";
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0; height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 6px solid #64748b;
+    pointer-events: none;
+  }
+  .form-select { padding-right: 36px; cursor: pointer; }
+
+  .form-textarea { resize: vertical; min-height: 88px; line-height: 1.65; }
+
+  .form-checkbox-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .form-checkbox-row input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+    margin-top: 2px;
+    border-radius: 4px;
+    border: 1.5px solid #cbd5e1;
+    cursor: pointer;
+    accent-color: var(--brand-accent);
+    padding: 0;
+    flex-shrink: 0;
+  }
+  .form-checkbox-row label {
+    font-size: 0.8125rem;
+    color: #64748b;
+    line-height: 1.6;
+    cursor: pointer;
+    font-family: var(--font-body);
+  }
+  .form-checkbox-row label a {
+    color: var(--brand-accent-dark);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .form-submit {
+    width: 100%;
+    min-height: 54px;
+    font-size: 1rem;
+    border-radius: var(--radius-md);
+    letter-spacing: 0.01em;
+  }
+  .form-submit:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  .form-error {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    font-size: 0.875rem;
+    color: #dc2626;
+    margin-top: 8px;
+    display: none;
+  }
+  .form-error:not(:empty) { display: block; }
+
+  .form-privacy {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    text-align: center;
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    max-width: none;
+  }
+</style>
+
 <script is:inline>
+(function() {
   document.querySelectorAll("[data-conversion-form]").forEach(function(form) {
     form.addEventListener("submit", function(e) {
       e.preventDefault();
-      var webhook = form.getAttribute("data-webhook") || "";
-      var locale = form.getAttribute("data-locale") || "en";
-      var errorEl = form.querySelector(".form-error");
+
+      var webhook  = form.getAttribute("data-webhook") || "";
+      var locale   = form.getAttribute("data-locale") || "en";
+      var errorEl  = form.querySelector("#ef-error");
+      var btn      = form.querySelector("[data-submit-btn]");
+      var btnText  = form.querySelector("[data-btn-text]");
+
       if (errorEl) errorEl.textContent = "";
 
+      // Collect data
       var data = {};
-      var fields = form.querySelectorAll("input, select, textarea");
-      fields.forEach(function(field) {
+      form.querySelectorAll("input, select, textarea").forEach(function(field) {
         if (field.closest(".honeypot")) return;
         if (field.type === "checkbox") {
           data[field.name] = field.checked;
-        } else {
+        } else if (field.name) {
           data[field.name] = field.value;
         }
       });
 
+      // Analytics
       window.dataLayer = window.dataLayer || [];
-      window.dataLayer.push({ event: "lead_form_submit" });
-      if (window.fbq) window.fbq("track", "Lead");
+      window.dataLayer.push({ event: "lead_form_submit", form_locale: locale });
+      if (window.fbq)  window.fbq("track", "Lead");
       if (window.gtag) window.gtag("event", "conversion", { send_to: "AW-CONVERSION_ID/LABEL" });
 
+      // No webhook — redirect immediately
       if (!webhook) {
         window.location.href = "/" + locale + "/thank-you/";
         return;
       }
 
-      var btn = form.querySelector('button[type="submit"]');
-      if (btn) { btn.disabled = true; btn.textContent = "Sending..."; }
+      // Loading state
+      if (btn) {
+        btn.disabled = true;
+        if (btnText) btnText.textContent = "Sending…";
+      }
 
       fetch(webhook, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
         mode: "cors"
-      }).then(function(response) {
-        if (response.ok) {
+      })
+      .then(function(res) {
+        if (res.ok) {
           window.location.href = "/" + locale + "/thank-you/";
         } else {
-          throw new Error("Server error: " + response.status);
+          throw new Error("Server error " + res.status);
         }
-      }).catch(function() {
+      })
+      .catch(function() {
         if (errorEl) errorEl.textContent = "Something went wrong. Please try again or call us directly.";
-        if (btn) { btn.disabled = false; btn.textContent = "Get My Free Estimate"; }
+        if (btn) {
+          btn.disabled = false;
+          if (btnText) btnText.textContent = "Get My Free Estimate";
+        }
       });
     });
   });
+})();
 </script>

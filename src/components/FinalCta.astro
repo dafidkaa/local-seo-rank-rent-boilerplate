@@ -1,12 +1,13 @@
 ---
 /**
- * FinalCta — Full-bleed dark CTA section with inline form
- * Split layout: compelling copy left, estimate form right
+ * FinalCta — Full-bleed photo CTA section with floating form card
+ * Split: compelling copy left, premium form card right
+ * Premium: layered overlay, trust icons, phone CTA block
  */
 import EstimateForm from "@/components/EstimateForm.astro";
 import { siteConfig, type Locale } from "@/site.config";
 import { ui } from "@/i18n";
-import { t } from "@/lib/routes";
+import { t, localizedPath } from "@/lib/routes";
 
 interface Props {
   locale: Locale;
@@ -22,72 +23,271 @@ const heading = title ?? ui("cta.heading", locale).replace("{service}", serviceN
 const body    = text  ?? ui("cta.subheading", locale)
   .replace("{service}", serviceName)
   .replace("{city}", siteConfig.business.city);
-const trust   = ui("cta.trust", locale);
+
+const trustPoints = [
+  ui("cta.trust1", locale),
+  ui("cta.trust2", locale),
+  ui("cta.trust3", locale),
+];
 ---
 
-<section class="fcta-section">
-  <!-- Background image with overlay -->
+<section class="fcta" aria-labelledby="fcta-heading">
+  <!-- Background photo + overlays -->
   <div class="fcta-bg" aria-hidden="true">
-    <img src={siteConfig.brand.images.cta} alt="" role="presentation" width="1920" height="600" loading="lazy" decoding="async" class="fcta-bg-img" />
-    <div class="fcta-bg-overlay"></div>
+    <img
+      src={siteConfig.brand.images.cta}
+      alt=""
+      role="presentation"
+      class="fcta-bg-img"
+      width="1920"
+      height="700"
+      loading="lazy"
+      decoding="async"
+    />
+    <!-- Dual overlay: dark base + brand color gradient -->
+    <div class="fcta-overlay-base"></div>
+    <div class="fcta-overlay-brand"></div>
   </div>
 
   <div class="container">
     <div class="fcta-grid">
-
       <!-- Left: Copy -->
       <div class="fcta-copy">
-        <p class="eyebrow">{ui("cta.eyebrow", locale)}</p>
-        <h2 class="fcta-heading">{heading}</h2>
+        <p class="eyebrow" style="color:var(--brand-accent)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.01 1.18 2 2 0 012 .01h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
+          {ui("cta.eyebrow", locale)}
+        </p>
+
+        <h2 id="fcta-heading" class="fcta-heading">{heading}</h2>
         <p class="fcta-body">{body}</p>
 
-        <!-- Phone CTA -->
-        <a href={`tel:${siteConfig.business.phone}`} class="fcta-phone">
+        <!-- Trust list -->
+        <ul class="fcta-trust-list" role="list">
+          {trustPoints.map((point) => (
+            <li class="fcta-trust-item">
+              <span class="fcta-trust-icon" aria-hidden="true">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              {point}
+            </li>
+          ))}
+        </ul>
+
+        <!-- Phone block -->
+        <a
+          href={`tel:${siteConfig.business.phone}`}
+          class="fcta-phone-block"
+          aria-label={`Call us at ${siteConfig.business.phone}`}
+        >
           <div class="fcta-phone-icon" aria-hidden="true">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.01 1.18 2 2 0 012 .01h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
           </div>
           <div>
-            <div class="fcta-phone-label">Call us directly</div>
+            <div class="fcta-phone-label">{ui("cta.callLabel", locale)}</div>
             <div class="fcta-phone-number">{siteConfig.business.phone}</div>
           </div>
         </a>
-
-        <!-- Trust line -->
-        <p class="fcta-trust">{trust}</p>
       </div>
 
       <!-- Right: Form card -->
-      <div class="fcta-form-card">
+      <div class="fcta-form-wrap">
         <div class="fcta-form-header">
-          <h3>{ui("form.heading", locale)}</h3>
-          <p>{ui("form.subheading", locale)}</p>
+          <h3 class="fcta-form-title">{ui("cta.formTitle", locale)}</h3>
+          <p class="fcta-form-sub">{ui("cta.formSub", locale)}</p>
         </div>
-        <EstimateForm locale={locale} service={service} />
+        <EstimateForm locale={locale} service={service} variant="inline" />
       </div>
-
     </div>
   </div>
 </section>
 
 <style>
-.fcta-section { position:relative; isolation:isolate; padding:clamp(72px,10vw,120px) 0; }
-.fcta-bg { position:absolute; inset:0; z-index:-1; }
-.fcta-bg-img { width:100%; height:100%; object-fit:cover; object-position:center; }
-.fcta-bg-overlay { position:absolute; inset:0; background:linear-gradient(135deg,rgba(10,24,50,0.95) 0%,rgba(10,24,50,0.88) 50%,rgba(30,58,95,0.92) 100%); }
-.fcta-grid { display:grid; grid-template-columns:1fr 1fr; gap:60px; align-items:start; }
-.fcta-copy { color:white; }
-.fcta-copy .eyebrow { color:var(--brand-accent,#f59e0b); }
-.fcta-heading { color:white; font-size:clamp(1.8rem,3vw,2.6rem); margin:0 0 20px; }
-.fcta-body { color:rgba(255,255,255,0.75); font-size:1.05rem; line-height:1.7; margin:0 0 36px; }
-.fcta-phone { display:flex; align-items:center; gap:16px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:12px; padding:16px 20px; text-decoration:none; color:white; transition:background 0.2s,border-color 0.2s; margin-bottom:24px; }
-.fcta-phone:hover { background:rgba(255,255,255,0.14); border-color:rgba(255,255,255,0.3); }
-.fcta-phone-icon { width:44px; height:44px; background:var(--brand-accent,#f59e0b); border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; color:#0f172a; }
-.fcta-phone-label { font-size:0.78rem; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:rgba(255,255,255,0.6); margin-bottom:2px; }
-.fcta-phone-number { font-family:var(--font-display); font-size:1.35rem; font-weight:800; color:white; letter-spacing:-0.01em; }
-.fcta-trust { font-size:0.82rem; color:rgba(255,255,255,0.5); margin:0; }
-.fcta-form-card { background:white; border-radius:20px; overflow:hidden; box-shadow:0 24px 64px rgba(0,0,0,0.35); }
-.fcta-form-header { background:var(--brand-primary,#1e3a5f); padding:24px 28px; }
-.fcta-form-header h3 { font-family:var(--font-display); font-size:1.15rem; font-weight:800; color:white; margin:0 0 6px; }
-.fcta-form-header p { font-size:0.85rem; color:rgba(255,255,255,0.7); margin:0; }
-@media(max-width:900px){.fcta-grid{grid-template-columns:1fr;gap:40px}}
+  .fcta {
+    position: relative;
+    isolation: isolate;
+    padding-block: clamp(72px, 10vw, 120px);
+    overflow: hidden;
+  }
+
+  /* Background */
+  .fcta-bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+  }
+  .fcta-bg-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+  .fcta-overlay-base {
+    position: absolute;
+    inset: 0;
+    background: rgba(8, 14, 35, 0.82);
+  }
+  .fcta-overlay-brand {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(15,23,42,.6) 0%, transparent 70%);
+  }
+
+  /* Grid */
+  .fcta-grid {
+    display: grid;
+    grid-template-columns: 1fr 480px;
+    gap: clamp(40px, 6vw, 80px);
+    align-items: start;
+  }
+
+  /* Copy */
+  .fcta-copy { color: white; }
+
+  .fcta-heading {
+    font-size: clamp(1.875rem, 3.5vw, 2.75rem);
+    font-weight: 800;
+    color: white;
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+    margin: 0 0 16px;
+    text-wrap: balance;
+  }
+
+  .fcta-body {
+    font-size: 1.0625rem;
+    color: rgba(255,255,255,.75);
+    line-height: 1.7;
+    margin: 0 0 28px;
+    max-width: 52ch;
+  }
+
+  /* Trust list */
+  .fcta-trust-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 0 0 32px;
+  }
+
+  .fcta-trust-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9375rem;
+    color: rgba(255,255,255,.85);
+    font-weight: 500;
+  }
+
+  .fcta-trust-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--brand-accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #0f172a;
+  }
+
+  /* Phone block */
+  .fcta-phone-block {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    background: rgba(255,255,255,.08);
+    border: 1px solid rgba(255,255,255,.15);
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    transition: background 200ms ease, border-color 200ms ease;
+    backdrop-filter: blur(4px);
+  }
+  .fcta-phone-block:hover {
+    background: rgba(255,255,255,.14);
+    border-color: rgba(255,255,255,.3);
+  }
+  .fcta-phone-block:focus-visible {
+    outline: 2px solid var(--brand-accent);
+    outline-offset: 3px;
+    border-radius: var(--radius-lg);
+  }
+
+  .fcta-phone-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--brand-accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #0f172a;
+  }
+
+  .fcta-phone-label {
+    font-size: 0.8125rem;
+    color: rgba(255,255,255,.65);
+    font-weight: 500;
+    margin-bottom: 2px;
+  }
+
+  .fcta-phone-number {
+    font-family: var(--font-display);
+    font-size: 1.375rem;
+    font-weight: 800;
+    color: white;
+    letter-spacing: -0.02em;
+  }
+
+  /* Form card */
+  .fcta-form-wrap {
+    background: white;
+    border-radius: var(--radius-xl);
+    box-shadow: 0 24px 64px rgba(0,0,0,.35);
+    overflow: hidden;
+  }
+
+  .fcta-form-header {
+    background: var(--brand-primary);
+    padding: 24px 32px 20px;
+  }
+
+  .fcta-form-title {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: white;
+    margin: 0 0 4px;
+    letter-spacing: -0.02em;
+  }
+
+  .fcta-form-sub {
+    font-size: 0.875rem;
+    color: rgba(255,255,255,.65);
+    margin: 0;
+    max-width: none;
+    line-height: 1.5;
+  }
+
+  /* Form inside the card */
+  .fcta-form-wrap :global(.estimate-form) {
+    padding: 28px 32px 28px;
+  }
+
+  /* Responsive */
+  @media (max-width: 1024px) {
+    .fcta-grid {
+      grid-template-columns: 1fr;
+    }
+    .fcta-form-wrap {
+      max-width: 560px;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .fcta-form-wrap { max-width: 100%; }
+    .fcta-form-header { padding: 20px 24px 16px; }
+    .fcta-form-wrap :global(.estimate-form) { padding: 20px 24px 24px; }
+  }
 </style>

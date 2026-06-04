@@ -5,86 +5,285 @@ import ServiceCard from "@/components/ServiceCard.astro";
 import ProcessSection from "@/components/ProcessSection.astro";
 import ReviewsSection from "@/components/ReviewsSection.astro";
 import FinalCta from "@/components/FinalCta.astro";
-import { allServices, siteConfig, type Locale } from "@/site.config";
-import { localizedPath, servicePath, t } from "@/lib/routes";
-import { howToSchema, localBusinessSchema, organizationSchema, searchActionSchema, seo } from "@/lib/seo";
+import { siteConfig, allServices, type Locale } from "@/site.config";
+import { t, localizedPath, servicePath } from "@/lib/routes";
+import { seo, localBusinessSchema, organizationSchema, searchActionSchema, howToSchema } from "@/lib/seo";
+import { ui } from "@/i18n";
 
 export function getStaticPaths() {
-  return siteConfig.locales.map((locale) => ({ params: { lang: locale.code } }));
+  return siteConfig.locales.map((locale) => ({ params: { lang: locale.code }, props: { locale: locale.code } }));
 }
+interface Props { locale: Locale; }
+const { locale } = Astro.props;
 
-const locale = Astro.params.lang as Locale;
-const title = `${t(siteConfig.business.primaryService, locale)} In ${siteConfig.business.city} | ${siteConfig.business.name}`;
-const description = `Need ${t(siteConfig.business.primaryService, locale)} in ${siteConfig.business.city}? Contact ${siteConfig.business.name} for reliable local service, clear communication, and free estimates.`;
-const questions = [
-  `Need help with ${t(siteConfig.business.customerProblem, locale)}?`,
-  `Looking for a local ${t(siteConfig.business.primaryService, locale)} provider who responds quickly?`,
-  "Want clear pricing before the work begins?",
-  `Need reliable help in ${siteConfig.business.city} or nearby areas?`,
-  "Trying to compare your options without wasting time?",
-  "Want the job done properly the first time?"
+const title       = `${t(siteConfig.business.primaryService, locale)} In ${siteConfig.business.city} | ${siteConfig.business.name}`;
+const description = t(siteConfig.business.description, locale);
+
+const processSteps = siteConfig.process?.steps ?? [
+  { title: ui("process.steps.0.title", locale) || "Contact Us",          text: ui("process.steps.0.body", locale) || "Call or submit a quick online form." },
+  { title: ui("process.steps.1.title", locale) || "Get a Free Estimate", text: ui("process.steps.1.body", locale) || "We give you a clear upfront price." },
+  { title: ui("process.steps.2.title", locale) || "We Do the Work",      text: ui("process.steps.2.body", locale) || "Licensed technicians arrive on time." },
+  { title: ui("process.steps.3.title", locale) || "You're Satisfied",    text: ui("process.steps.3.body", locale) || "We don't leave until you're happy." },
 ];
-const processSteps = [
-  { title: "Reach Out To Us", text: "Call or fill out the estimate form with a few details about what you need." },
-  { title: "Schedule Your Estimate", text: "We review the request and help choose a time that works for your schedule." },
-  { title: "We Provide The Service", text: "The team completes the work with clear communication and professional care." },
-  { title: "We Inspect The Service", text: "We review the result and make sure the next step is clear before closing out." }
-];
-const pageSeo = seo({ locale, title, description, schema: [localBusinessSchema(locale), organizationSchema(locale), searchActionSchema(locale), howToSchema(processSteps.map((s) => ({ name: s.title, text: s.text })))] });
+
+const whyReasons = Object.values((siteConfig as any).why?.reasons ?? {}).slice(0, 4) as Array<{title:string;body:string}>;
+
+const pageSeo = seo({
+  locale,
+  title,
+  description,
+  schema: [
+    localBusinessSchema(locale),
+    organizationSchema(locale),
+    searchActionSchema(locale),
+    howToSchema(processSteps.map((s) => ({ name: s.title, text: s.text }))),
+  ],
+});
+
+const serviceName = t(siteConfig.business.primaryService, locale);
+const city = siteConfig.business.city;
 ---
 <BaseLayout seo={pageSeo}>
+
+  <!-- ── Hero Slider ─────────────────────────────────────────────────────── -->
   <HeroSlider
     slides={siteConfig.heroSlides}
     locale={locale}
-    badges={["Licensed & Insured", "Fast Response", "Free Estimates"]}
+    badges={[
+      ui("hero.trust.licensed", locale),
+      ui("hero.trust.sameDay", locale),
+      ui("hero.trust.freeEstimate", locale),
+    ]}
   />
-  <section class="section section-light">
+
+  <!-- ── Problems Section ────────────────────────────────────────────────── -->
+  <section class="section" style="background:var(--color-surface-alt)" aria-labelledby="problems-heading">
     <div class="container">
-      <p class="eyebrow">Customer Problems</p>
-      <h2>Looking For A {t(siteConfig.business.primaryService, locale)} In {siteConfig.business.city}?</h2>
-      <div class="grid grid-3" style="margin-top:28px">
-        {questions.map((question) => <article class="card"><div class="card-body"><span class="icon-mark">✓</span><p>{question}</p></div></article>)}
+      <div class="section-header center">
+        <p class="eyebrow">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          {ui("problems.eyebrow", locale)}
+        </p>
+        <h2 id="problems-heading">
+          {ui("problems.heading", locale).replace("{service}", serviceName).replace("{city}", city)}
+        </h2>
+      </div>
+      <div class="problems-grid">
+        {[
+          ui("problems.p1", locale).replace("{city}", city),
+          ui("problems.p2", locale),
+          ui("problems.p3", locale),
+          ui("problems.p4", locale).replace("{city}", city),
+          ui("problems.p5", locale),
+          ui("problems.p6", locale),
+        ].map((problem) => (
+          <div class="problem-card">
+            <div class="problem-icon" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <p class="problem-text">{problem}</p>
+          </div>
+        ))}
       </div>
     </div>
   </section>
-  <section class="section">
-    <div class="container split">
-      <div>
-        <p class="eyebrow">Welcome</p>
-        <h2>Welcome to {siteConfig.business.name}</h2>
-        <h3>We Are Your Local {t(siteConfig.business.primaryService, locale)} Team In {siteConfig.business.serviceArea}</h3>
-        <p>{t(siteConfig.business.description, locale)} We serve customers who want reliable scheduling, simple explanations, and work handled without confusion. This section is intentionally easy to rewrite with real owner, team, and local proof details before launch.</p>
-        <a class="button button-primary" href={localizedPath(locale, "contact")}>{t(siteConfig.business.cta, locale)}</a>
-      </div>
-      <img class="image-frame" src={siteConfig.brand.teamImage} alt={`${siteConfig.business.name} team providing ${t(siteConfig.business.primaryService, locale)} in ${siteConfig.business.city}`} width="900" height="506" loading="lazy" decoding="async" />
-    </div>
-  </section>
-  <section class="section section-light">
+
+  <!-- ── Welcome / About Section ─────────────────────────────────────────── -->
+  <section class="welcome-section" aria-labelledby="welcome-heading">
     <div class="container">
-      <h2>We Make {t(siteConfig.business.primaryService, locale)} Simple</h2>
-      <div class="grid grid-3">
-        {["Fast Response", "Clear Communication", "Professional Local Service"].map((item) => <article class="card"><div class="card-body"><span class="icon-mark">✓</span><h3>{item}</h3><p>Use this block to explain how the business reduces friction for local customers in {siteConfig.business.serviceArea}.</p></div></article>)}
+      <div class="welcome-grid">
+        <!-- Image side -->
+        <div class="welcome-image-wrap">
+          <img
+            src={siteConfig.brand.images?.team ?? siteConfig.brand.teamImage ?? "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=900&q=80"}
+            alt={`${siteConfig.business.name} team providing ${serviceName} in ${city}`}
+            class="welcome-image"
+            width="900"
+            height="675"
+            loading="lazy"
+            decoding="async"
+          />
+          <div class="welcome-badge" aria-hidden="true">
+            {siteConfig.business.yearFounded ? `Est. ${siteConfig.business.yearFounded}` : ui("welcome.badge", locale)}
+          </div>
+        </div>
+        <!-- Copy side -->
+        <div class="welcome-copy">
+          <p class="eyebrow">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            {ui("welcome.eyebrow", locale)}
+          </p>
+          <h2 id="welcome-heading">
+            {ui("welcome.heading", locale).replace("{name}", siteConfig.business.name)}
+          </h2>
+          <p class="welcome-lead">
+            {t(siteConfig.business.description, locale)}
+          </p>
+          <ul class="welcome-checklist" role="list">
+            <li>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+              {ui("welcome.check1", locale).replace("{city}", city)}
+            </li>
+            <li>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+              {ui("welcome.check2", locale)}
+            </li>
+            <li>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+              {ui("welcome.check3", locale)}
+            </li>
+          </ul>
+          <a class="btn btn-primary btn-lg" href={localizedPath(locale, "contact")}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.01 1.18 2 2 0 012 .01h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
+            {t(siteConfig.business.cta, locale)}
+          </a>
+        </div>
       </div>
     </div>
   </section>
-  <section class="section">
+
+  <!-- ── Services Section ─────────────────────────────────────────────────── -->
+  <section class="section" style="background:var(--color-surface-alt)" id="services" aria-labelledby="services-heading">
     <div class="container">
-      <p class="eyebrow">Services</p>
-      <h2>{siteConfig.business.city} {t(siteConfig.business.primaryService, locale)} And Related Services</h2>
-      <p>Whether you need {allServices.slice(0, 3).map((service) => t(service.title, locale)).join(", ")}, or help choosing the right option, {siteConfig.business.name} makes the process simple from first contact to completed service.</p>
-      <div class="grid grid-3" style="margin-top:28px">
-        {allServices.slice(0, 9).map((service) => <ServiceCard title={t(service.title, locale)} description={t(service.short, locale)} image={service.image} href={servicePath(locale, service)} alt={`${t(service.title, locale)} for local customers in ${siteConfig.business.city}`} />)}
+      <div class="section-header center">
+        <p class="eyebrow">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
+          {ui("services.eyebrow", locale)}
+        </p>
+        <h2 id="services-heading">
+          {city} {serviceName} {ui("services.headingSuffix", locale) || "Services"}
+        </h2>
+        <p>
+          Whether you need {allServices.slice(0, 3).map((s) => t(s.title, locale)).join(", ")}, or help choosing the right option, {siteConfig.business.name} makes the process simple.
+        </p>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:clamp(16px,2.5vw,24px)">
+        {allServices.slice(0, 9).map((service) => (
+          <ServiceCard
+            title={t(service.title, locale)}
+            description={t(service.short, locale)}
+            image={service.image}
+            href={servicePath(locale, service)}
+            alt={`${t(service.title, locale)} for local customers in ${city}`}
+          />
+        ))}
       </div>
     </div>
   </section>
-  <section class="section" style={`background:${siteConfig.brand.primary};color:white`}>
-    <div class="container" style="max-width:900px;text-align:center">
-      <h2 style="color:white">What Makes Us Different From Other {t(siteConfig.business.primaryService, locale)} Companies In {siteConfig.business.city}?</h2>
-      <p style="color:white">This section is built for local experience, simple communication, clear estimates, reliable scheduling, quality-focused work, service-area knowledge, and a customer-first approach. Replace these placeholders with true proof, real process details, and actual differentiators from the rented business once the lead asset is sold or partnered.</p>
-      <a class="button button-secondary" href={localizedPath(locale, "contact")}>Get Your Free Estimate</a>
+
+  <!-- ── Why Choose Us ────────────────────────────────────────────────────── -->
+  <section class="section section-charcoal" aria-labelledby="why-heading">
+    <div class="container">
+      <div class="section-header center">
+        <p class="eyebrow" style="color:var(--brand-accent)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          {ui("why.eyebrow", locale)}
+        </p>
+        <h2 id="why-heading" style="color:white">
+          {ui("why.heading", locale).replace("{city}", city).replace("{service}", serviceName)}
+        </h2>
+        <p style="color:rgba(255,255,255,.65)">
+          {ui("why.subheading", locale).replace("{name}", siteConfig.business.name).replace("{city}", city)}
+        </p>
+      </div>
+      <div class="why-grid">
+        {[
+          { icon: "clock",   title: ui("why.reasons.licensed.title", locale),     text: ui("why.reasons.licensed.body", locale) },
+          { icon: "shield",  title: ui("why.reasons.pricing.title", locale),       text: ui("why.reasons.pricing.body", locale).replace("{city}", city) },
+          { icon: "star",    title: ui("why.reasons.guarantee.title", locale),     text: ui("why.reasons.guarantee.body", locale) },
+          { icon: "map",     title: ui("why.reasons.local.title", locale),         text: ui("why.reasons.local.body", locale) },
+        ].map((card) => (
+          <div class="why-card">
+            <div class="why-icon" aria-hidden="true">
+              {card.icon === "clock" && (
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              )}
+              {card.icon === "shield" && (
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              )}
+              {card.icon === "star" && (
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              )}
+              {card.icon === "map" && (
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+              )}
+            </div>
+            <h3 class="why-title">{card.title}</h3>
+            <p class="why-text">{card.text}</p>
+          </div>
+        ))}
+      </div>
+      <!-- Stats row -->
+      {siteConfig.stats && siteConfig.stats.length > 0 && (
+        <div class="stat-grid" style="margin-top:clamp(40px,6vw,64px)">
+          {siteConfig.stats.map((stat: any) => (
+            <div class="stat-item">
+              <div class="stat-number" style="color:var(--brand-accent)">{t(stat.value, locale)}</div>
+              <div class="stat-label" style="color:rgba(255,255,255,.65)">{t(stat.label, locale)}</div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   </section>
-  <ProcessSection title={`How Our ${t(siteConfig.business.primaryService, locale)} Works`} subtitle="Our process is simple from first contact to completed service." steps={processSteps} />
-  <ReviewsSection title={`Why Customers Choose ${siteConfig.business.name}`} />
-  <FinalCta locale={locale} title={`Get A Free Estimate On ${t(siteConfig.business.primaryService, locale)}`} text={`Fill out the quick form to schedule a no-pressure, no-obligation quote for ${t(siteConfig.business.primaryService, locale)} in ${siteConfig.business.city} and nearby areas.`} />
+
+  <!-- ── Process Section ──────────────────────────────────────────────────── -->
+  <ProcessSection
+    title={`How Our ${serviceName} Process Works`}
+    subtitle={`Simple, fast, and professional ${serviceName.toLowerCase()} service in ${city}.`}
+    steps={siteConfig.process?.steps ?? [
+      { title: "Contact Us",          text: "Call or submit a quick online form. We respond within the hour." },
+      { title: "Get a Free Estimate", text: "We assess the job and give you a clear, upfront price — no surprises." },
+      { title: "We Do the Work",      text: "Our licensed technicians arrive on time and complete the job to the highest standard." },
+      { title: "You're Satisfied",   text: "We don't leave until the job is done right and you're completely happy." },
+    ]}
+  />
+
+  <!-- ── Reviews Section ──────────────────────────────────────────────────── -->
+  <ReviewsSection
+    title={`Why Customers Choose ${siteConfig.business.name}`}
+    locale={locale}
+  />
+
+  <!-- ── Final CTA ─────────────────────────────────────────────────────────── -->
+  <FinalCta
+    locale={locale}
+    title={`Get A Free ${serviceName} Estimate`}
+    text={`Fill out the quick form to schedule a no-pressure, no-obligation quote for ${serviceName} in ${city} and nearby areas.`}
+  />
+
 </BaseLayout>
+
+<style>
+  .welcome-copy {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0;
+  }
+  .welcome-lead {
+    font-size: 1.0625rem;
+    color: var(--color-text-muted);
+    line-height: 1.75;
+    margin-bottom: 4px;
+  }
+  .stat-item {
+    background: rgba(255,255,255,.05);
+    padding: clamp(24px,4vw,40px) clamp(16px,3vw,32px);
+    text-align: center;
+    border: 1px solid rgba(255,255,255,.08);
+  }
+  .stat-number {
+    font-family: var(--font-display);
+    font-size: clamp(2rem,4vw,3rem);
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+</style>

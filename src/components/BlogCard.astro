@@ -1,4 +1,9 @@
 ---
+/**
+ * BlogCard — Premium editorial blog card
+ * - Category tag, date, excerpt
+ * - Hover: image zoom, title color shift
+ */
 import { localizedPath, t, dateLocale } from "@/lib/routes";
 import type { Locale } from "@/site.config";
 import type { CollectionEntry } from "astro:content";
@@ -10,18 +15,163 @@ interface Props {
 
 const { post, locale } = Astro.props;
 const { title, excerpt, date, image, category } = post.data;
+const formattedDate = new Date(date).toLocaleDateString(dateLocale(locale), {
+  year: "numeric", month: "long", day: "numeric"
+});
 ---
 
-<article class="blog-card" data-category={category}>
-  <a href={localizedPath(locale, `blog/${post.slug}`)} class="blog-card-link">
-    <img src={image} alt={t(title, locale)} class="blog-card-image" width="900" height="506" loading="lazy" decoding="async" />
+<article class="blog-card">
+  <a
+    href={localizedPath(locale, `blog/${post.slug}`)}
+    class="blog-card-link"
+    aria-label={t(title, locale)}
+  >
+    <!-- Image -->
+    <div class="blog-card-img-wrap">
+      <img
+        src={image}
+        alt={t(title, locale)}
+        class="blog-card-img"
+        width="900"
+        height="506"
+        loading="lazy"
+        decoding="async"
+      />
+      <span class="blog-card-category">{category}</span>
+    </div>
+
+    <!-- Body -->
     <div class="blog-card-body">
-      <div class="blog-card-meta">
-        <span class="blog-card-category">{category}</span>
-        <time datetime={date}>{new Date(date).toLocaleDateString(dateLocale(locale), { year: "numeric", month: "long", day: "numeric" })}</time>
-      </div>
+      <time class="blog-card-date" datetime={date}>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        {formattedDate}
+      </time>
       <h3 class="blog-card-title">{t(title, locale)}</h3>
       <p class="blog-card-excerpt">{t(excerpt, locale)}</p>
+      <span class="blog-card-cta" aria-hidden="true">
+        Read Article
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+      </span>
     </div>
   </a>
 </article>
+
+<style>
+  .blog-card {
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: white;
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-card);
+    transition: box-shadow var(--transition-slow), transform var(--transition-slow), border-color var(--transition-slow);
+  }
+  .blog-card:hover {
+    box-shadow: var(--shadow-hover);
+    transform: translateY(-3px);
+    border-color: var(--color-border-dark);
+  }
+
+  .blog-card-link {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+  }
+  .blog-card-link:focus-visible {
+    outline: 3px solid var(--brand-accent);
+    outline-offset: 3px;
+    border-radius: var(--radius-lg);
+  }
+
+  /* Image */
+  .blog-card-img-wrap {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 16/9;
+  }
+  .blog-card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+    display: block;
+  }
+  .blog-card:hover .blog-card-img { transform: scale(1.05); }
+
+  .blog-card-category {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    padding: 5px 12px;
+    background: var(--brand-accent);
+    color: #0f172a;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    border-radius: var(--radius-full);
+  }
+
+  /* Body */
+  .blog-card-body {
+    padding: 22px 24px 24px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  .blog-card-date {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8125rem;
+    color: #94a3b8;
+    margin-bottom: 10px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .blog-card-title {
+    font-family: var(--font-display);
+    font-size: 1.0625rem;
+    font-weight: 700;
+    color: var(--brand-primary);
+    margin: 0 0 10px;
+    line-height: 1.35;
+    letter-spacing: -0.015em;
+    transition: color var(--transition-base);
+  }
+  .blog-card:hover .blog-card-title { color: var(--brand-accent-dark); }
+
+  .blog-card-excerpt {
+    font-size: 0.875rem;
+    color: #64748b;
+    line-height: 1.65;
+    margin: 0 0 16px;
+    max-width: none;
+    flex: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .blog-card-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: var(--font-display);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--brand-accent-dark);
+    margin-top: auto;
+    transition: gap var(--transition-base);
+  }
+  .blog-card:hover .blog-card-cta { gap: 9px; }
+  .blog-card-cta svg { transition: transform var(--transition-base); }
+  .blog-card:hover .blog-card-cta svg { transform: translateX(3px); }
+</style>

@@ -139,13 +139,14 @@ export const siteConfig = {
     // Accent: warm amber — energy, action, approachability
     accent:        "#f59e0b",
     accentDark:    "#d97706",
+    accentLight:   "#fef3c7",
     dark:          "#0f172a",
     light:         "#f8fafc",
     // Hero overlay — controls how dark the hero background image appears
     heroOverlay:   "rgba(10, 24, 50, 0.68)",
     // Typography — both available free on Google Fonts
-    fontDisplay:   "Plus Jakarta Sans",
-    fontBody:      "DM Sans",
+    fontDisplay:   "Poppins",
+    fontBody:      "Inter",
     // Logo text (used if no SVG logo is provided)
     logoText:      "Austin Pro Plumbing",
     logoAccent:    "Pro",  // this word gets the accent color
@@ -160,7 +161,7 @@ export const siteConfig = {
       hero3: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=1920&q=80",
       // About / team section
       about: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=1200&q=80",
-      team:  "https://images.unsplash.com/photo-1521791055366-0d553872125f?auto=format&fit=crop&w=1200&q=80",
+      team:  "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1200&q=80",
       // Process section background
       process: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1920&q=80",
       // Final CTA section background

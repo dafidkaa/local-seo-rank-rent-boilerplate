@@ -1,152 +1,532 @@
 ---
-import { allServices, siteConfig, type Locale } from "@/site.config";
-import { localizedPath, locationPath, servicePath, subservicePath, t } from "@/lib/routes";
+/**
+ * Header — Premium sticky nav with utility bar
+ * - Utility bar: phone + trust badges
+ * - Logo with accent word
+ * - Desktop nav with dropdown
+ * - Mobile hamburger with full-screen overlay
+ * - Scroll-aware shadow
+ */
+import { siteConfig, type Locale } from "@/site.config";
+import { localizedPath, servicePath, t } from "@/lib/routes";
 import { ui } from "@/i18n";
 
 interface Props {
   locale: Locale;
   currentPath?: string;
 }
-
 const { locale, currentPath = "" } = Astro.props;
+
+const navLinks = [
+  { label: ui("nav.home", locale),       href: localizedPath(locale) },
+  { label: ui("nav.services", locale),   href: "#services",            hasDropdown: true },
+  { label: ui("nav.locations", locale),href: localizedPath(locale, "service-area") },
+  { label: ui("nav.about", locale),      href: localizedPath(locale, "about") },
+  { label: ui("nav.blog", locale),       href: localizedPath(locale, "blog") },
+  { label: ui("nav.contact", locale),    href: localizedPath(locale, "contact") },
+];
+
+const otherLocale = siteConfig.locales.find(l => l.code !== locale);
+const logoWords = siteConfig.brand.logoText.split(" ");
+const accentWord = siteConfig.brand.logoAccent;
 ---
 
-<!-- Utility bar -->
-<div class="utility-bar">
-  <div class="container">
-    <div class="utility-bar-inner">
-      <div class="utility-bar-items">
-        <span class="utility-bar-item">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          {ui("utilityBar.available", locale)}
-        </span>
-        <span class="utility-bar-item">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          {ui("utilityBar.licensed", locale)}
-        </span>
-        <span class="utility-bar-item">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><path d="M12 22V7M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>
-          {ui("utilityBar.freeQuote", locale)}
-        </span>
-      </div>
-      <a href={`tel:${siteConfig.business.phone}`} class="utility-bar-phone">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.01 1.18 2 2 0 012 .01h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
-        {ui("utilityBar.callUs", locale)} {siteConfig.business.phone}
-      </a>
+<!-- Utility Bar -->
+<div class="util-bar" role="banner" aria-label="Contact information">
+  <div class="container util-bar-inner">
+    <div class="util-bar-badges">
+      <span class="util-badge">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+        {ui("util.available", locale)}
+      </span>
+      <span class="util-badge">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+        {ui("util.licensed", locale)}
+      </span>
+      <span class="util-badge">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+        {ui("util.freeEstimates", locale)}
+      </span>
     </div>
+    <a href={`tel:${siteConfig.business.phone}`} class="util-phone" aria-label={`Call ${siteConfig.business.phone}`}>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.01 1.18 2 2 0 012 .01h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
+      {siteConfig.business.phone}
+    </a>
   </div>
 </div>
 
-<!-- Main header -->
-<header class="site-header" id="site-header">
-  <div class="container">
-    <div class="nav-row">
+<!-- Main Header -->
+<header class="site-header" id="site-header" role="banner">
+  <div class="container header-inner">
+    <!-- Logo -->
+    <a href={localizedPath(locale)} class="header-logo" aria-label={`${siteConfig.brand.logoText} — Home`}>
+      <span class="logo-icon" aria-hidden="true">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      </span>
+      <span class="logo-text">
+        {logoWords.map((word, i) => (
+          word === accentWord
+            ? <span class="logo-accent">{word}</span>
+            : <span>{word}{i < logoWords.length - 1 ? " " : ""}</span>
+        ))}
+      </span>
+    </a>
 
-      <!-- Logo -->
-      <a class="logo" href={localizedPath(locale)} aria-label={siteConfig.business.name}>
-        {siteConfig.brand.logoText.replace(siteConfig.brand.logoAccent, "")}
-        <span class="logo-accent">{siteConfig.brand.logoAccent}</span>
-        {siteConfig.brand.logoText.split(siteConfig.brand.logoAccent)[1] ?? ""}
-      </a>
-
-      <!-- Mobile toggle -->
-      <button class="mobile-toggle" type="button" data-mobile-toggle aria-label={ui("a11y.openMenu", locale)} aria-expanded="false" aria-controls="main-nav">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-        Menu
-      </button>
-
-      <!-- Nav -->
-      <nav class="nav-links" id="main-nav" data-mobile-menu data-open="false" aria-label="Main navigation">
-
-        <a class="nav-link" href={localizedPath(locale)}>{ui("nav.home", locale)}</a>
-
-        <!-- Services dropdown -->
-        <details class="dropdown">
-          <summary class="nav-link">{ui("nav.services", locale)}</summary>
-          <div class="dropdown-menu">
-            {allServices.map((service) => (
-              <div>
-                <a href={servicePath(locale, service)}>
-                  <strong>{t(service.title, locale)}</strong>
-                </a>
-                {service.children.slice(0, 5).map((child) => (
-                  <a href={subservicePath(locale, service, child.id)}>{t(child.title, locale)}</a>
+    <!-- Desktop Nav -->
+    <nav class="desktop-nav" aria-label="Main navigation">
+      <ul role="list">
+        {navLinks.map((link) => (
+          <li class={link.hasDropdown ? "has-dropdown" : ""}>
+            <a
+              href={link.href}
+              class={`nav-link${currentPath === link.href ? " active" : ""}`}
+              aria-current={currentPath === link.href ? "page" : undefined}
+            >
+              {link.label}
+              {link.hasDropdown && (
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+              )}
+            </a>
+            {link.hasDropdown && (
+              <div class="dropdown" role="menu" aria-label="Services menu">
+                {siteConfig.mainServices.slice(0, 8).map((service) => (
+                  <a href={servicePath(locale, service)} class="dropdown-item" role="menuitem">
+                    {t(service.title, locale)}
+                  </a>
                 ))}
-              </div>
-            ))}
-          </div>
-        </details>
-
-        <!-- Locations dropdown -->
-        <details class="dropdown">
-          <summary class="nav-link">{ui("nav.locations", locale)}</summary>
-          <div class="dropdown-menu" style="grid-template-columns: repeat(3, 1fr);">
-            <div>
-              <a href={localizedPath(locale, "service-area")}>
-                <strong>{ui("nav.allLocations", locale)}</strong>
-              </a>
-              {siteConfig.locations.slice(0, 9).map((location) => (
-                <a href={locationPath(locale, location.id)}>{location.name}</a>
-              ))}
-            </div>
-          </div>
-        </details>
-
-        <a class="nav-link" href={localizedPath(locale, "blog")}>{ui("nav.blog", locale)}</a>
-        <a class="nav-link" href={localizedPath(locale, "about")}>{ui("nav.about", locale)}</a>
-
-        <!-- Language switcher -->
-        <details class="dropdown">
-          <summary class="nav-link" aria-label={ui("a11y.changeLanguage", locale)}>
-            {locale.toUpperCase()}
-          </summary>
-          <div class="dropdown-menu language-menu">
-            {siteConfig.locales.map((item) => (
-              <div>
-                <a href={localizedPath(item.code, currentPath)} aria-current={item.code === locale ? "page" : undefined}>
-                  {item.label}
+                <a href={localizedPath(locale, "service-area")} class="dropdown-item dropdown-item--all" role="menuitem">
+                  {ui("nav.allServices", locale)} →
                 </a>
               </div>
-            ))}
-          </div>
-        </details>
+            )}
+          </li>
+        ))}
+      </ul>
+    </nav>
 
-        <!-- Primary CTA -->
-        <a class="btn btn-primary" href={localizedPath(locale, "contact")} style="margin-left:8px;min-height:44px;padding:12px 22px;font-size:0.85rem;">
-          {ui("nav.getEstimate", locale)}
+    <!-- Header Actions -->
+    <div class="header-actions">
+      {otherLocale && (
+        <a
+          href={otherLocale.path + "/"}
+          class="lang-toggle"
+          aria-label={ui("a11y.changeLanguage", locale)}
+          hreflang={otherLocale.code}
+        >
+          {otherLocale.code.toUpperCase()}
         </a>
-
-      </nav>
+      )}
+      <a href={localizedPath(locale, "contact")} class="btn btn-primary btn-sm header-cta">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.01 1.18 2 2 0 012 .01h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
+        {ui("nav.getEstimate", locale)}
+      </a>
+      <button
+        class="mobile-toggle"
+        id="mobile-toggle"
+        aria-label={ui("a11y.openMenu", locale)}
+        aria-expanded="false"
+        aria-controls="mobile-nav"
+        type="button"
+      >
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+      </button>
     </div>
   </div>
 </header>
 
-<script is:inline>
-(function () {
-  // Mobile menu toggle
-  var btn = document.querySelector("[data-mobile-toggle]");
-  var menu = document.querySelector("[data-mobile-menu]");
-  if (btn && menu) {
-    btn.addEventListener("click", function () {
-      var isOpen = menu.getAttribute("data-open") === "true";
-      menu.setAttribute("data-open", isOpen ? "false" : "true");
-      btn.setAttribute("aria-expanded", isOpen ? "false" : "true");
-    });
+<!-- Mobile Nav Overlay -->
+<div class="mobile-nav" id="mobile-nav" role="dialog" aria-label="Mobile navigation" aria-modal="true" aria-hidden="true">
+  <div class="mobile-nav-header">
+    <span class="logo-text" style="font-family:var(--font-display);font-weight:800;font-size:1.125rem;color:white">
+      {siteConfig.brand.logoText}
+    </span>
+    <button
+      class="mobile-close"
+      id="mobile-close"
+      aria-label={ui("a11y.closeMenu", locale)}
+      type="button"
+    >
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <nav aria-label="Mobile navigation">
+    <ul class="mobile-nav-list" role="list">
+      {navLinks.map((link) => (
+        <li>
+          <a href={link.href} class="mobile-nav-link">{link.label}</a>
+          {link.hasDropdown && (
+            <ul class="mobile-sub-list" role="list">
+              {siteConfig.mainServices.slice(0, 6).map((service) => (
+                <li>
+                  <a href={servicePath(locale, service)} class="mobile-sub-link">
+                    {t(service.title, locale)}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+        </li>
+      ))}
+    </ul>
+  </nav>
+  <div class="mobile-nav-footer">
+    <a href={`tel:${siteConfig.business.phone}`} class="btn btn-primary" style="width:100%;justify-content:center">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.01 1.18 2 2 0 012 .01h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
+      {siteConfig.business.phone}
+    </a>
+  </div>
+</div>
+<div class="mobile-overlay" id="mobile-overlay" aria-hidden="true"></div>
+
+<style>
+  /* ── Utility Bar ── */
+  .util-bar {
+    background: #0a0f1e;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,.06);
+  }
+  .util-bar-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .util-bar-badges {
+    display: flex;
+    align-items: center;
+    gap: clamp(10px, 2vw, 24px);
+    flex-wrap: wrap;
+  }
+  .util-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: rgba(255,255,255,.7);
+    font-family: var(--font-display);
+    letter-spacing: 0.01em;
+  }
+  .util-badge svg { color: var(--brand-accent); }
+  .util-phone {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-family: var(--font-display);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--brand-accent);
+    letter-spacing: 0.01em;
+    transition: color var(--transition-fast);
+  }
+  .util-phone:hover { color: white; }
+
+  /* ── Main Header ── */
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: white;
+    border-bottom: 1px solid var(--color-border);
+    transition: box-shadow var(--transition-base);
+  }
+  .site-header.scrolled {
+    box-shadow: 0 2px 20px rgba(0,0,0,.10);
   }
 
-  // Sticky header shadow
+  .header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    height: 68px;
+  }
+
+  /* Logo */
+  .header-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    flex-shrink: 0;
+  }
+  .logo-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--brand-primary);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    flex-shrink: 0;
+  }
+  .logo-text {
+    font-family: var(--font-display);
+    font-size: 1.0625rem;
+    font-weight: 800;
+    color: var(--brand-primary);
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+  .logo-accent { color: var(--brand-accent); }
+
+  /* Desktop nav */
+  .desktop-nav { display: flex; }
+  .desktop-nav ul {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+  .desktop-nav li { position: relative; }
+
+  .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 14px;
+    font-family: var(--font-display);
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #334155;
+    border-radius: var(--radius-md);
+    transition: color var(--transition-fast), background var(--transition-fast);
+    white-space: nowrap;
+  }
+  .nav-link:hover, .nav-link.active {
+    color: var(--brand-primary);
+    background: var(--color-surface-alt);
+  }
+  .nav-link.active { color: var(--brand-accent-dark); }
+
+  /* Dropdown */
+  .dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    min-width: 220px;
+    background: white;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+    padding: 8px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-50%) translateY(-8px);
+    transition: opacity var(--transition-base), transform var(--transition-base), visibility var(--transition-base);
+    z-index: 200;
+  }
+  .has-dropdown:hover .dropdown,
+  .has-dropdown:focus-within .dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+  }
+  .dropdown-item {
+    display: block;
+    padding: 9px 14px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #334155;
+    border-radius: var(--radius-md);
+    transition: background var(--transition-fast), color var(--transition-fast);
+  }
+  .dropdown-item:hover {
+    background: var(--color-surface-alt);
+    color: var(--brand-primary);
+  }
+  .dropdown-item--all {
+    margin-top: 4px;
+    border-top: 1px solid var(--color-border);
+    padding-top: 12px;
+    font-weight: 700;
+    color: var(--brand-accent-dark);
+  }
+
+  /* Header actions */
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+  .lang-toggle {
+    padding: 6px 12px;
+    font-family: var(--font-display);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--color-text-muted);
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-md);
+    transition: border-color var(--transition-fast), color var(--transition-fast);
+  }
+  .lang-toggle:hover {
+    border-color: var(--brand-primary);
+    color: var(--brand-primary);
+  }
+
+  /* Hamburger */
+  .mobile-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    width: 40px;
+    height: 40px;
+    background: none;
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    padding: 0;
+    transition: border-color var(--transition-fast);
+  }
+  .mobile-toggle:hover { border-color: var(--brand-primary); }
+  .hamburger-line {
+    width: 18px;
+    height: 2px;
+    background: var(--color-text);
+    border-radius: 2px;
+    transition: transform var(--transition-base), opacity var(--transition-base);
+    display: block;
+  }
+
+  /* Mobile nav overlay */
+  .mobile-nav {
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+    background: var(--brand-primary);
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform var(--transition-slow);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .mobile-nav.open { transform: translateX(0); }
+
+  .mobile-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 299;
+    background: rgba(0,0,0,.5);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--transition-slow), visibility var(--transition-slow);
+    backdrop-filter: blur(2px);
+  }
+  .mobile-overlay.open { opacity: 1; visibility: visible; }
+
+  .mobile-nav-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid rgba(255,255,255,.1);
+  }
+  .mobile-close {
+    width: 40px;
+    height: 40px;
+    background: rgba(255,255,255,.1);
+    border: none;
+    border-radius: var(--radius-md);
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background var(--transition-fast);
+  }
+  .mobile-close:hover { background: rgba(255,255,255,.2); }
+
+  .mobile-nav-list { padding: 16px 24px; flex: 1; }
+  .mobile-nav-link {
+    display: block;
+    padding: 14px 0;
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: white;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+    transition: color var(--transition-fast);
+  }
+  .mobile-nav-link:hover { color: var(--brand-accent); }
+
+  .mobile-sub-list { padding: 8px 0 8px 16px; }
+  .mobile-sub-link {
+    display: block;
+    padding: 8px 0;
+    font-size: 0.9375rem;
+    color: rgba(255,255,255,.7);
+    transition: color var(--transition-fast);
+  }
+  .mobile-sub-link:hover { color: var(--brand-accent); }
+
+  .mobile-nav-footer {
+    padding: 20px 24px;
+    border-top: 1px solid rgba(255,255,255,.1);
+  }
+
+  /* Responsive */
+  @media (max-width: 1024px) {
+    .desktop-nav { display: none; }
+    .mobile-toggle { display: flex; }
+    .header-cta { display: none; }
+  }
+  @media (max-width: 640px) {
+    .util-bar-badges { display: none; }
+    .util-bar-inner { justify-content: center; }
+  }
+</style>
+
+<script is:inline>
+(function() {
+  // Scroll shadow
   var header = document.getElementById("site-header");
   if (header) {
-    window.addEventListener("scroll", function () {
-      header.classList.toggle("scrolled", window.scrollY > 20);
-    }, { passive: true });
+    var onScroll = function() {
+      header.classList.toggle("scrolled", window.scrollY > 10);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
   }
 
-  // Close dropdowns on outside click
-  document.addEventListener("click", function (e) {
-    document.querySelectorAll("details.dropdown[open]").forEach(function (d) {
-      if (!d.contains(e.target)) d.removeAttribute("open");
-    });
+  // Mobile nav
+  var toggle  = document.getElementById("mobile-toggle");
+  var closeBtn = document.getElementById("mobile-close");
+  var nav     = document.getElementById("mobile-nav");
+  var overlay = document.getElementById("mobile-overlay");
+
+  function openNav() {
+    if (!nav || !overlay || !toggle) return;
+    nav.classList.add("open");
+    overlay.classList.add("open");
+    nav.setAttribute("aria-hidden", "false");
+    toggle.setAttribute("aria-expanded", "true");
+    document.body.style.overflow = "hidden";
+    if (closeBtn) closeBtn.focus();
+  }
+  function closeNav() {
+    if (!nav || !overlay || !toggle) return;
+    nav.classList.remove("open");
+    overlay.classList.remove("open");
+    nav.setAttribute("aria-hidden", "true");
+    toggle.setAttribute("aria-expanded", "false");
+    document.body.style.overflow = "";
+    toggle.focus();
+  }
+
+  if (toggle) toggle.addEventListener("click", openNav);
+  if (closeBtn) closeBtn.addEventListener("click", closeNav);
+  if (overlay) overlay.addEventListener("click", closeNav);
+
+  document.addEventListener("keydown", function(e) {
+    if (e.key === "Escape" && nav && nav.classList.contains("open")) closeNav();
   });
 })();
 </script>

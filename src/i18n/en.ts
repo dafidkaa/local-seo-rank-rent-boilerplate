@@ -42,6 +42,8 @@ const en = {
 
   // ── Hero Section ─────────────────────────────────────────────────────────────
   hero: {
+    eyebrow:        "Serving {city} & Surrounding Areas",
+    callCta:        "Call Us:",
     badge:          "Serving {city} Since {year}",
     cta: {
       primary:      "Get a Free Estimate",
@@ -63,6 +65,7 @@ const en = {
     subheading:     "Professional {service} services for homes and businesses across {city}.",
     learnMore:      "Learn More",
     viewAll:        "View All Services",
+    headingSuffix:  "Services",
     featured:       "Featured Service",
   },
 
@@ -127,12 +130,42 @@ const en = {
     primary:        "Request Free Estimate",
     secondary:      "Call {phone}",
     trust:          "Same-day response • Free estimates • Licensed & insured",
+    // FinalCta component keys
+    callLabel:      "Call Us Now",
+    formTitle:      "Get Your Free Estimate",
+    formSub:        "We respond within one business hour.",
+    trust1:         "Licensed & Insured Professionals",
+    trust2:         "Same-Day Response Guaranteed",
+    trust3:         "100% Satisfaction or We Make It Right",
   },
 
   // ── Contact Form ─────────────────────────────────────────────────────────────
   form: {
     heading:        "Request a Free Estimate",
     subheading:     "Fill out the form below and we'll get back to you within one business hour.",
+    ariaLabel:      "Free estimate request form",
+    firstName:      "First Name",
+    lastName:       "Last Name",
+    phone:          "Phone Number",
+    email:          "Email Address",
+    address:        "Service Address",
+    service:        "Service Needed",
+    servicePlaceholder: "Select a service...",
+    details:        "Additional Details (Optional)",
+    detailsPlaceholder: "Describe the issue, any urgency, or special requirements...",
+    consentPre:     "I agree to the",
+    privacyPolicy:  "Privacy Policy",
+    consentAnd:     "and",
+    terms:          "Terms of Service",
+    submit:         "Get My Free Estimate",
+    submitting:     "Sending...",
+    privacy:        "Your information is private and will never be shared.",
+    success: {
+      heading:      "Request Received!",
+      body:         "Thank you — we'll be in touch within one business hour.",
+    },
+    error:          "Something went wrong. Please call us directly.",
+    // Legacy field keys (kept for backward compatibility)
     fields: {
       firstName:    "First Name",
       lastName:     "Last Name",
@@ -145,14 +178,6 @@ const en = {
       selectService:"Select a service...",
       selectLocation:"Select your area...",
     },
-    submit:         "Send My Request",
-    submitting:     "Sending...",
-    success: {
-      heading:      "Request Received!",
-      body:         "Thank you — we'll be in touch within one business hour.",
-    },
-    error:          "Something went wrong. Please call us directly.",
-    privacy:        "Your information is private and will never be shared.",
   },
 
   // ── Blog ─────────────────────────────────────────────────────────────────────
@@ -219,6 +244,7 @@ const en = {
     contactHeading: "Contact Us",
     hours:          "Business Hours",
     copyright:      "© {year} {name}. All rights reserved.",
+    viewAll:        "View All Areas",
     links: {
       privacy:      "Privacy Policy",
       terms:        "Terms of Service",
@@ -251,16 +277,48 @@ const en = {
     cta:            "Back to Home",
   },
 
+  // ── Mobile CTA Bar ───────────────────────────────────────────────────────────
+  mobileCta: {
+    call:           "Call Now",
+    estimate:       "Free Estimate",
+  },
+  // ── Utility Bar ──────────────────────────────────────────────────────────────
+  util: {
+    available:      "Available 24/7",
+    licensed:       "Licensed & Insured",
+    freeEstimates:  "Free Estimates",
+  },
+  // ── Nav extra ────────────────────────────────────────────────────────────────
   // ── Accessibility ────────────────────────────────────────────────────────────
   a11y: {
     skipToContent:  "Skip to main content",
     openMenu:       "Open navigation menu",
     closeMenu:      "Close navigation menu",
     changeLanguage: "Change language",
+    nextSlide:       "Next slide",
+    prevSlide:       "Previous slide",
     externalLink:   "Opens in new tab",
   },
-
+  // ── Problems Section ─────────────────────────────────────────────────────────
+  problems: {
+    eyebrow:  "Sound Familiar?",
+    heading:  "Looking For {service} In {city}?",
+    p1:       "Need help with leaks, clogs, or emergencies without knowing who to trust?",
+    p2:       "Looking for a local provider who responds quickly and shows up on time?",
+    p3:       "Want clear, upfront pricing before the work begins — no hidden fees?",
+    p4:       "Need reliable help in {city} or nearby areas?",
+    p5:       "Trying to compare your options without wasting hours of your time?",
+    p6:       "Want the job done right the first time, with a satisfaction guarantee?",
+  },
+  // ── Welcome Section ──────────────────────────────────────────────────────────
+  welcome: {
+    eyebrow:  "About Us",
+    heading:  "Welcome to {name}",
+    badge:    "Est. 2012",
+    check1:   "Serving {city} and surrounding communities",
+    check2:   "Licensed, bonded, and insured professionals",
+    check3:   "100% satisfaction guarantee on every job",
+  }
 } as const;
-
 export default en;
 export type UIStrings = typeof en;

@@ -28,8 +28,16 @@ const hr = {
   },
 
   hero: {
+    eyebrow:        "Servisiramo {city} i okolicu",
+    callCta:        "Nazovite:",
     badge:          "Servisiramo {city} od {year}. godine",
     cta: {
+    callLabel:      "Nazovite nas",
+    formTitle:      "Zatražite besplatnu procjenu",
+    formSub:        "Odgovaramo unutar jednog radnog sata.",
+    trust1:         "Licencirani i osigurani stručnjaci",
+    trust2:         "Odgovor isti dan zajamčen",
+    trust3:         "100% zadovoljstvo ili rješavamo problem",
       primary:      "Zatražite besplatnu procjenu",
       secondary:    "Pozovite sada",
       learnMore:    "Saznajte više",
@@ -101,6 +109,12 @@ const hr = {
   },
 
   cta: {
+    callLabel:      "Nazovite nas",
+    formTitle:      "Zatražite besplatnu procjenu",
+    formSub:        "Odgovaramo unutar jednog radnog sata.",
+    trust1:         "Licencirani i osigurani stručnjaci",
+    trust2:         "Odgovor isti dan zajamčen",
+    trust3:         "100% zadovoljstvo ili rješavamo problem",
     eyebrow:        "Spremni za početak?",
     heading:        "Zatražite besplatnu procjenu za {service} danas",
     subheading:     "Bez obveza. Bez pritiska. Samo pošteni savjet i pravedna cijena od vaših lokalnih stručnjaka u {city}.",
@@ -110,6 +124,23 @@ const hr = {
   },
 
   form: {
+    ariaLabel:      "Obrazac za besplatnu procjenu",
+    firstName:      "Ime",
+    lastName:       "Prezime",
+    phone:          "Broj telefona",
+    email:          "E-mail adresa",
+    address:        "Adresa usluge",
+    service:        "Potrebna usluga",
+    servicePlaceholder: "Odaberite uslugu...",
+    details:        "Dodatne informacije (neobavezno)",
+    detailsPlaceholder: "Opišite problem, hitnost ili posebne zahtjeve...",
+    consentPre:     "Slažem se s",
+    privacyPolicy:  "Politikom privatnosti",
+    consentAnd:     "i",
+    terms:          "Uvjetima korištenja",
+    submit:         "Zatražite besplatnu procjenu",
+    submitting:     "Slanje...",
+    privacy:        "Vaši podaci su privatni i nikada neće biti dijeljeni.",
     heading:        "Zatražite besplatnu procjenu",
     subheading:     "Ispunite obrazac i javit ćemo se unutar jednog radnog sata.",
     fields: {
@@ -192,6 +223,7 @@ const hr = {
     contactHeading: "Kontaktirajte nas",
     hours:          "Radno vrijeme",
     copyright:      "© {year} {name}. Sva prava pridržana.",
+    viewAll:        "View All Areas",
     links: {
       privacy:      "Politika privatnosti",
       terms:        "Uvjeti korištenja",
@@ -226,9 +258,29 @@ const hr = {
     openMenu:       "Otvori navigacijski izbornik",
     closeMenu:      "Zatvori navigacijski izbornik",
     changeLanguage: "Promijeni jezik",
+    nextSlide:       "Sljedeći slajd",
+    prevSlide:       "Prethodni slajd",
     externalLink:   "Otvara se u novoj kartici",
   },
-
+  // ── Problems Section ─────────────────────────────────────────────────────────
+  problems: {
+    eyebrow:  "Prepoznajete li se?",
+    heading:  "Tražite {service} u {city}?",
+    p1:       "Trebate pomoć s curenjem, začepljenjem ili hitnim slučajevima, a ne znate kome vjerovati?",
+    p2:       "Tražite lokalnog pružatelja usluga koji brzo reagira i dolazi na dogovoreno vrijeme?",
+    p3:       "Želite jasnu cijenu unaprijed — bez skrivenih troškova?",
+    p4:       "Trebate pouzdanu pomoć u {city} ili okolici?",
+    p5:       "Pokušavate usporediti opcije bez gubljenja sati vremena?",
+    p6:       "Želite da posao bude obavljen ispravno prvi put, uz jamstvo zadovoljstva?",
+  },
+  // ── Welcome Section ──────────────────────────────────────────────────────────
+  welcome: {
+    eyebrow:  "O nama",
+    heading:  "Dobrodošli u {name}",
+    badge:    "Osnovano 2012.",
+    check1:   "Pružamo usluge u {city} i okolnim mjestima",
+    check2:   "Licencirani, vezani i osigurani stručnjaci",
+    check3:   "100% jamstvo zadovoljstva na svakom poslu",
+  }
 } as const;
-
 export default hr;

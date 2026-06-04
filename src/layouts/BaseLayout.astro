@@ -22,7 +22,7 @@ const requireConsent = siteConfig.integrations.requireCookieConsent;
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
     <!-- Brand CSS variables — driven by site.config.ts brand section -->
-    <style set:html={`:root{--brand-primary:${siteConfig.brand.primary};--brand-secondary:${siteConfig.brand.secondary};--brand-accent:${siteConfig.brand.accent};--brand-accent-dark:${siteConfig.brand.accentDark};--brand-hero-overlay:${siteConfig.brand.heroOverlay};--brand-font-display:"${siteConfig.brand.fontDisplay}";--brand-font-body:"${siteConfig.brand.fontBody}";}`} />
+    <style set:html={`:root{--brand-primary:${siteConfig.brand.primary};--brand-primary-700:${siteConfig.brand.secondary};--brand-secondary:${siteConfig.brand.secondary};--brand-accent:${siteConfig.brand.accent};--brand-accent-dark:${siteConfig.brand.accentDark};--brand-accent-light:${siteConfig.brand.accentLight ?? "#fef3c7"};--brand-hero-overlay:${siteConfig.brand.heroOverlay};--brand-font-display:"${siteConfig.brand.fontDisplay}";--brand-font-body:"${siteConfig.brand.fontBody}";}`} />
     <title>{seo.title}</title>
     <meta name="description" content={seo.description} />
     <link rel="canonical" href={seo.canonical} />

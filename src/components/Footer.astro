@@ -1,109 +1,308 @@
 ---
-import { allServices, siteConfig, type Locale } from "@/site.config";
-import { localizedPath, locationPath, servicePath, t } from "@/lib/routes";
+/**
+ * Footer — 4-column premium footer
+ * Brand | Services | Locations | Contact + Hours
+ */
+import { siteConfig, type Locale } from "@/site.config";
+import { localizedPath, servicePath, locationPath, t } from "@/lib/routes";
 import { ui } from "@/i18n";
 
-const { locale } = Astro.props as { locale: Locale };
-const serviceName = t(siteConfig.business.primaryService, locale);
+interface Props { locale: Locale; }
+const { locale } = Astro.props;
+
+const year = new Date().getFullYear();
+const logoWords = siteConfig.brand.logoText.split(" ");
+const accentWord = siteConfig.brand.logoAccent;
 ---
 
-<footer class="site-footer">
-  <div class="container">
-    <div class="footer-grid">
+<footer class="site-footer" role="contentinfo">
+  <div class="footer-main">
+    <div class="container footer-grid">
 
-      <!-- Brand column -->
+      <!-- Col 1: Brand -->
       <div class="footer-brand">
-        <a class="footer-logo" href={localizedPath(locale)}>
-          {siteConfig.brand.logoText.replace(siteConfig.brand.logoAccent, "")}
-          <span class="footer-logo-accent">{siteConfig.brand.logoAccent}</span>
-          {siteConfig.brand.logoText.split(siteConfig.brand.logoAccent)[1] ?? ""}
+        <a href={localizedPath(locale)} class="footer-logo" aria-label={`${siteConfig.brand.logoText} — Home`}>
+          <span class="footer-logo-icon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </span>
+          <span class="footer-logo-text">
+            {logoWords.map((word) => (
+              word === accentWord
+                ? <span style="color:var(--brand-accent)">{word} </span>
+                : <span>{word} </span>
+            ))}
+          </span>
         </a>
         <p class="footer-tagline">
-          {ui("footer.tagline", locale).replace("{service}", serviceName)}
+          {ui("footer.tagline", locale)
+            .replace("{service}", t(siteConfig.business.primaryService, locale))
+            .replace("{city}", siteConfig.business.city)}
         </p>
-        <div class="footer-contact-list">
-          <div class="footer-contact-item">
-            <div class="footer-contact-icon" aria-hidden="true">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.01 1.18 2 2 0 012 .01h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
-            </div>
-            <a href={`tel:${siteConfig.business.phone}`}>{siteConfig.business.phone}</a>
-          </div>
-          <div class="footer-contact-item">
-            <div class="footer-contact-icon" aria-hidden="true">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-            </div>
-            <a href={`mailto:${siteConfig.business.email}`}>{siteConfig.business.email}</a>
-          </div>
-          <div class="footer-contact-item">
-            <div class="footer-contact-icon" aria-hidden="true">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            </div>
-            <span>{siteConfig.business.city}, {siteConfig.business.region}</span>
-          </div>
+        <!-- Trust badges -->
+        <div class="footer-trust">
+          <span class="footer-trust-badge">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Licensed & Insured
+          </span>
+          <span class="footer-trust-badge">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Same-Day Service
+          </span>
         </div>
       </div>
 
-      <!-- Services column -->
-      <div>
-        <p class="footer-col-heading">{ui("footer.servicesHeading", locale)}</p>
-        <nav class="footer-links" aria-label="Footer services">
-          {allServices.slice(0, 8).map((service) => (
-            <a href={servicePath(locale, service)}>{t(service.title, locale)}</a>
+      <!-- Col 2: Services -->
+      <div class="footer-col">
+        <h3 class="footer-heading">{ui("footer.servicesHeading", locale)}</h3>
+        <ul role="list" class="footer-links">
+          {siteConfig.mainServices.slice(0, 7).map((service) => (
+            <li>
+              <a href={servicePath(locale, service)} class="footer-link">
+                {t(service.title, locale)}
+              </a>
+            </li>
           ))}
-        </nav>
+          <li>
+            <a href={localizedPath(locale, "service-area")} class="footer-link footer-link--all">
+              {ui("nav.allServices", locale)} →
+            </a>
+          </li>
+        </ul>
       </div>
 
-      <!-- Locations column -->
-      <div>
-        <p class="footer-col-heading">{ui("footer.areasHeading", locale)}</p>
-        <nav class="footer-links" aria-label="Footer service areas">
-          {siteConfig.locations.slice(0, 8).map((location) => (
-            <a href={locationPath(locale, location.id)}>{location.name}</a>
+      <!-- Col 3: Locations -->
+      <div class="footer-col">
+        <h3 class="footer-heading">{ui("footer.areasHeading", locale)}</h3>
+        <ul role="list" class="footer-links">
+          {siteConfig.locations.slice(0, 7).map((location) => (
+            <li>
+              <a href={locationPath(locale, location.id)} class="footer-link">
+                {location.name}
+              </a>
+            </li>
           ))}
-        </nav>
+          <li>
+            <a href={localizedPath(locale, "service-area")} class="footer-link footer-link--all">
+              {ui("footer.viewAll", locale) || "View All Areas"} →
+            </a>
+          </li>
+        </ul>
       </div>
 
-      <!-- Hours column -->
-      <div>
-        <p class="footer-col-heading">{ui("footer.hours", locale)}</p>
-        <div class="footer-hours">
+      <!-- Col 4: Contact + Hours -->
+      <div class="footer-col">
+        <h3 class="footer-heading">{ui("footer.contactHeading", locale)}</h3>
+        <ul role="list" class="footer-contact-list">
+          <li>
+            <a href={`tel:${siteConfig.business.phone}`} class="footer-contact-item">
+              <span class="footer-contact-icon" aria-hidden="true">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.01 1.18 2 2 0 012 .01h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
+              </span>
+              {siteConfig.business.phone}
+            </a>
+          </li>
+          <li>
+            <a href={`mailto:${siteConfig.business.email}`} class="footer-contact-item">
+              <span class="footer-contact-icon" aria-hidden="true">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              </span>
+              {siteConfig.business.email}
+            </a>
+          </li>
+        </ul>
+
+        <h3 class="footer-heading" style="margin-top:24px">{ui("footer.hours", locale)}</h3>
+        <ul role="list" class="footer-hours">
           {Object.entries(siteConfig.business.hours).map(([day, hours]) => (
-            <div class="footer-hours-row">
+            <li class="footer-hours-row">
               <span class="footer-hours-day">{day.slice(0, 3)}</span>
-              <span>{hours}</span>
-            </div>
+              <span class="footer-hours-time">{hours}</span>
+            </li>
           ))}
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- Footer bottom bar -->
-  <div style="border-top:1px solid rgba(255,255,255,0.08)">
-    <div class="container">
-      <div class="footer-bottom">
-        <span>
-          {ui("footer.copyright", locale)
-            .replace("{year}", String(new Date().getFullYear()))
-            .replace("{name}", siteConfig.business.name)}
-        </span>
-        <div class="footer-bottom-links">
-          <a href={localizedPath(locale, "privacy-policy")}>{ui("footer.links.privacy", locale)}</a>
-          <a href={localizedPath(locale, "terms-and-conditions")}>{ui("footer.links.terms", locale)}</a>
-          <a href="/sitemap-index.xml">{ui("footer.links.sitemap", locale)}</a>
-        </div>
+        </ul>
       </div>
     </div>
   </div>
 
-  <!-- SEO crawler links (hidden) -->
-  <div class="crawler-links" aria-hidden="true">
-    {allServices.map((service) => (
-      <a href={servicePath(locale, service)}>{t(service.title, locale)}</a>
-    ))}
-    <a href="/sitemap-index.xml">Sitemap</a>
-    <a href="/robots.txt">Robots.txt</a>
-    <a href="/llms.txt">llms.txt</a>
+  <!-- Bottom bar -->
+  <div class="footer-bottom">
+    <div class="container footer-bottom-inner">
+      <p class="footer-copy">
+        {ui("footer.copyright", locale)
+          .replace("{year}", String(year))
+          .replace("{name}", siteConfig.business.name)}
+      </p>
+      <nav class="footer-legal-links" aria-label="Legal links">
+        <a href={localizedPath(locale, "privacy-policy")}>{ui("footer.links.privacy", locale)}</a>
+        <a href={localizedPath(locale, "terms-and-conditions")}>{ui("footer.links.terms", locale)}</a>
+        <a href={`/sitemap.xml`}>{ui("footer.links.sitemap", locale)}</a>
+      </nav>
+    </div>
   </div>
 </footer>
+
+<style>
+  .site-footer {
+    background: #0a0f1e;
+    color: rgba(255,255,255,.7);
+  }
+
+  .footer-main { padding-block: clamp(56px, 8vw, 88px); }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr 1.2fr;
+    gap: clamp(32px, 5vw, 56px);
+  }
+
+  /* Brand col */
+  .footer-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    text-decoration: none;
+  }
+  .footer-logo-icon {
+    width: 38px;
+    height: 38px;
+    background: var(--brand-primary);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    flex-shrink: 0;
+  }
+  .footer-logo-text {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 800;
+    color: white;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+  .footer-tagline {
+    font-size: 0.875rem;
+    color: rgba(255,255,255,.55);
+    line-height: 1.65;
+    margin-bottom: 20px;
+    max-width: 28ch;
+  }
+  .footer-trust {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .footer-trust-badge {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: rgba(255,255,255,.65);
+    font-family: var(--font-display);
+  }
+  .footer-trust-badge svg { color: var(--brand-accent); }
+
+  /* Column headings */
+  .footer-heading {
+    font-family: var(--font-display);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.45);
+    margin-bottom: 16px;
+  }
+
+  /* Links */
+  .footer-links { display: flex; flex-direction: column; gap: 8px; }
+  .footer-link {
+    font-size: 0.9rem;
+    color: rgba(255,255,255,.65);
+    transition: color var(--transition-fast);
+    line-height: 1.5;
+  }
+  .footer-link:hover { color: var(--brand-accent); }
+  .footer-link--all {
+    color: var(--brand-accent);
+    font-weight: 600;
+    margin-top: 4px;
+  }
+  .footer-link--all:hover { color: white; }
+
+  /* Contact */
+  .footer-contact-list { display: flex; flex-direction: column; gap: 10px; }
+  .footer-contact-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.875rem;
+    color: rgba(255,255,255,.7);
+    transition: color var(--transition-fast);
+  }
+  .footer-contact-item:hover { color: var(--brand-accent); }
+  .footer-contact-icon {
+    width: 30px;
+    height: 30px;
+    background: rgba(255,255,255,.06);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: var(--brand-accent);
+  }
+
+  /* Hours */
+  .footer-hours { display: flex; flex-direction: column; gap: 5px; }
+  .footer-hours-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8125rem;
+    color: rgba(255,255,255,.55);
+  }
+  .footer-hours-day { font-weight: 600; color: rgba(255,255,255,.7); }
+  .footer-hours-time { font-variant-numeric: tabular-nums; }
+
+  /* Bottom bar */
+  .footer-bottom {
+    border-top: 1px solid rgba(255,255,255,.07);
+    padding-block: 20px;
+  }
+  .footer-bottom-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .footer-copy {
+    font-size: 0.8125rem;
+    color: rgba(255,255,255,.35);
+    max-width: none;
+  }
+  .footer-legal-links {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .footer-legal-links a {
+    font-size: 0.8125rem;
+    color: rgba(255,255,255,.35);
+    transition: color var(--transition-fast);
+  }
+  .footer-legal-links a:hover { color: rgba(255,255,255,.7); }
+
+  /* Responsive */
+  @media (max-width: 1024px) {
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+    .footer-brand { grid-column: 1 / -1; }
+  }
+  @media (max-width: 640px) {
+    .footer-grid { grid-template-columns: 1fr; }
+    .footer-bottom-inner { flex-direction: column; align-items: flex-start; }
+  }
+</style>

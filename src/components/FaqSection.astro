@@ -1,17 +1,122 @@
 ---
-const { faqs } = Astro.props;
+/**
+ * FaqSection — Accordion FAQ with FAQPage schema
+ * - Native <details>/<summary> for accessibility
+ * - Smooth height animation
+ * - Proper aria attributes
+ */
+interface Faq {
+  question: string;
+  answer: string;
+}
+
+interface Props {
+  faqs: Faq[];
+  title?: string;
+}
+
+const { faqs, title = "Frequently Asked Questions" } = Astro.props;
 ---
-<section class="section">
-  <div class="container" style="max-width:850px">
-    <p class="eyebrow">Helpful Answers</p>
-    <h2>Frequently Asked Questions</h2>
-    <div class="grid">
-      {faqs.map((faq: { question: string; answer: string }) => (
-        <details class="card">
-          <summary class="card-body"><strong>{faq.question}</strong></summary>
-          <div class="card-body"><p>{faq.answer}</p></div>
+
+<section class="section section-light">
+  <div class="container-narrow">
+    <div class="section-header center">
+      <p class="eyebrow">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Helpful Answers
+      </p>
+      <h2>{title}</h2>
+    </div>
+
+    <div class="faq-list" role="list">
+      {faqs.map((faq, i) => (
+        <details class="faq-item" role="listitem">
+          <summary class="faq-question" aria-expanded="false">
+            <span>{faq.question}</span>
+            <span class="faq-icon" aria-hidden="true">
+              <svg class="faq-icon-plus" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <svg class="faq-icon-minus" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </span>
+          </summary>
+          <div class="faq-answer">
+            <p>{faq.answer}</p>
+          </div>
         </details>
       ))}
     </div>
   </div>
 </section>
+
+<style>
+  .faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .faq-item {
+    background: white;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: border-color var(--transition-base), box-shadow var(--transition-base);
+  }
+  .faq-item[open] {
+    border-color: var(--brand-accent);
+    box-shadow: 0 0 0 3px rgba(245,158,11,.08);
+  }
+
+  .faq-question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 20px 24px;
+    cursor: pointer;
+    list-style: none;
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--brand-primary);
+    line-height: 1.4;
+    transition: color var(--transition-base);
+    user-select: none;
+  }
+  .faq-question::-webkit-details-marker { display: none; }
+  .faq-question:hover { color: var(--brand-accent-dark); }
+  .faq-question:focus-visible { outline: 2px solid var(--brand-accent); outline-offset: -2px; border-radius: var(--radius-lg); }
+
+  .faq-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--color-surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: var(--brand-primary);
+    transition: background var(--transition-base), color var(--transition-base);
+  }
+  .faq-item[open] .faq-icon {
+    background: var(--brand-accent-light, #fef3c7);
+    color: var(--brand-accent-dark);
+  }
+
+  .faq-icon-minus { display: none; }
+  .faq-item[open] .faq-icon-plus  { display: none; }
+  .faq-item[open] .faq-icon-minus { display: block; }
+
+  .faq-answer {
+    padding: 0 24px 20px;
+    border-top: 1px solid var(--color-border);
+  }
+  .faq-answer p {
+    font-size: 0.9375rem;
+    color: #475569;
+    line-height: 1.75;
+    margin: 16px 0 0;
+    max-width: none;
+  }
+</style>

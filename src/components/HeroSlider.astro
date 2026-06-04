@@ -1,4 +1,11 @@
 ---
+/**
+ * HeroSlider — Premium full-bleed photo hero with slideshow
+ * - Dark overlay with brand color
+ * - Large Poppins heading, trust badges, dual CTAs
+ * - Keyboard-accessible slide controls
+ * - prefers-reduced-motion respected
+ */
 import { t, localizedPath } from "@/lib/routes";
 import { siteConfig, type Locale, type HeroSlide } from "@/site.config";
 import { ui } from "@/i18n";
@@ -6,59 +13,90 @@ import { ui } from "@/i18n";
 interface Props {
   slides: HeroSlide[];
   locale: Locale;
-  trustItems?: string[];
+  badges?: string[];
 }
 
-const { slides, locale, trustItems } = Astro.props;
-
-const defaultTrust = [
-  ui("hero.trust.licensed",     locale),
-  ui("hero.trust.sameDay",      locale),
-  ui("hero.trust.guarantee",    locale),
-  ui("hero.trust.freeEstimate", locale),
-];
-const trust = trustItems ?? defaultTrust;
-
-const eyebrow = ui("hero.badge", locale)
-  .replace("{city}",  siteConfig.business.city)
-  .replace("{year}",  siteConfig.business.foundedYear);
+const { slides, locale, badges = [] } = Astro.props;
+const contactPath = localizedPath(locale, "contact");
 ---
 
-<section class="hero-slider" role="region" aria-label="Featured content" aria-live="polite">
-  {slides.map((slide, index) => (
-    <div class={`hs-slide ${index === 0 ? "hs-slide--active" : ""}`} data-slide={index} aria-hidden={index !== 0 ? "true" : "false"}>
-      <img src={slide.image} alt="" role="presentation" width="1920" height="1080" fetchpriority={index === 0 ? "high" : "low"} loading={index === 0 ? "eager" : "lazy"} decoding={index === 0 ? "sync" : "async"} class="hs-bg" />
-      <div class="hs-overlay"></div>
-      <div class="hs-bottom-fade"></div>
-      <div class="container">
-        <div class="hs-content">
-          <div class="hs-eyebrow">
-            <span class="hs-eyebrow-dot"></span>
-            {eyebrow}
-          </div>
-          <h1 class="hs-title">{t(slide.title, locale)}</h1>
-          <p class="hs-subtitle">{t(slide.text, locale)}</p>
-          <div class="hs-actions">
-            {slide.primaryText && (
-              <a class="btn btn-primary hs-btn-primary" href={slide.primaryHref.startsWith("tel:") || slide.primaryHref.startsWith("http") ? slide.primaryHref : localizedPath(locale, slide.primaryHref)}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.01 1.18 2 2 0 012 .01h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
-                {t(slide.primaryText, locale)}
+<section
+  class="hero-slider"
+  aria-label="Hero slideshow"
+  data-hero-slider
+>
+  <!-- Slides -->
+  {slides.map((slide, i) => (
+    <div
+      class={`hs-slide${i === 0 ? " is-active" : ""}`}
+      data-slide={i}
+      aria-hidden={i !== 0}
+    >
+      <!-- Background image -->
+      <img
+        src={slide.image}
+        alt=""
+        role="presentation"
+        class="hs-bg"
+        width="1920"
+        height="1080"
+        loading={i === 0 ? "eager" : "lazy"}
+        fetchpriority={i === 0 ? "high" : "auto"}
+        decoding="async"
+      />
+      <div class="hs-overlay" aria-hidden="true"></div>
+
+      <!-- Content -->
+      <div class="hs-content container">
+        <div class="hs-inner">
+          <p class="hs-eyebrow animate-fade-in">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            {slide.eyebrow ?? ui("hero.eyebrow", locale).replace("{city}", siteConfig.business.city)}
+          </p>
+
+          <h1 class="hs-heading animate-fade-in delay-100">
+            {t(slide.title, locale)}
+          </h1>
+
+          <p class="hs-subheading animate-fade-in delay-200">
+            {t(slide.text, locale)}
+          </p>
+
+          <div class="hs-actions animate-fade-in delay-300">
+            <a
+              href={slide.primaryHref ?? contactPath}
+              class="btn btn-primary btn-lg"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.01 1.18 2 2 0 012 .01h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
+              {t(slide.primaryText, locale)}
+            </a>
+            {slide.secondaryHref && (
+              <a
+                href={slide.secondaryHref}
+                class="btn btn-secondary btn-lg"
+              >
+                {t(slide.secondaryText ?? { en: "Learn More", hr: "Saznaj više" }, locale)}
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
               </a>
             )}
-            {slide.secondaryText && slide.secondaryHref && (
-              <a class="btn btn-outline-white hs-btn-secondary" href={slide.secondaryHref.startsWith("tel:") || slide.secondaryHref.startsWith("http") ? slide.secondaryHref : localizedPath(locale, slide.secondaryHref)}>
-                {t(slide.secondaryText, locale)}
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            {!slide.secondaryHref && (
+              <a
+                href={`tel:${siteConfig.business.phone}`}
+                class="btn btn-secondary btn-lg"
+              >
+                {ui("hero.callCta", locale)} {siteConfig.business.phone}
               </a>
             )}
           </div>
-          {trust.length > 0 && (
-            <div class="trust-bar">
-              {trust.map((item) => (
-                <div class="trust-item">
-                  <div class="trust-item-check" aria-hidden="true">✓</div>
-                  {item}
-                </div>
+
+          <!-- Trust badges -->
+          {badges.length > 0 && (
+            <div class="trust-bar animate-fade-in delay-400" role="list" aria-label="Trust indicators">
+              {badges.map((badge) => (
+                <span class="trust-item" role="listitem">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+                  {badge}
+                </span>
               ))}
             </div>
           )}
@@ -66,42 +104,249 @@ const eyebrow = ui("hero.badge", locale)
       </div>
     </div>
   ))}
+
+  <!-- Slide controls -->
   {slides.length > 1 && (
-    <div class="hs-dots" role="tablist" aria-label="Slide navigation">
-      {slides.map((_, index) => (
-        <button class={`hs-dot ${index === 0 ? "hs-dot--active" : ""}`} data-dot={index} role="tab" aria-selected={index === 0 ? "true" : "false"} aria-label={`Go to slide ${index + 1}`} type="button" />
+    <div class="hs-controls" role="tablist" aria-label="Slide navigation">
+      {slides.map((_, i) => (
+        <button
+          class={`hs-dot${i === 0 ? " is-active" : ""}`}
+          role="tab"
+          aria-selected={i === 0}
+          aria-label={`Go to slide ${i + 1}`}
+          data-slide-btn={i}
+          type="button"
+        ></button>
       ))}
     </div>
   )}
-  <div class="hs-scroll-hint" aria-hidden="true"><div class="hs-scroll-line"></div></div>
+
+  <!-- Prev / Next arrows -->
+  {slides.length > 1 && (
+    <>
+      <button class="hs-arrow hs-arrow-prev" type="button" aria-label={ui("a11y.prevSlide", locale)} data-slide-prev>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <button class="hs-arrow hs-arrow-next" type="button" aria-label={ui("a11y.nextSlide", locale)} data-slide-next>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </>
+  )}
 </section>
 
 <style>
-.hero-slider { position:relative; isolation:isolate; min-height:92vh; overflow:hidden; display:flex; align-items:stretch; }
-.hs-slide { position:absolute; inset:0; display:flex; align-items:center; opacity:0; transition:opacity 0.9s cubic-bezier(0.4,0,0.2,1); pointer-events:none; }
-.hs-slide--active { opacity:1; pointer-events:auto; position:relative; flex:1; }
-.hs-bg { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center; z-index:-2; transform:scale(1.04); transition:transform 8s ease; }
-.hs-slide--active .hs-bg { transform:scale(1); }
-.hs-overlay { position:absolute; inset:0; background:var(--brand-hero-overlay,rgba(10,24,50,0.68)); z-index:-1; }
-.hs-bottom-fade { position:absolute; bottom:0; left:0; right:0; height:200px; background:linear-gradient(to top,rgba(10,24,50,0.5) 0%,transparent 100%); z-index:-1; }
-.hs-content { padding:clamp(80px,12vw,140px) 0 clamp(60px,8vw,100px); max-width:760px; color:white; }
-.hs-eyebrow { display:inline-flex; align-items:center; gap:10px; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.25); backdrop-filter:blur(8px); border-radius:100px; padding:8px 18px 8px 12px; font-family:var(--font-display); font-weight:700; font-size:0.78rem; letter-spacing:0.1em; text-transform:uppercase; color:rgba(255,255,255,0.92); margin-bottom:24px; }
-.hs-eyebrow-dot { width:8px; height:8px; background:var(--brand-accent,#f59e0b); border-radius:50%; flex-shrink:0; box-shadow:0 0 0 3px rgba(245,158,11,0.3); animation:pulse-dot 2s ease infinite; }
-@keyframes pulse-dot { 0%,100%{box-shadow:0 0 0 3px rgba(245,158,11,0.3)} 50%{box-shadow:0 0 0 6px rgba(245,158,11,0.15)} }
-.hs-title { font-family:var(--font-display); font-size:clamp(2.6rem,6vw,4.2rem); font-weight:900; line-height:1.05; letter-spacing:-0.03em; color:white; margin:0 0 20px; text-shadow:0 2px 20px rgba(0,0,0,0.3); }
-.hs-subtitle { font-size:clamp(1rem,1.6vw,1.15rem); line-height:1.7; color:rgba(255,255,255,0.85); margin:0 0 36px; max-width:580px; }
-.hs-actions { display:flex; flex-wrap:wrap; gap:14px; margin-bottom:36px; }
-.hs-btn-primary { min-height:56px; padding:16px 32px; font-size:0.95rem; box-shadow:0 4px 20px rgba(245,158,11,0.4); }
-.hs-btn-secondary { min-height:56px; padding:16px 28px; font-size:0.95rem; }
-.hs-dots { position:absolute; bottom:32px; left:50%; transform:translateX(-50%); display:flex; gap:8px; z-index:10; }
-.hs-dot { width:8px; height:8px; border-radius:100px; background:rgba(255,255,255,0.4); border:none; cursor:pointer; transition:all 0.3s ease; padding:0; }
-.hs-dot--active { width:28px; background:var(--brand-accent,#f59e0b); }
-.hs-scroll-hint { position:absolute; bottom:32px; right:40px; display:flex; flex-direction:column; align-items:center; gap:6px; opacity:0.5; }
-.hs-scroll-line { width:1px; height:48px; background:linear-gradient(to bottom,rgba(255,255,255,0.8),transparent); animation:scroll-line 2s ease infinite; }
-@keyframes scroll-line { 0%{transform:scaleY(0);transform-origin:top} 50%{transform:scaleY(1);transform-origin:top} 51%{transform:scaleY(1);transform-origin:bottom} 100%{transform:scaleY(0);transform-origin:bottom} }
-@media(max-width:768px){.hero-slider{min-height:auto}.hs-content{padding:100px 0 80px}.hs-title{font-size:clamp(2rem,8vw,2.8rem)}.hs-actions{flex-direction:column;align-items:flex-start}.hs-btn-primary,.hs-btn-secondary{width:100%;justify-content:center}.hs-scroll-hint{display:none}}
+  .hero-slider {
+    position: relative;
+    isolation: isolate;
+    min-height: 90vh;
+    overflow: hidden;
+    background: #0a0f1e;
+  }
+
+  /* Slide */
+  .hs-slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.7s ease;
+    pointer-events: none;
+  }
+  .hs-slide.is-active {
+    position: relative;
+    opacity: 1;
+    pointer-events: auto;
+    min-height: 90vh;
+    display: flex;
+    align-items: center;
+  }
+
+  /* Background */
+  .hs-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -2;
+    transform: scale(1.04);
+    transition: transform 6s ease;
+  }
+  .hs-slide.is-active .hs-bg { transform: scale(1); }
+
+  /* Overlay — two-layer for depth */
+  .hs-overlay {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(to right, var(--brand-hero-overlay) 55%, rgba(0,0,0,.25) 100%),
+      linear-gradient(to top, rgba(0,0,0,.45) 0%, transparent 60%);
+    z-index: -1;
+  }
+
+  /* Content */
+  .hs-content {
+    position: relative;
+    z-index: 1;
+    padding-block: clamp(80px, 12vw, 140px);
+    width: 100%;
+  }
+
+  .hs-inner {
+    max-width: 720px;
+  }
+
+  .hs-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-display);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--brand-accent);
+    margin: 0 0 20px;
+    max-width: none;
+  }
+  .hs-eyebrow svg { flex-shrink: 0; }
+
+  .hs-heading {
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 5.5vw, 4.25rem);
+    font-weight: 800;
+    line-height: 1.08;
+    letter-spacing: -0.035em;
+    color: white;
+    margin: 0 0 20px;
+    text-wrap: balance;
+  }
+
+  .hs-subheading {
+    font-size: clamp(1rem, 1.5vw, 1.175rem);
+    color: rgba(255,255,255,.82);
+    line-height: 1.7;
+    margin: 0 0 36px;
+    max-width: 580px;
+  }
+
+  .hs-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    align-items: center;
+  }
+
+  /* Slide dots */
+  .hs-controls {
+    position: absolute;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+  }
+
+  .hs-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 9999px;
+    background: rgba(255,255,255,.35);
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s, width 0.2s;
+    padding: 0;
+  }
+  .hs-dot.is-active {
+    background: var(--brand-accent);
+    width: 28px;
+  }
+  .hs-dot:focus-visible { outline: 2px solid var(--brand-accent); outline-offset: 3px; }
+
+  /* Arrows */
+  .hs-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.12);
+    border: 1px solid rgba(255,255,255,.2);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+    backdrop-filter: blur(4px);
+  }
+  .hs-arrow:hover { background: rgba(255,255,255,.22); border-color: rgba(255,255,255,.4); }
+  .hs-arrow:focus-visible { outline: 2px solid var(--brand-accent); outline-offset: 3px; }
+  .hs-arrow-prev { left: 24px; }
+  .hs-arrow-next { right: 24px; }
+
+  @media (max-width: 768px) {
+    .hero-slider { min-height: 80vh; }
+    .hs-slide.is-active { min-height: 80vh; }
+    .hs-arrow { display: none; }
+    .hs-actions { flex-direction: column; align-items: flex-start; }
+    .hs-actions .btn { width: 100%; justify-content: center; }
+  }
 </style>
 
 <script is:inline>
-(function(){var s=document.querySelector(".hero-slider");if(!s)return;var slides=s.querySelectorAll(".hs-slide"),dots=s.querySelectorAll(".hs-dot"),cur=0,total=slides.length,timer=null;function goTo(i){slides[cur].classList.remove("hs-slide--active");slides[cur].setAttribute("aria-hidden","true");if(dots[cur]){dots[cur].classList.remove("hs-dot--active");dots[cur].setAttribute("aria-selected","false");}cur=(i+total)%total;slides[cur].classList.add("hs-slide--active");slides[cur].setAttribute("aria-hidden","false");if(dots[cur]){dots[cur].classList.add("hs-dot--active");dots[cur].setAttribute("aria-selected","true");}}function start(){timer=setInterval(function(){goTo(cur+1);},7000);}function stop(){if(timer){clearInterval(timer);timer=null;}}dots.forEach(function(d){d.addEventListener("click",function(){stop();goTo(parseInt(d.getAttribute("data-dot"),10));start();});});s.addEventListener("mouseenter",stop);s.addEventListener("mouseleave",start);var sx=0;s.addEventListener("touchstart",function(e){sx=e.touches[0].clientX;},{passive:true});s.addEventListener("touchend",function(e){var diff=sx-e.changedTouches[0].clientX;if(Math.abs(diff)>50){stop();goTo(diff>0?cur+1:cur-1);start();}},{passive:true});s.addEventListener("keydown",function(e){if(e.key==="ArrowRight"){stop();goTo(cur+1);start();}if(e.key==="ArrowLeft"){stop();goTo(cur-1);start();}});if(total>1)start();})();
+(function() {
+  var sliders = document.querySelectorAll("[data-hero-slider]");
+  sliders.forEach(function(slider) {
+    var slides = slider.querySelectorAll(".hs-slide");
+    var dots   = slider.querySelectorAll("[data-slide-btn]");
+    var prev   = slider.querySelector("[data-slide-prev]");
+    var next   = slider.querySelector("[data-slide-next]");
+    var current = 0;
+    var total   = slides.length;
+    var timer;
+    var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (total <= 1) return;
+
+    function goTo(n) {
+      slides[current].classList.remove("is-active");
+      slides[current].setAttribute("aria-hidden", "true");
+      dots[current].classList.remove("is-active");
+      dots[current].setAttribute("aria-selected", "false");
+      current = (n + total) % total;
+      slides[current].classList.add("is-active");
+      slides[current].setAttribute("aria-hidden", "false");
+      dots[current].classList.add("is-active");
+      dots[current].setAttribute("aria-selected", "true");
+    }
+
+    function startAuto() {
+      if (reduced) return;
+      timer = setInterval(function() { goTo(current + 1); }, 5500);
+    }
+
+    function resetAuto() {
+      clearInterval(timer);
+      startAuto();
+    }
+
+    dots.forEach(function(dot, i) {
+      dot.addEventListener("click", function() { goTo(i); resetAuto(); });
+    });
+
+    if (prev) prev.addEventListener("click", function() { goTo(current - 1); resetAuto(); });
+    if (next) next.addEventListener("click", function() { goTo(current + 1); resetAuto(); });
+
+    // Keyboard support
+    slider.addEventListener("keydown", function(e) {
+      if (e.key === "ArrowLeft")  { goTo(current - 1); resetAuto(); }
+      if (e.key === "ArrowRight") { goTo(current + 1); resetAuto(); }
+    });
+
+    startAuto();
+  });
+})();
 </script>
