@@ -1,139 +1,154 @@
 ---
 /**
- * ReviewsSection — Social proof section
- * Shows real review widget embed or premium placeholder cards
+ * ReviewsSection — Google-style review cards
+ * - Stars rendered horizontally in a row
+ * - Avatar circle with initials
+ * - Google G logo badge
+ * - Service tag pill
  */
-import { siteConfig } from "@/site.config";
-
-interface Props {
-  title: string;
-}
-
-const { title } = Astro.props;
-
-const placeholders = [
-  {
-    name: "Michael R.",
-    location: "Austin, TX",
-    rating: 5,
-    text: "Replaced this with a real Google Business Profile or review widget embed. Fast response, professional team, and upfront pricing. Highly recommend.",
-    service: "Drain Cleaning",
-    initials: "MR"
-  },
-  {
-    name: "Sarah T.",
-    location: "Round Rock, TX",
-    rating: 5,
-    text: "Replaced this with a real review. Same-day service, showed up on time, fixed the issue quickly. Will definitely use again.",
-    service: "Water Heater",
-    initials: "ST"
-  },
-  {
-    name: "David K.",
-    location: "Cedar Park, TX",
-    rating: 5,
-    text: "Replaced this with a real review. Honest pricing, no surprises. The technician explained everything clearly before starting.",
-    service: "Leak Detection",
-    initials: "DK"
-  }
-];
+import { siteConfig, type Locale } from "@/site.config";
+import { t } from "@/lib/routes";
+import { ui } from "@/i18n";
+interface Props { locale: Locale; }
+const { locale } = Astro.props;
+const reviews = siteConfig.reviews ?? [];
+const avgRating = reviews.length
+  ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)
+  : "5.0";
 ---
-
-<section class="section section-light">
-  <div class="container">
-    <div class="section-header center">
-      <p class="eyebrow">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-        Local Proof
-      </p>
-      <h2>{title}</h2>
-    </div>
-
-    {siteConfig.integrations.reviewWidgetEmbedHtml ? (
-      <Fragment set:html={siteConfig.integrations.reviewWidgetEmbedHtml} />
-    ) : (
-      <div class="reviews-grid">
-        {placeholders.map((r) => (
-          <article class="review-card">
-            <!-- Header -->
-            <div class="review-header">
-              <div class="review-avatar" aria-hidden="true">
-                {r.initials}
-              </div>
-              <div class="review-meta">
-                <p class="review-name">{r.name}</p>
-                <p class="review-location">{r.location}</p>
-              </div>
-              <div class="review-logo" aria-label="Google review" title="Google review">
-                <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                </svg>
-              </div>
-            </div>
-
-            <!-- Stars -->
-            <div class="stars" role="img" aria-label={`${r.rating} out of 5 stars`}>
-              {Array.from({ length: r.rating }).map(() => (
-                <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
-                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="currentColor"/>
-                </svg>
-              ))}
-            </div>
-
-            <!-- Text -->
-            <p class="review-text">"{r.text}"</p>
-
-            <!-- Service tag -->
-            <span class="review-tag">{r.service}</span>
-          </article>
-        ))}
+{reviews.length > 0 && (
+  <section class="reviews-section section section-light" aria-labelledby="reviews-heading">
+    <div class="container">
+      <!-- Header -->
+      <div class="section-header center">
+        <p class="eyebrow">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          {ui("reviews.eyebrow", locale)}
+        </p>
+        <h2 id="reviews-heading">{ui("reviews.heading", locale)}</h2>
+        <!-- Aggregate rating -->
+        <div class="reviews-aggregate" aria-label={`Average rating: ${avgRating} out of 5 stars`}>
+          <div class="reviews-stars-row" aria-hidden="true">
+            {[1,2,3,4,5].map((n) => (
+              <svg class="star-icon" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="currentColor"/>
+              </svg>
+            ))}
+          </div>
+          <span class="reviews-avg-score">{avgRating}</span>
+          <span class="reviews-count">({reviews.length} reviews)</span>
+        </div>
       </div>
-    )}
-
-    <!-- Replace note (visible in dev, hidden in prod via config) -->
-    <p class="reviews-note">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-      Replace placeholder cards with a real review widget embed in <code>site.config.ts → integrations.reviewWidgetEmbedHtml</code>
-    </p>
-  </div>
-</section>
-
+      <!-- Cards grid -->
+      <div class="reviews-grid" role="list">
+        {reviews.map((r) => {
+          const initials = r.author.split(" ").map((w: string) => w[0]).join("").slice(0, 2).toUpperCase();
+          return (
+            <article class="review-card" role="listitem">
+              <!-- Card header: avatar + name + Google logo -->
+              <div class="review-header">
+                <div class="review-avatar" aria-hidden="true">{initials}</div>
+                <div class="review-meta">
+                  <p class="review-name">{r.author}</p>
+                  <p class="review-location">{r.location}</p>
+                </div>
+                <!-- Google G logo -->
+                <div class="review-logo" aria-label="Google review" title="Google review">
+                  <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                  </svg>
+                </div>
+              </div>
+              <!-- Stars — horizontal row -->
+              <div class="review-stars" role="img" aria-label={`${r.rating} out of 5 stars`}>
+                {Array.from({ length: 5 }).map((_, idx) => (
+                  <svg
+                    class={`star-icon${idx < r.rating ? " star-filled" : " star-empty"}`}
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="currentColor"/>
+                  </svg>
+                ))}
+              </div>
+              <!-- Review text -->
+              <p class="review-text">"{r.text}"</p>
+              <!-- Service tag -->
+              {r.service && <span class="review-tag">{r.service}</span>}
+            </article>
+          );
+        })}
+      </div>
+      <!-- Note to replace with real widget -->
+      <p class="reviews-note">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Replace with a real Google Business Profile widget. Update reviews in <code>site.config.ts → reviews[]</code>.
+      </p>
+    </div>
+  </section>
+)}
 <style>
+  /* ── Section ───────────────────────────────────────────────────────────── */
+  .reviews-section { background: var(--color-surface); }
+  /* ── Aggregate ─────────────────────────────────────────────────────────── */
+  .reviews-aggregate {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .reviews-stars-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 2px;
+    color: var(--brand-accent);
+  }
+  .reviews-avg-score {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--brand-primary);
+  }
+  .reviews-count {
+    font-size: 0.875rem;
+    color: var(--color-muted);
+  }
+  /* ── Grid ──────────────────────────────────────────────────────────────── */
   .reviews-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 24px;
-    margin-top: 8px;
+    margin-top: clamp(32px, 4vw, 48px);
   }
-
-  @media (max-width: 1024px) { .reviews-grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 640px)  { .reviews-grid { grid-template-columns: 1fr; } }
-
+  /* ── Card ──────────────────────────────────────────────────────────────── */
   .review-card {
     background: white;
-    border-radius: var(--radius-lg);
     border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
     padding: 24px;
-    box-shadow: var(--shadow-card);
     display: flex;
     flex-direction: column;
     gap: 14px;
-    transition: box-shadow var(--transition-slow), transform var(--transition-slow);
+    box-shadow: var(--shadow-card);
+    transition: box-shadow var(--transition-base), transform var(--transition-base);
   }
   .review-card:hover {
     box-shadow: var(--shadow-hover);
     transform: translateY(-2px);
   }
-
+  /* ── Header row ────────────────────────────────────────────────────────── */
   .review-header {
     display: flex;
     align-items: center;
     gap: 12px;
   }
-
   .review-avatar {
     width: 44px;
     height: 44px;
@@ -149,7 +164,6 @@ const placeholders = [
     flex-shrink: 0;
     letter-spacing: 0.02em;
   }
-
   .review-meta { flex: 1; min-width: 0; }
   .review-name {
     font-family: var(--font-display);
@@ -157,32 +171,39 @@ const placeholders = [
     font-size: 0.9375rem;
     color: var(--brand-primary);
     margin: 0;
-    max-width: none;
     line-height: 1.3;
   }
   .review-location {
     font-size: 0.8125rem;
     color: #94a3b8;
     margin: 2px 0 0;
-    max-width: none;
     line-height: 1.3;
   }
-
   .review-logo { margin-left: auto; flex-shrink: 0; }
-
+  /* ── Stars — HORIZONTAL ROW ────────────────────────────────────────────── */
+  .review-stars {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 2px;
+  }
+  .star-icon { display: block; flex-shrink: 0; }
+  .star-filled { color: var(--brand-accent); }
+  .star-empty  { color: #e2e8f0; }
+  /* ── Text ──────────────────────────────────────────────────────────────── */
   .review-text {
     font-size: 0.9rem;
     color: #475569;
     line-height: 1.7;
     margin: 0;
-    max-width: none;
     font-style: italic;
+    flex: 1;
   }
-
+  /* ── Service tag ───────────────────────────────────────────────────────── */
   .review-tag {
     display: inline-flex;
     align-items: center;
-    padding: 4px 10px;
+    padding: 4px 12px;
     background: var(--brand-accent-light, #fef3c7);
     color: var(--brand-accent-dark, #d97706);
     border-radius: var(--radius-full);
@@ -190,10 +211,9 @@ const placeholders = [
     font-weight: 600;
     font-family: var(--font-display);
     letter-spacing: 0.02em;
-    margin-top: auto;
     width: fit-content;
   }
-
+  /* ── Note ──────────────────────────────────────────────────────────────── */
   .reviews-note {
     display: flex;
     align-items: center;
@@ -201,8 +221,6 @@ const placeholders = [
     font-size: 0.8125rem;
     color: #94a3b8;
     margin-top: 24px;
-    max-width: none;
-    text-align: center;
     justify-content: center;
   }
   .reviews-note code {

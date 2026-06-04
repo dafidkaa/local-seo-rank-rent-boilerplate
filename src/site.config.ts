@@ -101,6 +101,11 @@ export const siteConfig = {
     serviceArea:   "Austin Metro",
     phone:         "+1 (512) 555-0192",
     email:         "hello@austinproplumbing.com",
+    /**
+     * ctaMode controls which contact CTAs appear in Hero, HeroSlider, Header, Footer.
+     * Options: "form_phone" | "form_email" | "form_phone_email" | "phone_only" | "email_only"
+     */
+    ctaMode:       "form_phone" as "form_phone" | "form_email" | "form_phone_email" | "phone_only" | "email_only",
     address:       "Serving the Greater Austin Metro Area, TX",
     hours: {
       Monday:    "7:00AM–6:00PM",

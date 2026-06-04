@@ -135,7 +135,9 @@ const accentWord = siteConfig.brand.logoAccent;
       <nav class="footer-legal-links" aria-label="Legal links">
         <a href={localizedPath(locale, "privacy-policy")}>{ui("footer.links.privacy", locale)}</a>
         <a href={localizedPath(locale, "terms-and-conditions")}>{ui("footer.links.terms", locale)}</a>
-        <a href={`/sitemap.xml`}>{ui("footer.links.sitemap", locale)}</a>
+        <a href="/sitemap.xml">{ui("footer.links.sitemap", locale)}</a>
+        <a href="/robots.txt" class="footer-seo-link">robots.txt</a>
+        <a href="/llms.txt" class="footer-seo-link">llms.txt</a>
       </nav>
     </div>
   </div>
@@ -295,6 +297,13 @@ const accentWord = siteConfig.brand.logoAccent;
     transition: color var(--transition-fast);
   }
   .footer-legal-links a:hover { color: rgba(255,255,255,.7); }
+  /* SEO-crawlable but visually minimal — barely visible to users, easily found by crawlers */
+  .footer-seo-link {
+    font-size: 0.6875rem !important;
+    color: rgba(255,255,255,.15) !important;
+    letter-spacing: 0.02em;
+  }
+  .footer-seo-link:hover { color: rgba(255,255,255,.45) !important; }
 
   /* Responsive */
   @media (max-width: 1024px) {

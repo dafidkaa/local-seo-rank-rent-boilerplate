@@ -1,56 +1,49 @@
 ---
 /**
- * Hero — Inner page hero (used on About, Service, Location, Contact, etc.)
- * - Shorter than homepage hero (60vh)
- * - Eyebrow + heading + subtext + dual CTAs
- * - Same dark overlay system as HeroSlider
+ * Hero — Inner page hero (About, Service, Location, Contact, etc.)
+ * - Thin: 40-50vh (homepage uses HeroSlider for full height)
+ * - Primary CTA always triggers global form popup
+ * - Secondary/tertiary CTAs: phone or email based on ctaMode in site.config
  */
 import { siteConfig, type Locale } from "@/site.config";
-import { localizedPath } from "@/lib/routes";
-
+import { t } from "@/lib/routes";
 interface Props {
   eyebrow?: string;
   title: string;
   text?: string;
-  image: string;
-  primaryHref?: string;
+  image?: string;
+  locale?: Locale;
+  size?: "thin" | "normal" | "large";
   primaryText?: string;
+  /** @deprecated — popup handles primary CTA; kept for backward compat */
+  primaryHref?: string;
   secondaryHref?: string;
   secondaryText?: string;
-  locale?: Locale;
-  size?: "normal" | "large";
+  /** @deprecated — use site.config.ts trust badges instead */
+  badges?: string[];
 }
-
 const {
   eyebrow,
   title,
   text,
-  image,
-  primaryHref,
+  image = siteConfig.brand.heroImage,
+  locale = "en",
+  size = "thin",
   primaryText,
   secondaryHref,
   secondaryText,
-  locale = "en",
-  size = "normal",
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  primaryHref: _primaryHref,
+  badges: _badges,
 } = Astro.props;
+const ctaMode = siteConfig.business.ctaMode ?? "form_phone";
+const phone   = siteConfig.business.phone;
+const email   = siteConfig.business.email;
+const ctaLabel = primaryText ?? t(siteConfig.business.cta, locale);
 ---
-
 <section class={`inner-hero inner-hero--${size}`} aria-label={title}>
-  <!-- Background -->
-  <img
-    src={image}
-    alt=""
-    role="presentation"
-    class="inner-hero-bg"
-    width="1920"
-    height="700"
-    loading="eager"
-    fetchpriority="high"
-    decoding="async"
-  />
+  <img src={image} alt="" role="presentation" class="inner-hero-bg" width="1920" height="600" loading="eager" fetchpriority="high" decoding="async" />
   <div class="inner-hero-overlay" aria-hidden="true"></div>
-
-  <!-- Content -->
   <div class="container inner-hero-content">
     {eyebrow && (
       <p class="inner-hero-eyebrow">
@@ -60,29 +53,33 @@ const {
     )}
     <h1 class="inner-hero-heading">{title}</h1>
     {text && <p class="inner-hero-text">{text}</p>}
-    {(primaryHref || secondaryHref) && (
-      <div class="inner-hero-actions">
-        {primaryHref && (
-          <a href={primaryHref} class="btn btn-primary btn-lg">
-            {primaryText ?? "Get Free Estimate"}
-          </a>
-        )}
-        {secondaryHref && (
-          <a href={secondaryHref} class="btn btn-secondary btn-lg">
-            {secondaryText ?? "Learn More"}
-          </a>
-        )}
-        {!secondaryHref && (
-          <a href={`tel:${siteConfig.business.phone}`} class="btn btn-secondary btn-lg">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.01 1.18 2 2 0 012 .01h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
-            {siteConfig.business.phone}
-          </a>
-        )}
-      </div>
-    )}
+    <div class="inner-hero-actions">
+      <button type="button" class="btn btn-primary btn-lg" data-open-form-popup aria-haspopup="dialog">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.01 1.18 2 2 0 012 .01h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
+        {ctaLabel}
+      </button>
+      {secondaryHref ? (
+        <a href={secondaryHref} class="btn btn-secondary btn-lg">{secondaryText ?? "Learn More"}</a>
+      ) : (ctaMode === "form_phone" || ctaMode === "form_phone_email" || ctaMode === "phone_only") && phone ? (
+        <a href={`tel:${phone}`} class="btn btn-secondary btn-lg">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.01 1.18 2 2 0 012 .01h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
+          {phone}
+        </a>
+      ) : (ctaMode === "form_email" || ctaMode === "email_only") && email ? (
+        <a href={`mailto:${email}`} class="btn btn-secondary btn-lg">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          {email}
+        </a>
+      ) : null}
+      {ctaMode === "form_phone_email" && email && (
+        <a href={`mailto:${email}`} class="btn btn-ghost btn-lg">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          {email}
+        </a>
+      )}
+    </div>
   </div>
 </section>
-
 <style>
   .inner-hero {
     position: relative;
@@ -91,10 +88,10 @@ const {
     align-items: center;
     overflow: hidden;
     background: #0a0f1e;
-    min-height: 55vh;
   }
-  .inner-hero--large { min-height: 70vh; }
-
+  .inner-hero--thin   { min-height: clamp(220px, 38vh, 380px); }
+  .inner-hero--normal { min-height: clamp(280px, 50vh, 480px); }
+  .inner-hero--large  { min-height: clamp(360px, 65vh, 600px); }
   .inner-hero-bg {
     position: absolute;
     inset: 0;
@@ -103,64 +100,66 @@ const {
     object-fit: cover;
     z-index: -2;
   }
-
   .inner-hero-overlay {
     position: absolute;
     inset: 0;
     background:
-      linear-gradient(to right, rgba(8,14,35,.85) 50%, rgba(8,14,35,.45) 100%),
+      linear-gradient(to right, rgba(8,14,35,.88) 50%, rgba(8,14,35,.5) 100%),
       linear-gradient(to top, rgba(0,0,0,.4) 0%, transparent 60%);
     z-index: -1;
   }
-
   .inner-hero-content {
-    padding-block: clamp(64px, 9vw, 112px);
+    padding-block: clamp(40px, 6vw, 72px);
     position: relative;
     z-index: 1;
   }
-
   .inner-hero-eyebrow {
     display: inline-flex;
     align-items: center;
     gap: 7px;
     font-family: var(--font-display);
-    font-size: 0.8125rem;
-    font-weight: 600;
-    letter-spacing: 0.1em;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--brand-accent);
-    margin: 0 0 16px;
-    max-width: none;
+    margin: 0 0 12px;
   }
-
   .inner-hero-heading {
-    font-size: clamp(2rem, 4.5vw, 3.25rem);
+    font-family: var(--font-display);
+    font-size: clamp(1.75rem, 4vw, 2.875rem);
     font-weight: 800;
     color: white;
     line-height: 1.1;
     letter-spacing: -0.03em;
-    margin: 0 0 16px;
+    margin: 0 0 12px;
     max-width: 700px;
     text-wrap: balance;
   }
-
   .inner-hero-text {
-    font-size: clamp(1rem, 1.5vw, 1.125rem);
-    color: rgba(255,255,255,.78);
-    line-height: 1.7;
-    margin: 0 0 32px;
-    max-width: 580px;
+    font-size: clamp(0.9375rem, 1.4vw, 1.0625rem);
+    color: rgba(255,255,255,.75);
+    line-height: 1.65;
+    margin: 0 0 24px;
+    max-width: 560px;
   }
-
   .inner-hero-actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 12px;
+    gap: 10px;
     align-items: center;
   }
-
+  .btn-ghost {
+    background: transparent;
+    border: 1.5px solid rgba(255,255,255,.35);
+    color: rgba(255,255,255,.85);
+  }
+  .btn-ghost:hover {
+    background: rgba(255,255,255,.1);
+    border-color: rgba(255,255,255,.6);
+    color: white;
+  }
   @media (max-width: 640px) {
-    .inner-hero { min-height: 50vh; }
     .inner-hero-actions { flex-direction: column; align-items: flex-start; }
     .inner-hero-actions .btn { width: 100%; justify-content: center; }
   }

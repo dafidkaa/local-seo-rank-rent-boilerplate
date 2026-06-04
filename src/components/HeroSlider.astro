@@ -1,111 +1,116 @@
 ---
 /**
- * HeroSlider — Premium full-bleed photo hero with slideshow
- * - Dark overlay with brand color
- * - Large Poppins heading, trust badges, dual CTAs
- * - Keyboard-accessible slide controls
- * - prefers-reduced-motion respected
+ * HeroSlider — Full-bleed photo hero with slider
+ * - Homepage only: full viewport height
+ * - Trust badge row (styled correctly)
+ * - Slide dots only (no side arrows per design spec)
+ * - Supports: form popup CTA, phone CTA, email CTA (configurable via site.config)
  */
-import { t, localizedPath } from "@/lib/routes";
-import { siteConfig, type Locale, type HeroSlide } from "@/site.config";
+import { siteConfig, type Locale } from "@/site.config";
+import { localizedPath, t } from "@/lib/routes";
 import { ui } from "@/i18n";
-
+type LocalizedText = string | { en: string; hr?: string; [key: string]: string | undefined };
+interface Slide {
+  title: LocalizedText;
+  text: LocalizedText;
+  image: string;
+  primaryText?: LocalizedText;
+  primaryHref?: string;
+  secondaryText?: LocalizedText;
+  secondaryHref?: string;
+}
 interface Props {
-  slides: HeroSlide[];
+  slides: Slide[];
   locale: Locale;
   badges?: string[];
 }
-
 const { slides, locale, badges = [] } = Astro.props;
-const contactPath = localizedPath(locale, "contact");
+const ctaMode = siteConfig.business.ctaMode ?? "form_phone";
+const phone   = siteConfig.business.phone;
+const email   = siteConfig.business.email;
 ---
-
 <section
   class="hero-slider"
-  aria-label="Hero slideshow"
   data-hero-slider
+  aria-roledescription="carousel"
+  aria-label="Featured slides"
 >
-  <!-- Slides -->
   {slides.map((slide, i) => (
     <div
       class={`hs-slide${i === 0 ? " is-active" : ""}`}
-      data-slide={i}
+      role="group"
+      aria-roledescription="slide"
+      aria-label={`Slide ${i + 1} of ${slides.length}`}
       aria-hidden={i !== 0}
     >
       <!-- Background image -->
       <img
+        class="hs-bg"
         src={slide.image}
         alt=""
         role="presentation"
-        class="hs-bg"
         width="1920"
         height="1080"
         loading={i === 0 ? "eager" : "lazy"}
-        fetchpriority={i === 0 ? "high" : "auto"}
         decoding="async"
+        fetchpriority={i === 0 ? "high" : "auto"}
       />
+      <!-- Overlay -->
       <div class="hs-overlay" aria-hidden="true"></div>
-
       <!-- Content -->
-      <div class="hs-content container">
-        <div class="hs-inner">
-          <p class="hs-eyebrow animate-fade-in">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            {slide.eyebrow ?? ui("hero.eyebrow", locale).replace("{city}", siteConfig.business.city)}
-          </p>
-
-          <h1 class="hs-heading animate-fade-in delay-100">
-            {t(slide.title, locale)}
-          </h1>
-
-          <p class="hs-subheading animate-fade-in delay-200">
-            {t(slide.text, locale)}
-          </p>
-
-          <div class="hs-actions animate-fade-in delay-300">
-            <a
-              href={slide.primaryHref ?? contactPath}
-              class="btn btn-primary btn-lg"
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.01 1.18 2 2 0 012 .01h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
-              {t(slide.primaryText, locale)}
-            </a>
-            {slide.secondaryHref && (
-              <a
-                href={slide.secondaryHref}
-                class="btn btn-secondary btn-lg"
+      <div class="hs-content">
+        <div class="container">
+          <div class="hs-inner">
+            <p class="hs-eyebrow animate-fade-in">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              {ui("hero.eyebrow", locale).replace("{city}", siteConfig.business.city)}
+            </p>
+            <h1 class="hs-heading animate-fade-in delay-100">{t(slide.title, locale)}</h1>
+            <p class="hs-subheading animate-fade-in delay-200">{t(slide.text, locale)}</p>
+            <!-- CTAs — driven by ctaMode -->
+            <div class="hs-actions animate-fade-in delay-300">
+              {/* Always show form popup trigger */}
+              <button
+                type="button"
+                class="btn btn-primary btn-lg"
+                data-open-form-popup
+                aria-haspopup="dialog"
               >
-                {t(slide.secondaryText ?? { en: "Learn More", hr: "Saznaj više" }, locale)}
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
-              </a>
-            )}
-            {!slide.secondaryHref && (
-              <a
-                href={`tel:${siteConfig.business.phone}`}
-                class="btn btn-secondary btn-lg"
-              >
-                {ui("hero.callCta", locale)} {siteConfig.business.phone}
-              </a>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.01 1.18 2 2 0 012 .01h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
+                {t(siteConfig.business.cta, locale)}
+              </button>
+              {/* Phone CTA */}
+              {(ctaMode === "form_phone" || ctaMode === "form_phone_email" || ctaMode === "phone_only") && phone && (
+                <a href={`tel:${phone}`} class="btn btn-secondary btn-lg">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.01 1.18 2 2 0 012 .01h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
+                  {ui("hero.callCta", locale)} {phone}
+                </a>
+              )}
+              {/* Email CTA */}
+              {(ctaMode === "form_email" || ctaMode === "form_phone_email" || ctaMode === "email_only") && email && (
+                <a href={`mailto:${email}`} class="btn btn-secondary btn-lg">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                  {ui("hero.emailCta", locale)}
+                </a>
+              )}
+            </div>
+            <!-- Trust badges -->
+            {badges.length > 0 && (
+              <div class="hs-trust animate-fade-in delay-400" role="list" aria-label="Trust indicators">
+                {badges.map((badge) => (
+                  <span class="hs-trust-item" role="listitem">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+                    {badge}
+                  </span>
+                ))}
+              </div>
             )}
           </div>
-
-          <!-- Trust badges -->
-          {badges.length > 0 && (
-            <div class="trust-bar animate-fade-in delay-400" role="list" aria-label="Trust indicators">
-              {badges.map((badge) => (
-                <span class="trust-item" role="listitem">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-                  {badge}
-                </span>
-              ))}
-            </div>
-          )}
         </div>
       </div>
     </div>
   ))}
-
-  <!-- Slide controls -->
+  <!-- Slide dots only (no arrows per spec) -->
   {slides.length > 1 && (
     <div class="hs-controls" role="tablist" aria-label="Slide navigation">
       {slides.map((_, i) => (
@@ -120,81 +125,62 @@ const contactPath = localizedPath(locale, "contact");
       ))}
     </div>
   )}
-
-  <!-- Prev / Next arrows -->
-  {slides.length > 1 && (
-    <>
-      <button class="hs-arrow hs-arrow-prev" type="button" aria-label={ui("a11y.prevSlide", locale)} data-slide-prev>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
-      </button>
-      <button class="hs-arrow hs-arrow-next" type="button" aria-label={ui("a11y.nextSlide", locale)} data-slide-next>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
-      </button>
-    </>
-  )}
 </section>
-
 <style>
+  /* ── Slider container ──────────────────────────────────────────────────── */
   .hero-slider {
     position: relative;
-    isolation: isolate;
-    min-height: 90vh;
+    width: 100%;
+    min-height: 100svh;
     overflow: hidden;
-    background: #0a0f1e;
+    background: var(--brand-primary);
   }
-
-  /* Slide */
+  /* ── Individual slide ──────────────────────────────────────────────────── */
   .hs-slide {
     position: absolute;
     inset: 0;
+    min-height: 100svh;
+    display: flex;
+    align-items: center;
     opacity: 0;
-    transition: opacity 0.7s ease;
-    pointer-events: none;
+    visibility: hidden;
+    transition: opacity 0.7s ease, visibility 0.7s ease;
   }
   .hs-slide.is-active {
     position: relative;
     opacity: 1;
-    pointer-events: auto;
-    min-height: 90vh;
-    display: flex;
-    align-items: center;
+    visibility: visible;
   }
-
-  /* Background */
+  /* ── Background image ──────────────────────────────────────────────────── */
   .hs-bg {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    z-index: -2;
+    z-index: 0;
     transform: scale(1.04);
     transition: transform 6s ease;
   }
   .hs-slide.is-active .hs-bg { transform: scale(1); }
-
-  /* Overlay — two-layer for depth */
+  /* ── Overlay ───────────────────────────────────────────────────────────── */
   .hs-overlay {
     position: absolute;
     inset: 0;
     background:
-      linear-gradient(to right, var(--brand-hero-overlay) 55%, rgba(0,0,0,.25) 100%),
-      linear-gradient(to top, rgba(0,0,0,.45) 0%, transparent 60%);
-    z-index: -1;
+      linear-gradient(to right, rgba(15,23,42,.88) 55%, rgba(15,23,42,.4) 100%),
+      linear-gradient(to top, rgba(0,0,0,.5) 0%, transparent 55%);
+    z-index: 1;
   }
-
-  /* Content */
+  /* ── Content ───────────────────────────────────────────────────────────── */
   .hs-content {
     position: relative;
-    z-index: 1;
-    padding-block: clamp(80px, 12vw, 140px);
+    z-index: 2;
+    padding-block: clamp(100px, 14vw, 160px);
     width: 100%;
   }
-
-  .hs-inner {
-    max-width: 720px;
-  }
-
+  .hs-inner { max-width: 740px; }
+  /* ── Eyebrow ───────────────────────────────────────────────────────────── */
   .hs-eyebrow {
     display: inline-flex;
     align-items: center;
@@ -206,10 +192,8 @@ const contactPath = localizedPath(locale, "contact");
     text-transform: uppercase;
     color: var(--brand-accent);
     margin: 0 0 20px;
-    max-width: none;
   }
-  .hs-eyebrow svg { flex-shrink: 0; }
-
+  /* ── Heading ───────────────────────────────────────────────────────────── */
   .hs-heading {
     font-family: var(--font-display);
     font-size: clamp(2.5rem, 5.5vw, 4.25rem);
@@ -220,7 +204,7 @@ const contactPath = localizedPath(locale, "contact");
     margin: 0 0 20px;
     text-wrap: balance;
   }
-
+  /* ── Subheading ────────────────────────────────────────────────────────── */
   .hs-subheading {
     font-size: clamp(1rem, 1.5vw, 1.175rem);
     color: rgba(255,255,255,.82);
@@ -228,15 +212,38 @@ const contactPath = localizedPath(locale, "contact");
     margin: 0 0 36px;
     max-width: 580px;
   }
-
+  /* ── Actions ───────────────────────────────────────────────────────────── */
   .hs-actions {
     display: flex;
     flex-wrap: wrap;
     gap: 14px;
     align-items: center;
+    margin-bottom: 32px;
   }
-
-  /* Slide dots */
+  /* ── Trust badges ──────────────────────────────────────────────────────── */
+  .hs-trust {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 20px;
+    align-items: center;
+  }
+  .hs-trust-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-family: var(--font-display);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: rgba(255,255,255,.9);
+    background: rgba(255,255,255,.1);
+    border: 1px solid rgba(255,255,255,.15);
+    backdrop-filter: blur(6px);
+    padding: 6px 14px;
+    border-radius: var(--radius-full);
+    white-space: nowrap;
+  }
+  .hs-trust-item svg { color: var(--brand-accent); flex-shrink: 0; }
+  /* ── Slide dots ────────────────────────────────────────────────────────── */
   .hs-controls {
     position: absolute;
     bottom: 32px;
@@ -246,7 +253,6 @@ const contactPath = localizedPath(locale, "contact");
     gap: 8px;
     z-index: 10;
   }
-
   .hs-dot {
     width: 8px;
     height: 8px;
@@ -257,60 +263,28 @@ const contactPath = localizedPath(locale, "contact");
     transition: background 0.2s, width 0.2s;
     padding: 0;
   }
-  .hs-dot.is-active {
-    background: var(--brand-accent);
-    width: 28px;
-  }
+  .hs-dot.is-active { background: var(--brand-accent); width: 28px; }
   .hs-dot:focus-visible { outline: 2px solid var(--brand-accent); outline-offset: 3px; }
-
-  /* Arrows */
-  .hs-arrow {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 10;
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: rgba(255,255,255,.12);
-    border: 1px solid rgba(255,255,255,.2);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: background 0.2s, border-color 0.2s;
-    backdrop-filter: blur(4px);
-  }
-  .hs-arrow:hover { background: rgba(255,255,255,.22); border-color: rgba(255,255,255,.4); }
-  .hs-arrow:focus-visible { outline: 2px solid var(--brand-accent); outline-offset: 3px; }
-  .hs-arrow-prev { left: 24px; }
-  .hs-arrow-next { right: 24px; }
-
+  /* ── Responsive ────────────────────────────────────────────────────────── */
   @media (max-width: 768px) {
-    .hero-slider { min-height: 80vh; }
-    .hs-slide.is-active { min-height: 80vh; }
-    .hs-arrow { display: none; }
+    .hero-slider { min-height: 90svh; }
+    .hs-slide { min-height: 90svh; }
     .hs-actions { flex-direction: column; align-items: flex-start; }
     .hs-actions .btn { width: 100%; justify-content: center; }
+    .hs-trust { gap: 8px; }
   }
 </style>
-
 <script is:inline>
 (function() {
   var sliders = document.querySelectorAll("[data-hero-slider]");
   sliders.forEach(function(slider) {
-    var slides = slider.querySelectorAll(".hs-slide");
-    var dots   = slider.querySelectorAll("[data-slide-btn]");
-    var prev   = slider.querySelector("[data-slide-prev]");
-    var next   = slider.querySelector("[data-slide-next]");
+    var slides  = slider.querySelectorAll(".hs-slide");
+    var dots    = slider.querySelectorAll("[data-slide-btn]");
     var current = 0;
     var total   = slides.length;
     var timer;
     var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
     if (total <= 1) return;
-
     function goTo(n) {
       slides[current].classList.remove("is-active");
       slides[current].setAttribute("aria-hidden", "true");
@@ -322,30 +296,18 @@ const contactPath = localizedPath(locale, "contact");
       dots[current].classList.add("is-active");
       dots[current].setAttribute("aria-selected", "true");
     }
-
     function startAuto() {
       if (reduced) return;
       timer = setInterval(function() { goTo(current + 1); }, 5500);
     }
-
-    function resetAuto() {
-      clearInterval(timer);
-      startAuto();
-    }
-
+    function resetAuto() { clearInterval(timer); startAuto(); }
     dots.forEach(function(dot, i) {
       dot.addEventListener("click", function() { goTo(i); resetAuto(); });
     });
-
-    if (prev) prev.addEventListener("click", function() { goTo(current - 1); resetAuto(); });
-    if (next) next.addEventListener("click", function() { goTo(current + 1); resetAuto(); });
-
-    // Keyboard support
     slider.addEventListener("keydown", function(e) {
       if (e.key === "ArrowLeft")  { goTo(current - 1); resetAuto(); }
       if (e.key === "ArrowRight") { goTo(current + 1); resetAuto(); }
     });
-
     startAuto();
   });
 })();

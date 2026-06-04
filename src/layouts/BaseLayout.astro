@@ -3,6 +3,7 @@ import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
 import MobileCta from "@/components/MobileCta.astro";
 import CookieConsent from "@/components/CookieConsent.astro";
+import FormPopup from "@/components/FormPopup.astro";
 import "@/styles/global.css";
 import { siteConfig } from "@/site.config";
 
@@ -84,6 +85,7 @@ const requireConsent = siteConfig.integrations.requireCookieConsent;
     </main>
     <Footer locale={Astro.params.lang ?? "en"} />
     <MobileCta locale={Astro.params.lang ?? "en"} />
+    <FormPopup locale={Astro.params.lang ?? "en"} />
     <!-- Mobile toggle handled in Header.astro -->
     <script is:inline>
       (function(){

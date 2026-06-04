@@ -1,0 +1,98 @@
+---
+/**
+ * ContentSection — Rich text section for adding word count to pages
+ * Use on service pages, location pages, and about pages
+ * Supports: text + image, text only, image + text (reversed)
+ */
+interface Props {
+  title?: string;
+  eyebrow?: string;
+  text: string;
+  image?: string;
+  imageAlt?: string;
+  reversed?: boolean;
+  dark?: boolean;
+}
+const { title, eyebrow, text, image, imageAlt = "", reversed = false, dark = false } = Astro.props;
+---
+<section class={`content-section${dark ? " content-section--dark" : ""}`}>
+  <div class="container">
+    {image ? (
+      <div class={`content-split${reversed ? " content-split--reversed" : ""}`}>
+        <div class="content-text">
+          {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+          {title && <h2 class="content-title">{title}</h2>}
+          <div class="content-body" set:html={text} />
+        </div>
+        <div class="content-media">
+          <img
+            src={image}
+            alt={imageAlt}
+            width="640"
+            height="480"
+            loading="lazy"
+            decoding="async"
+            class="content-img"
+          />
+        </div>
+      </div>
+    ) : (
+      <div class="content-centered">
+        {eyebrow && <p class="eyebrow center">{eyebrow}</p>}
+        {title && <h2 class="content-title center">{title}</h2>}
+        <div class="content-body content-body--wide" set:html={text} />
+      </div>
+    )}
+  </div>
+</section>
+<style>
+  .content-section { padding-block: clamp(40px, 6vw, 80px); background: white; }
+  .content-section--dark { background: var(--brand-primary); color: white; }
+  .content-section--dark .content-title { color: white; }
+  .content-section--dark .content-body { color: rgba(255,255,255,.82); }
+  .content-section--dark .eyebrow { color: var(--brand-accent); }
+  .content-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(32px, 5vw, 64px);
+    align-items: center;
+  }
+  .content-split--reversed .content-text { order: 2; }
+  .content-split--reversed .content-media { order: 1; }
+  .content-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 3vw, 2.25rem);
+    font-weight: 800;
+    color: var(--brand-primary);
+    letter-spacing: -0.025em;
+    margin: 0 0 16px;
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+  .content-title.center { text-align: center; }
+  .content-body {
+    font-size: 1rem;
+    line-height: 1.75;
+    color: #475569;
+  }
+  .content-body--wide { max-width: 760px; margin: 0 auto; }
+  .content-body p { margin: 0 0 16px; }
+  .content-body p:last-child { margin-bottom: 0; }
+  .content-body ul, .content-body ol { padding-left: 20px; margin: 0 0 16px; }
+  .content-body li { margin-bottom: 6px; }
+  .content-body strong { color: var(--brand-primary); font-weight: 700; }
+  .content-body a { color: var(--brand-accent-dark, #d97706); font-weight: 600; }
+  .content-centered { max-width: 900px; margin: 0 auto; }
+  .content-img {
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius-xl, 16px);
+    object-fit: cover;
+    box-shadow: var(--shadow-hover);
+  }
+  @media (max-width: 768px) {
+    .content-split { grid-template-columns: 1fr; }
+    .content-split--reversed .content-text { order: 1; }
+    .content-split--reversed .content-media { order: 2; }
+  }
+</style>
