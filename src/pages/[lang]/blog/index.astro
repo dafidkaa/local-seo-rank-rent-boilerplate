@@ -24,21 +24,39 @@ const pageSeo = seo({
 });
 ---
 <BaseLayout seo={pageSeo}>
-  <!-- Compact page header — no hero, straight to content -->
-  <section class="blog-hub-header">
-    <div class="container">
-      <Breadcrumbs locale={locale} items={[{ label: "Blog", href: `/${locale}/blog/` }]} />
-      <div class="blog-hub-title-row">
-        <div>
-          <p class="eyebrow">Blog &amp; Resources</p>
-          <h1 class="blog-hub-h1">{siteConfig.business.name} Blog</h1>
-          <p class="blog-hub-desc">Tips, guides, and updates about {t(siteConfig.business.primaryService, locale)} in {siteConfig.business.city}.</p>
-        </div>
-        <div class="blog-hub-stats">
-          <span class="blog-stat"><strong>{allPosts.length}</strong> Articles</span>
-          <span class="blog-stat"><strong>{categories.length}</strong> Topics</span>
+  <!-- Blog Hub Hero — full-width background, breadcrumbs inside -->
+  <section class="blog-hub-hero" aria-label="Blog">
+    <img
+      src={(siteConfig.brand as any).images?.blog ?? (siteConfig.brand as any).images?.hero ?? "https://images.unsplash.com/photo-1486325212027-8081e485255e?auto=format&fit=crop&w=1920&q=80"}
+      alt=""
+      role="presentation"
+      class="blog-hub-hero-bg"
+      width="1920"
+      height="500"
+      loading="eager"
+      fetchpriority="high"
+      decoding="async"
+    />
+    <div class="blog-hub-hero-overlay" aria-hidden="true"></div>
+    <div class="blog-hub-hero-body">
+      <div class="container blog-hub-hero-content">
+        <p class="blog-hub-hero-eyebrow">Blog &amp; Resources</p>
+        <h1 class="blog-hub-hero-h1">{siteConfig.business.name} Blog</h1>
+        <p class="blog-hub-hero-desc">Tips, guides, and updates about {t(siteConfig.business.primaryService, locale)} in {siteConfig.business.city}.</p>
+        <div class="blog-hub-hero-stats">
+          <span class="blog-hub-hero-stat"><strong>{allPosts.length}</strong> Articles</span>
+          <span class="blog-hub-hero-stat-sep" aria-hidden="true">·</span>
+          <span class="blog-hub-hero-stat"><strong>{categories.length}</strong> Topics</span>
         </div>
       </div>
+      <nav class="blog-hub-hero-breadcrumbs" aria-label="Breadcrumb">
+        <div class="container">
+          <ol class="blog-hub-crumb-list">
+            <li><a href={`/${locale}/`} class="blog-hub-crumb-link">Home</a><span class="blog-hub-crumb-sep" aria-hidden="true">›</span></li>
+            <li><span aria-current="page" class="blog-hub-crumb-current">Blog</span></li>
+          </ol>
+        </div>
+      </nav>
     </div>
   </section>
 
@@ -133,31 +151,87 @@ const pageSeo = seo({
 
 <style>
   /* ── Hub header ────────────────────────────────────────────────────────── */
-  .blog-hub-header {
-    background: var(--color-surface, #f8fafc);
-    border-bottom: 1px solid var(--color-border, #e2e8f0);
-    padding: 28px 0 24px;
-  }
-  .blog-hub-title-row {
+  /* ── Blog Hub Hero ─────────────────────────────────────────────────────── */
+  .blog-hub-hero {
+    position: relative;
+    isolation: isolate;
     display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 16px;
-    flex-wrap: wrap;
-    margin-top: 12px;
+    flex-direction: column;
+    justify-content: flex-end;
+    overflow: hidden;
+    background: #0a0f1e;
+    min-height: clamp(220px, 32vh, 340px);
   }
-  .blog-hub-h1 {
+  .blog-hub-hero-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -2;
+  }
+  .blog-hub-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(to right, rgba(8,14,35,.75) 45%, rgba(8,14,35,.38) 100%),
+      linear-gradient(to top, rgba(0,0,0,.55) 0%, transparent 55%);
+    z-index: -1;
+  }
+  .blog-hub-hero-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    flex: 1;
+    position: relative;
+    z-index: 1;
+  }
+  .blog-hub-hero-content {
+    padding-block: clamp(24px, 3.5vw, 44px);
+  }
+  .blog-hub-hero-eyebrow {
     font-family: var(--font-display);
-    font-size: clamp(1.5rem, 3vw, 2.25rem);
-    font-weight: 800;
-    color: var(--brand-primary);
-    margin: 4px 0 6px;
-    letter-spacing: -0.025em;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--brand-accent);
+    margin: 0 0 8px;
   }
-  .blog-hub-desc { font-size: 0.9375rem; color: #64748b; margin: 0; }
-  .blog-hub-stats { display: flex; gap: 20px; align-items: center; }
-  .blog-stat { font-size: 0.875rem; color: #64748b; }
-  .blog-stat strong { color: var(--brand-primary); font-weight: 700; font-family: var(--font-display); }
+  .blog-hub-hero-h1 {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 3.5vw, 2.5rem);
+    font-weight: 800;
+    color: white;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    margin: 0 0 8px;
+    text-wrap: balance;
+  }
+  .blog-hub-hero-desc { font-size: 0.9375rem; color: rgba(255,255,255,.75); margin: 0 0 16px; max-width: 520px; }
+  .blog-hub-hero-stats { display: flex; align-items: center; gap: 12px; }
+  .blog-hub-hero-stat { font-size: 0.875rem; color: rgba(255,255,255,.7); }
+  .blog-hub-hero-stat strong { color: white; font-weight: 700; font-family: var(--font-display); }
+  .blog-hub-hero-stat-sep { color: rgba(255,255,255,.3); }
+  .blog-hub-hero-breadcrumbs {
+    background: rgba(0,0,0,.28);
+    border-top: 1px solid rgba(255,255,255,.12);
+    padding: 0.5rem 0;
+  }
+  .blog-hub-crumb-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem 0.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: 0.8rem;
+  }
+  .blog-hub-crumb-link { color: rgba(255,255,255,.7); text-decoration: none; transition: color 0.15s; }
+  .blog-hub-crumb-link:hover { color: var(--brand-accent); }
+  .blog-hub-crumb-current { color: rgba(255,255,255,.5); }
+  .blog-hub-crumb-sep { color: rgba(255,255,255,.3); font-size: 0.75rem; }
 
   /* ── Featured ──────────────────────────────────────────────────────────── */
   .blog-featured-section { padding: 32px 0 0; }

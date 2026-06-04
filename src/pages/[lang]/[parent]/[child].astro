@@ -84,25 +84,8 @@ const relatedServices = allServices.filter((s: any) => s.id !== parent.id).slice
     image={heroImage}
     imageAlt={`${childName} in ${city} — ${businessName}`}
     locale={locale as any}
+    breadcrumbs={crumbs}
   />
-
-  <!-- BREADCRUMBS -->
-  <nav class="breadcrumb-bar" aria-label="Breadcrumb">
-    <div class="container">
-      <ol class="breadcrumb-list" itemscope itemtype="https://schema.org/BreadcrumbList">
-        {crumbs.map((crumb, i) => (
-          <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-            {i < crumbs.length - 1 ? (
-              <a itemprop="item" href={crumb.url}><span itemprop="name">{crumb.name}</span></a>
-            ) : (
-              <span itemprop="name" aria-current="page">{crumb.name}</span>
-            )}
-            <meta itemprop="position" content={String(i + 1)} />
-          </li>
-        ))}
-      </ol>
-    </div>
-  </nav>
 
   <!-- SERVICE DESCRIPTION -->
   <section class="section-light">
@@ -115,7 +98,7 @@ const relatedServices = allServices.filter((s: any) => s.id !== parent.id).slice
           <p>Our team of licensed and insured professionals brings years of experience to every {childName.toLowerCase()} job in {city}. We use industry-leading techniques and equipment to ensure lasting results, every time.</p>
           <p>When you choose {businessName} for {childName.toLowerCase()} in {city}, you get transparent pricing, same-day availability, and a 100% satisfaction guarantee on all work performed.</p>
           <div class="hero-ctas" style="margin-top:2rem">
-            <button class="btn-primary open-popup-form">Get a Free Estimate</button>
+            <button class="btn btn-primary" data-open-form-popup aria-haspopup="dialog">Get a Free Estimate</button>
             {phone && <a href={`tel:${phone}`} class="btn-secondary">Call {phone}</a>}
           </div>
         </div>

@@ -61,26 +61,8 @@ const meta = seo({
     image={(siteConfig.brand as any).images?.contact ?? 'https://images.unsplash.com/photo-1423666639041-f56000c27a9a?auto=format&fit=crop&w=1920&q=80'}
     imageAlt={`Contact ${businessName} — ${primaryService} in ${city}`}
     locale={locale as any}
+    breadcrumbs={crumbs}
   />
-
-  <!-- BREADCRUMBS -->
-  <nav class="breadcrumb-bar" aria-label="Breadcrumb">
-    <div class="container">
-      <ol class="breadcrumb-list" itemscope itemtype="https://schema.org/BreadcrumbList">
-        {crumbs.map((crumb, i) => (
-          <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-            {i < crumbs.length - 1 ? (
-              <a href={crumb.url} itemprop="item"><span itemprop="name">{crumb.name}</span></a>
-            ) : (
-              <span itemprop="name" aria-current="page">{crumb.name}</span>
-            )}
-            <meta itemprop="position" content={String(i + 1)} />
-            {i < crumbs.length - 1 && <span class="breadcrumb-sep" aria-hidden="true">›</span>}
-          </li>
-        ))}
-      </ol>
-    </div>
-  </nav>
 
   <!-- CONTACT OPTIONS -->
   <section class="section section-white">
@@ -98,7 +80,7 @@ const meta = seo({
           </div>
           <h3>Request a Free Estimate</h3>
           <p>Fill out our quick form and we will get back to you with a no-obligation quote within the same business day.</p>
-          <button class="btn btn-primary open-popup" data-popup="estimate" aria-label="Open estimate request form">Request a Free Estimate</button>
+          <button class="btn btn-primary" data-open-form-popup aria-haspopup="dialog" aria-label="Open estimate request form">Request a Free Estimate</button>
         </div>
 
         <!-- Phone -->
@@ -196,19 +178,14 @@ const meta = seo({
 </BaseLayout>
 
 <style>
-  .breadcrumb-bar { background: var(--color-surface); border-bottom: 1px solid var(--color-border); padding: 0.75rem 0; }
-  .breadcrumb-list { display: flex; flex-wrap: wrap; gap: 0.25rem 0.5rem; list-style: none; margin: 0; padding: 0; font-size: 0.8125rem; color: var(--color-text-muted); }
-  .breadcrumb-list a { color: var(--color-accent); text-decoration: none; }
-  .breadcrumb-list a:hover { text-decoration: underline; }
-  .breadcrumb-sep { color: var(--color-text-muted); }
   .contact-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 2.5rem; }
   .contact-card { padding: 2rem; background: white; border: 1px solid var(--color-border); border-radius: 16px; box-shadow: var(--shadow-card); display: flex; flex-direction: column; gap: 1rem; }
   .contact-card-primary { border-color: var(--color-accent); background: #fffbeb; }
   .contact-card-icon { width: 56px; height: 56px; background: var(--color-accent); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--color-dark); }
   .contact-card h3 { font-size: 1.125rem; font-weight: 700; color: var(--color-dark); margin: 0; }
   .contact-card p { font-size: 0.9375rem; color: var(--color-text-muted); margin: 0; line-height: 1.6; flex: 1; }
-  .btn-outline-dark { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; border: 2px solid var(--color-dark); border-radius: 8px; font-weight: 600; color: var(--color-dark); text-decoration: none; font-size: 0.9375rem; transition: background 0.2s, color 0.2s; }
-  .btn-outline-dark:hover { background: var(--color-dark); color: white; }
+  .btn-outline-dark { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; border: 2px solid var(--color-dark); border-radius: 8px; font-weight: 600; color: var(--color-dark); background: transparent; text-decoration: none; font-size: 0.9375rem; transition: background 0.2s, color 0.2s, border-color 0.2s; }
+  .btn-outline-dark:hover { background: var(--color-accent); border-color: var(--color-accent); color: var(--color-dark); }
   .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start; }
   .details-title { font-size: 1.75rem; font-weight: 800; color: var(--color-dark); margin: 0.5rem 0 1.5rem; }
   .details-list { display: flex; flex-direction: column; gap: 1rem; }

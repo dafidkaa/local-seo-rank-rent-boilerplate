@@ -64,26 +64,8 @@ const meta = seo({
     image={(siteConfig.brand as any).images?.about ?? 'https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=900&q=80'}
     imageAlt={`${businessName} team — professional ${primaryService.toLowerCase()} in ${city}`}
     locale={locale as any}
+    breadcrumbs={crumbs}
   />
-
-  <!-- BREADCRUMBS -->
-  <nav class="breadcrumb-bar" aria-label="Breadcrumb">
-    <div class="container">
-      <ol class="breadcrumb-list" itemscope itemtype="https://schema.org/BreadcrumbList">
-        {crumbs.map((crumb, i) => (
-          <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-            {i < crumbs.length - 1 ? (
-              <a href={crumb.url} itemprop="item"><span itemprop="name">{crumb.name}</span></a>
-            ) : (
-              <span itemprop="name" aria-current="page">{crumb.name}</span>
-            )}
-            <meta itemprop="position" content={String(i + 1)} />
-            {i < crumbs.length - 1 && <span class="breadcrumb-sep" aria-hidden="true">›</span>}
-          </li>
-        ))}
-      </ol>
-    </div>
-  </nav>
 
   <!-- OUR STORY -->
   <ContentSection
@@ -186,11 +168,6 @@ const meta = seo({
 </BaseLayout>
 
 <style>
-  .breadcrumb-bar { background: var(--color-surface); border-bottom: 1px solid var(--color-border); padding: 0.75rem 0; }
-  .breadcrumb-list { display: flex; flex-wrap: wrap; gap: 0.25rem 0.5rem; list-style: none; margin: 0; padding: 0; font-size: 0.8125rem; color: var(--color-text-muted); }
-  .breadcrumb-list a { color: var(--color-accent); text-decoration: none; }
-  .breadcrumb-list a:hover { text-decoration: underline; }
-  .breadcrumb-sep { color: var(--color-text-muted); }
   .values-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-top: 2.5rem; }
   .value-card { display: flex; gap: 1rem; padding: 1.5rem; background: white; border: 1px solid var(--color-border); border-radius: 12px; box-shadow: var(--shadow-card); }
   .value-icon { flex-shrink: 0; width: 44px; height: 44px; background: var(--color-accent); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--color-dark); }

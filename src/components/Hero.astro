@@ -1,12 +1,18 @@
 ---
 /**
  * Hero — Inner page hero (About, Service, Location, Contact, etc.)
- * - Thin: 40-50vh (homepage uses HeroSlider for full height)
+ * - Thin: ~30-36vh — shows content immediately below the fold
+ * - Breadcrumbs rendered INSIDE the hero at the bottom for UX clarity
+ * - Lighter overlay so background photo is visible but text remains readable
  * - Primary CTA always triggers global form popup
  * - Secondary/tertiary CTAs: phone or email based on ctaMode in site.config
  */
 import { siteConfig, type Locale } from "@/site.config";
 import { t } from "@/lib/routes";
+interface BreadcrumbItem {
+  name: string;
+  url?: string;
+}
 interface Props {
   eyebrow?: string;
   title: string;
@@ -22,6 +28,8 @@ interface Props {
   secondaryText?: string;
   /** @deprecated — use site.config.ts trust badges instead */
   badges?: string[];
+  /** Breadcrumb items to render inside the hero bottom bar */
+  breadcrumbs?: BreadcrumbItem[];
 }
 const {
   eyebrow,
@@ -33,6 +41,7 @@ const {
   primaryText,
   secondaryHref,
   secondaryText,
+  breadcrumbs,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   primaryHref: _primaryHref,
   badges: _badges,
@@ -45,40 +54,65 @@ const ctaLabel = primaryText ?? t(siteConfig.business.cta, locale);
 <section class={`inner-hero inner-hero--${size}`} aria-label={title}>
   <img src={image} alt="" role="presentation" class="inner-hero-bg" width="1920" height="600" loading="eager" fetchpriority="high" decoding="async" />
   <div class="inner-hero-overlay" aria-hidden="true"></div>
-  <div class="container inner-hero-content">
-    {eyebrow && (
-      <p class="inner-hero-eyebrow">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
-        {eyebrow}
-      </p>
-    )}
-    <h1 class="inner-hero-heading">{title}</h1>
-    {text && <p class="inner-hero-text">{text}</p>}
-    <div class="inner-hero-actions">
-      <button type="button" class="btn btn-primary btn-lg" data-open-form-popup aria-haspopup="dialog">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.01 1.18 2 2 0 012 .01h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
-        {ctaLabel}
-      </button>
-      {secondaryHref ? (
-        <a href={secondaryHref} class="btn btn-secondary btn-lg">{secondaryText ?? "Learn More"}</a>
-      ) : (ctaMode === "form_phone" || ctaMode === "form_phone_email" || ctaMode === "phone_only") && phone ? (
-        <a href={`tel:${phone}`} class="btn btn-secondary btn-lg">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.01 1.18 2 2 0 012 .01h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
-          {phone}
-        </a>
-      ) : (ctaMode === "form_email" || ctaMode === "email_only") && email ? (
-        <a href={`mailto:${email}`} class="btn btn-secondary btn-lg">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-          {email}
-        </a>
-      ) : null}
-      {ctaMode === "form_phone_email" && email && (
-        <a href={`mailto:${email}`} class="btn btn-ghost btn-lg">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-          {email}
-        </a>
+  <div class="inner-hero-body">
+    <div class="container inner-hero-content">
+      {eyebrow && (
+        <p class="inner-hero-eyebrow">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+          {eyebrow}
+        </p>
       )}
+      <h1 class="inner-hero-heading">{title}</h1>
+      {text && <p class="inner-hero-text">{text}</p>}
+      <div class="inner-hero-actions">
+        <button type="button" class="btn btn-primary btn-lg" data-open-form-popup aria-haspopup="dialog">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.01 1.18 2 2 0 012 .01h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
+          {ctaLabel}
+        </button>
+        {secondaryHref ? (
+          <a href={secondaryHref} class="btn btn-secondary btn-lg">{secondaryText ?? "Learn More"}</a>
+        ) : (ctaMode === "form_phone" || ctaMode === "form_phone_email" || ctaMode === "phone_only") && phone ? (
+          <a href={`tel:${phone}`} class="btn btn-secondary btn-lg">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.01 1.18 2 2 0 012 .01h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
+            {phone}
+          </a>
+        ) : (ctaMode === "form_email" || ctaMode === "email_only") && email ? (
+          <a href={`mailto:${email}`} class="btn btn-secondary btn-lg">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            {email}
+          </a>
+        ) : null}
+        {ctaMode === "form_phone_email" && email && (
+          <a href={`mailto:${email}`} class="btn btn-ghost btn-lg">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            {email}
+          </a>
+        )}
+      </div>
     </div>
+    {breadcrumbs && breadcrumbs.length > 0 && (
+      <nav class="inner-hero-breadcrumbs" aria-label="Breadcrumb">
+        <div class="container">
+          <ol class="inner-hero-crumb-list" itemscope itemtype="https://schema.org/BreadcrumbList">
+            {breadcrumbs.map((crumb, i) => (
+              <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                {i < breadcrumbs.length - 1 && crumb.url ? (
+                  <a href={crumb.url} itemprop="item" class="inner-hero-crumb-link">
+                    <span itemprop="name">{crumb.name}</span>
+                  </a>
+                ) : (
+                  <span itemprop="name" aria-current="page" class="inner-hero-crumb-current">{crumb.name}</span>
+                )}
+                <meta itemprop="position" content={String(i + 1)} />
+                {i < breadcrumbs.length - 1 && (
+                  <span class="inner-hero-crumb-sep" aria-hidden="true">›</span>
+                )}
+              </li>
+            ))}
+          </ol>
+        </div>
+      </nav>
+    )}
   </div>
 </section>
 <style>
@@ -86,13 +120,15 @@ const ctaLabel = primaryText ?? t(siteConfig.business.cta, locale);
     position: relative;
     isolation: isolate;
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    justify-content: flex-end;
     overflow: hidden;
     background: #0a0f1e;
   }
-  .inner-hero--thin   { min-height: clamp(220px, 38vh, 380px); }
-  .inner-hero--normal { min-height: clamp(280px, 50vh, 480px); }
-  .inner-hero--large  { min-height: clamp(360px, 65vh, 600px); }
+  /* Shorter heights — show content immediately below the fold */
+  .inner-hero--thin   { min-height: clamp(200px, 30vh, 320px); }
+  .inner-hero--normal { min-height: clamp(260px, 42vh, 420px); }
+  .inner-hero--large  { min-height: clamp(320px, 55vh, 520px); }
   .inner-hero-bg {
     position: absolute;
     inset: 0;
@@ -101,18 +137,25 @@ const ctaLabel = primaryText ?? t(siteConfig.business.cta, locale);
     object-fit: cover;
     z-index: -2;
   }
+  /* Lighter overlay — background photo is visible, text still readable */
   .inner-hero-overlay {
     position: absolute;
     inset: 0;
     background:
-      linear-gradient(to right, rgba(8,14,35,.88) 50%, rgba(8,14,35,.5) 100%),
-      linear-gradient(to top, rgba(0,0,0,.4) 0%, transparent 60%);
+      linear-gradient(to right, rgba(8,14,35,.72) 45%, rgba(8,14,35,.35) 100%),
+      linear-gradient(to top, rgba(0,0,0,.55) 0%, transparent 55%);
     z-index: -1;
   }
-  .inner-hero-content {
-    padding-block: clamp(40px, 6vw, 72px);
+  .inner-hero-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    flex: 1;
     position: relative;
     z-index: 1;
+  }
+  .inner-hero-content {
+    padding-block: clamp(28px, 4vw, 52px);
   }
   .inner-hero-eyebrow {
     display: inline-flex;
@@ -124,24 +167,24 @@ const ctaLabel = primaryText ?? t(siteConfig.business.cta, locale);
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--brand-accent);
-    margin: 0 0 12px;
+    margin: 0 0 10px;
   }
   .inner-hero-heading {
     font-family: var(--font-display);
-    font-size: clamp(1.75rem, 4vw, 2.875rem);
+    font-size: clamp(1.5rem, 3.5vw, 2.5rem);
     font-weight: 800;
     color: white;
     line-height: 1.1;
     letter-spacing: -0.03em;
-    margin: 0 0 12px;
+    margin: 0 0 10px;
     max-width: 700px;
     text-wrap: balance;
   }
   .inner-hero-text {
-    font-size: clamp(0.9375rem, 1.4vw, 1.0625rem);
-    color: rgba(255,255,255,.75);
+    font-size: clamp(0.875rem, 1.3vw, 1rem);
+    color: rgba(255,255,255,.78);
     line-height: 1.65;
-    margin: 0 0 24px;
+    margin: 0 0 20px;
     max-width: 560px;
   }
   .inner-hero-actions {
@@ -160,6 +203,30 @@ const ctaLabel = primaryText ?? t(siteConfig.business.cta, locale);
     border-color: rgba(255,255,255,.6);
     color: white;
   }
+  /* ── Breadcrumbs inside hero ─────────────────────────────────────────── */
+  .inner-hero-breadcrumbs {
+    background: rgba(0,0,0,.28);
+    border-top: 1px solid rgba(255,255,255,.12);
+    padding: 0.5rem 0;
+  }
+  .inner-hero-crumb-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem 0.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: 0.8rem;
+  }
+  .inner-hero-crumb-link {
+    color: rgba(255,255,255,.7);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+  .inner-hero-crumb-link:hover { color: var(--brand-accent); }
+  .inner-hero-crumb-current { color: rgba(255,255,255,.5); }
+  .inner-hero-crumb-sep { color: rgba(255,255,255,.3); font-size: 0.75rem; }
   @media (max-width: 640px) {
     .inner-hero-actions { flex-direction: column; align-items: flex-start; }
     .inner-hero-actions .btn { width: 100%; justify-content: center; }

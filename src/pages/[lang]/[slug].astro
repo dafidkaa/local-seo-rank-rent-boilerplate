@@ -86,6 +86,22 @@ const faqs = isService ? [
   { question: `How do I book a service in ${locationName}?`, answer: `You can request a free estimate by filling out our online form, calling us at ${phone}, or sending an email to ${email ?? "our team"}. We will confirm your appointment and provide a clear quote before any work begins.` },
 ];
 
+// Problems section data (must be defined in frontmatter, not inline JSX)
+const problemCards = isService ? [
+  { icon: "⚡", title: "Unexpected emergencies", desc: `Problems can arise without warning. Our team is available for same-day and emergency ${serviceNameLower} service throughout ${city}.` },
+  { icon: "💰", title: "Uncertainty about costs", desc: `Many customers are unsure what a fair price looks like. We provide free estimates and transparent pricing so you can make an informed decision.` },
+  { icon: "🔍", title: "Finding a reliable provider", desc: `Not all service providers are equal. ${businessName} is licensed, insured, and has a proven track record in ${city}.` },
+  { icon: "✅", title: "Concerns about quality", desc: `Our work is backed by a satisfaction guarantee. We do not consider a job complete until you are satisfied with the result.` },
+  { icon: "🕐", title: "Tight schedules", desc: `We offer flexible appointment times and same-day service to work around your schedule.` },
+  { icon: "📋", title: "Hidden fees and surprises", desc: `We provide written estimates before work begins. The price we quote is the price you pay.` },
+] : [
+  { icon: "📍", title: `Finding local coverage in ${locationName}`, desc: `Some companies advertise broadly but are slow to respond outside their primary area. ${businessName} genuinely serves ${locationName} with fast response times.` },
+  { icon: "💰", title: "Getting consistent pricing", desc: `We charge the same transparent rates in ${locationName} as anywhere else in our service area. No travel surcharges or inflated prices.` },
+  { icon: "✅", title: "Uncertainty about quality", desc: `Our work in ${locationName} is held to the same high standards as every other area we serve, and is backed by our satisfaction guarantee.` },
+  { icon: "🕐", title: "Needing service quickly", desc: `Same-day appointments are available for ${locationName} customers. Call us now to confirm availability.` },
+  { icon: "📋", title: "Understanding what you are paying for", desc: `We provide free written estimates before any work begins. No surprises, no hidden fees.` },
+  { icon: "🔍", title: "Verifying credentials", desc: `${businessName} is fully licensed, bonded, and insured. We are happy to provide documentation on request.` },
+];
 // Breadcrumbs
 const crumbs = isService
   ? [{ name: "Home", url: `/${locale}/` }, { name: "Services", url: `/${locale}/#services` }, { name: serviceName, url: `/${locale}/${service?.id}/` }]
@@ -128,33 +144,15 @@ const locationImg = location?.image ?? "https://images.unsplash.com/photo-144982
 const aboutImg = "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=900&q=80";
 ---
 <BaseLayout seo={meta}>
-  <!-- 1. HERO (thin inner-page variant) -->
+  <!-- 1. HERO with breadcrumbs inside -->
   <Hero
     title={heroHeading}
     text={heroSubtext}
     image={heroImage}
     imageAlt={`${heroHeading} — ${businessName}`}
     locale={locale}
+    breadcrumbs={crumbs}
   />
-
-  <!-- 2. BREADCRUMBS -->
-  <nav class="breadcrumb-bar" aria-label="Breadcrumb">
-    <div class="container">
-      <ol class="breadcrumb-list" itemscope itemtype="https://schema.org/BreadcrumbList">
-        {crumbs.map((crumb, i) => (
-          <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-            {i < crumbs.length - 1 ? (
-              <a href={crumb.url} itemprop="item"><span itemprop="name">{crumb.name}</span></a>
-            ) : (
-              <span itemprop="name" aria-current="page">{crumb.name}</span>
-            )}
-            <meta itemprop="position" content={String(i + 1)} />
-            {i < crumbs.length - 1 && <span class="breadcrumb-sep" aria-hidden="true">›</span>}
-          </li>
-        ))}
-      </ol>
-    </div>
-  </nav>
 
   <!-- 3. INTRODUCTION -->
   <ContentSection
@@ -193,21 +191,7 @@ const aboutImg = "https://images.unsplash.com/photo-1581578731548-c64695cc6952?a
         </p>
       </div>
       <div class="problems-grid">
-        {isService ? [
-          { icon: "⚡", title: "Unexpected emergencies", desc: `Problems can arise without warning. Our team is available for same-day and emergency ${serviceNameLower} service throughout ${city}.` },
-          { icon: "💰", title: "Uncertainty about costs", desc: `Many customers are unsure what a fair price looks like. We provide free estimates and transparent pricing so you can make an informed decision.` },
-          { icon: "🔍", title: "Finding a reliable provider", desc: `Not all service providers are equal. ${businessName} is licensed, insured, and has a proven track record in ${city}.` },
-          { icon: "✅", title: "Concerns about quality", desc: `Our work is backed by a satisfaction guarantee. We do not consider a job complete until you are satisfied with the result.` },
-          { icon: "🕐", title: "Tight schedules", desc: `We offer flexible appointment times and same-day service to work around your schedule.` },
-          { icon: "📋", title: "Hidden fees and surprises", desc: `We provide written estimates before work begins. The price we quote is the price you pay.` },
-        ] : [
-          { icon: "📍", title: `Finding local coverage in ${locationName}`, desc: `Some companies advertise broadly but are slow to respond outside their primary area. ${businessName} genuinely serves ${locationName} with fast response times.` },
-          { icon: "💰", title: "Getting consistent pricing", desc: `We charge the same transparent rates in ${locationName} as anywhere else in our service area. No travel surcharges or inflated prices.` },
-          { icon: "✅", title: "Uncertainty about quality", desc: `Our work in ${locationName} is held to the same high standards as every other area we serve, and is backed by our satisfaction guarantee.` },
-          { icon: "🕐", title: "Needing service quickly", desc: `Same-day appointments are available for ${locationName} customers. Call us now to confirm availability.` },
-          { icon: "📋", title: "Understanding what you are paying for", desc: `We provide free written estimates before any work begins. No surprises, no hidden fees.` },
-          { icon: "🔍", title: "Verifying credentials", desc: `${businessName} is fully licensed, bonded, and insured. We are happy to provide documentation on request.` },
-        ].map((item: any) => (
+        {problemCards.map((item) => (
           <div class="problem-card">
             <div class="problem-icon" aria-hidden="true">{item.icon}</div>
             <div>
@@ -280,7 +264,7 @@ const aboutImg = "https://images.unsplash.com/photo-1581578731548-c64695cc6952?a
         <p>Free estimates · Same-day service · 100% satisfaction guaranteed</p>
       </div>
       <div class="cta-strip-actions">
-        <button class="btn btn-primary open-popup" data-popup="estimate" aria-label="Request a free estimate">
+        <button class="btn btn-primary" data-open-form-popup aria-haspopup="dialog" aria-label="Request a free estimate">
           Request a Free Estimate
         </button>
         <a href={`tel:${phone}`} class="btn btn-outline-light">
@@ -296,11 +280,6 @@ const aboutImg = "https://images.unsplash.com/photo-1581578731548-c64695cc6952?a
 </BaseLayout>
 
 <style>
-  .breadcrumb-bar { background: var(--color-surface); border-bottom: 1px solid var(--color-border); padding: 0.75rem 0; }
-  .breadcrumb-list { display: flex; flex-wrap: wrap; gap: 0.25rem 0.5rem; list-style: none; margin: 0; padding: 0; font-size: 0.8125rem; color: var(--color-text-muted); }
-  .breadcrumb-list a { color: var(--color-accent); text-decoration: none; }
-  .breadcrumb-list a:hover { text-decoration: underline; }
-  .breadcrumb-sep { color: var(--color-text-muted); }
   .problems-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-top: 2.5rem; }
   .problem-card { display: flex; gap: 1rem; padding: 1.5rem; background: white; border: 1px solid var(--color-border); border-radius: 12px; box-shadow: var(--shadow-card); }
   .problem-icon { flex-shrink: 0; width: 36px; height: 36px; background: var(--color-accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; margin-top: 2px; }
