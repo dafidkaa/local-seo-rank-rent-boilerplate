@@ -6,7 +6,7 @@ import { t } from "@/lib/routes";
 import type { Locale } from "@/site.config";
 interface Props {
   post: any;
-  locale: Locale;
+  locale: string;
 }
 const { post, locale } = Astro.props;
 const dateLocale = locale === "hr" ? "hr-HR" : "en-US";

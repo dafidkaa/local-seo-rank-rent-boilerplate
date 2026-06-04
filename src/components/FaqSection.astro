@@ -8,16 +8,16 @@ interface FaqItem { q: string; a: string; }
 interface LegacyFaqItem { question: string; answer: string; }
 interface Props {
   items?: FaqItem[];
-  faqs?: LegacyFaqItem[];
+  faqs?: LegacyFaqItem[] | FaqItem[];
   title?: string;
   eyebrow?: string;
-  locale?: Locale;
+  locale?: string;
 }
 const { items: itemsProp, faqs: faqsProp, title = "Frequently Asked Questions", eyebrow = "FAQ", locale = "en" } = Astro.props;
 // Support both {q,a} and {question,answer} formats
 const items: FaqItem[] = itemsProp
   ? itemsProp
-  : (faqsProp ?? []).map((f) => ({ q: f.question, a: f.answer }));
+  : (faqsProp ?? []).map((f: any) => f.q ? f : { q: f.question, a: f.answer });
 ---
 <section class="faq-section section" aria-labelledby="faq-heading">
   <div class="container">

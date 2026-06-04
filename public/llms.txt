@@ -1,0 +1,25 @@
+# Austin Plumbing Pro
+
+> Professional, licensed, and insured plumbing services in Austin, Texas and surrounding metro areas. Est. 2012.
+
+This website is a premium digital asset optimized for local search, answer engines (AEO), and generative AI search systems (GEO). It serves as a comprehensive resource for residential and commercial plumbing needs.
+
+## Contact Information
+- **Phone:** +1 (512) 555-0192 (Available 24/7 for emergencies)
+- **Email:** contact@austinplumbingpro.com
+- **Address:** 1201 San Jacinto Blvd, Austin, TX 78701
+- **Hours:** Monday – Sunday, 24/7 (Emergency Service)
+
+## Core Services
+- **Emergency Plumbing:** 24/7 response for urgent plumbing issues, burst pipes, and severe leaks.
+- **Drain Cleaning:** Professional clearing of clogged drains, main sewer lines, and kitchen/bathroom pipes.
+- **Water Heater Service:** Installation, repair, and maintenance of traditional tank and tankless water heaters.
+- **Leak Detection:** Advanced electronic leak detection for hidden water line leaks and slab leaks.
+
+## Service Areas
+Austin, Round Rock, Buda, Cedar Park, Bee Cave, West Lake Hills, Lakeway, Pflugerville, Kyle, and surrounding communities.
+
+## Key Resources
+- **Homepage:** https://austinplumbingpro.com/en/
+- **Sitemap:** https://austinplumbingpro.com/sitemap-index.xml
+- **Full AI-Readable Guide:** https://austinplumbingpro.com/llms-full.txt

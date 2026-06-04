@@ -47,7 +47,7 @@ const allQuestions = Object.values(faqData).flatMap(cat => cat.questions.map(q =
 const pageSeo = seo({ locale, path: "faq", title: `Frequently Asked Questions | ${siteConfig.business.name}`, description: `Common questions about ${t(siteConfig.business.primaryService, locale)} in ${siteConfig.business.city}. Get answers about services, pricing, scheduling, and service areas.`, schema: [faqSchema(allQuestions), breadcrumbSchema([{ name: "Home", url: localizedPath(locale) }, { name: "FAQ", url: localizedPath(locale, "faq") }])] });
 ---
 <BaseLayout seo={pageSeo}>
-  <Hero eyebrow="FAQ" title="Frequently Asked Questions" text={`Find answers to common questions about ${t(siteConfig.business.primaryService, locale)} in ${siteConfig.business.city} and ${siteConfig.business.serviceArea}.`} image={siteConfig.brand.heroImage} primaryHref={localizedPath(locale, "contact")} primaryText={t(siteConfig.business.cta, locale)} />
+  <Hero eyebrow="FAQ" title="Frequently Asked Questions" text={`Find answers to common questions about ${t(siteConfig.business.primaryService, locale)} in ${siteConfig.business.city} and ${siteConfig.business.serviceArea}.`} image={(siteConfig.brand as any).images?.hero ?? 'https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=1920&q=80'} primaryHref={localizedPath(locale, "contact")} primaryText={t(siteConfig.business.cta, locale)} />
   <div class="container"><Breadcrumbs locale={locale} items={[{ label: "FAQ", href: localizedPath(locale, "faq") }]} /></div>
   {Object.entries(faqData).map(([_key, category]) => (
     <section class="section">

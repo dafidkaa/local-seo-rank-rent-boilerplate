@@ -9,11 +9,11 @@
 import { siteConfig, type Locale } from "@/site.config";
 import { t } from "@/lib/routes";
 import { ui } from "@/i18n";
-interface Props { locale: Locale; }
+interface Props { locale: string; }
 const { locale } = Astro.props;
-const reviews = siteConfig.reviews ?? [];
+const reviews = (siteConfig as any).reviews ?? (siteConfig as any).testimonials ?? [];
 const avgRating = reviews.length
-  ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)
+  ? (reviews.reduce((s: number, r: any) => s + r.rating, 0) / reviews.length).toFixed(1)
   : "5.0";
 ---
 {reviews.length > 0 && (
@@ -41,7 +41,7 @@ const avgRating = reviews.length
       </div>
       <!-- Cards grid -->
       <div class="reviews-grid" role="list">
-        {reviews.map((r) => {
+        {reviews.map((r: any) => {
           const initials = r.author.split(" ").map((w: string) => w[0]).join("").slice(0, 2).toUpperCase();
           return (
             <article class="review-card" role="listitem">

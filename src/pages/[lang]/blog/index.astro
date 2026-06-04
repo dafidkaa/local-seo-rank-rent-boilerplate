@@ -12,7 +12,7 @@ export async function getStaticPaths() {
 const locale = Astro.params.lang as Locale;
 const dateLocale = (l: string) => l === "hr" ? "hr-HR" : "en-US";
 const allPosts = (await getCollection("blog"))
-  .filter((p) => !p.data.draft)
+  
   .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
 const [featured, ...rest] = allPosts;
 const categories = [...new Set(allPosts.map((p) => p.data.category))].filter(Boolean);

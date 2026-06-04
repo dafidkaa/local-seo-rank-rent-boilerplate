@@ -2,7 +2,7 @@ import { siteConfig, type Locale } from "@/site.config";
 import { localizedPath, t } from "./routes";
 
 type SeoInput = {
-  locale: Locale;
+  locale: string;
   title: string;
   description: string;
   path?: string;
@@ -11,7 +11,7 @@ type SeoInput = {
   schema?: unknown[];
 };
 
-export const buildCanonical = (locale: Locale, path = "") => new URL(localizedPath(locale, path), siteConfig.siteUrl).toString();
+export const buildCanonical = (locale: string, path = "") => new URL(localizedPath(locale, path), siteConfig.siteUrl).toString();
 
 export const buildAlternates = (path = "") =>
   siteConfig.locales.map((locale) => ({
@@ -20,7 +20,7 @@ export const buildAlternates = (path = "") =>
     url: buildCanonical(locale.code, path)
   }));
 
-export const seo = ({ locale, title, description, path = "", image = siteConfig.brand.ogImage, noindex = false, schema = [] }: SeoInput) => ({
+export const seo = ({ locale, title, description, path = "", image = (siteConfig.brand.images as any)?.og ?? `${siteConfig.siteUrl}/og-default.jpg`, noindex = false, schema = [] }: SeoInput) => ({
   title,
   description,
   path,
@@ -31,13 +31,13 @@ export const seo = ({ locale, title, description, path = "", image = siteConfig.
   schema
 });
 
-export const localBusinessSchema = (locale: Locale) => ({
+export const localBusinessSchema = (locale: string) => ({
   "@context": "https://schema.org",
   "@type": "LocalBusiness",
   name: siteConfig.business.name,
   legalName: siteConfig.business.legalName,
   url: buildCanonical(locale),
-  image: siteConfig.brand.ogImage,
+  image: (siteConfig.brand.images as any)?.og ?? `${siteConfig.siteUrl}/og-default.jpg`,
   telephone: siteConfig.business.phone,
   email: siteConfig.business.email,
   address: siteConfig.business.address,
@@ -47,7 +47,7 @@ export const localBusinessSchema = (locale: Locale) => ({
   openingHours: Object.entries(siteConfig.business.hours).map(([day, hours]) => `${day} ${hours}`)
 });
 
-export const websiteSchema = (locale: Locale) => ({
+export const websiteSchema = (locale: string) => ({
   "@context": "https://schema.org",
   "@type": "WebSite",
   name: siteConfig.business.name,
@@ -55,7 +55,7 @@ export const websiteSchema = (locale: Locale) => ({
   inLanguage: locale
 });
 
-export const serviceSchema = (locale: Locale, name: string, path: string, areaServed?: string) => ({
+export const serviceSchema = (locale: string, name: string, path: string, areaServed?: string) => ({
   "@context": "https://schema.org",
   "@type": "Service",
   name,
@@ -107,13 +107,13 @@ export const articleSchema = (input: {
   }
 });
 
-export const organizationSchema = (locale: Locale) => ({
+export const organizationSchema = (locale: string) => ({
   "@context": "https://schema.org",
   "@type": "Organization",
   name: siteConfig.business.name,
   legalName: siteConfig.business.legalName,
   url: buildCanonical(locale),
-  logo: siteConfig.brand.ogImage,
+  logo: (siteConfig.brand.images as any)?.og ?? `${siteConfig.siteUrl}/og-default.jpg`,
   foundingDate: siteConfig.business.foundedYear,
   contactPoint: {
     "@type": "ContactPoint",
@@ -130,7 +130,7 @@ export const organizationSchema = (locale: Locale) => ({
   }
 });
 
-export const webPageSchema = (locale: Locale, name: string, url: string, description?: string) => ({
+export const webPageSchema = (locale: string, name: string, url: string, description?: string) => ({
   "@context": "https://schema.org",
   "@type": "WebPage",
   name,
@@ -143,7 +143,7 @@ export const webPageSchema = (locale: Locale, name: string, url: string, descrip
   }
 });
 
-export const searchActionSchema = (locale: Locale) => ({
+export const searchActionSchema = (locale: string) => ({
   "@context": "https://schema.org",
   "@type": "WebSite",
   name: siteConfig.business.name,
@@ -170,7 +170,7 @@ export const howToSchema = (steps: Array<{ name: string; text: string }>) => ({
   }))
 });
 
-export const aboutPageSchema = (locale: Locale) => ({
+export const aboutPageSchema = (locale: string) => ({
   "@context": "https://schema.org",
   "@type": "AboutPage",
   name: `About ${siteConfig.business.name}`,

@@ -1,0 +1,152 @@
+---
+/**
+ * Legal pages — privacy policy, terms of service, disclaimer
+ */
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import Hero from "../../../components/Hero.astro";
+import { siteConfig } from "../../../site.config";
+import { seo, breadcrumbSchema } from "../../../lib/seo";
+
+export async function getStaticPaths() {
+  const pages = [
+    {
+      slug: "privacy-policy",
+      title: "Privacy Policy",
+      heading: "Privacy Policy",
+      subtext: "How we collect, use, and protect your personal information.",
+    },
+    {
+      slug: "terms-of-service",
+      title: "Terms of Service",
+      heading: "Terms of Service",
+      subtext: "The terms and conditions governing your use of our website and services.",
+    },
+    {
+      slug: "disclaimer",
+      title: "Disclaimer",
+      heading: "Disclaimer",
+      subtext: "Important information about the limitations of our website content.",
+    },
+  ];
+  const paths = [];
+  for (const locale of siteConfig.locales) {
+    for (const page of pages) {
+      paths.push({ params: { lang: locale.code, page: page.slug }, props: { locale: locale.code, page } });
+    }
+  }
+  return paths;
+}
+
+const { locale, page } = Astro.props;
+const businessName = siteConfig.business.name;
+const city = siteConfig.business.city;
+const email = siteConfig.business.email;
+
+const crumbs = [
+  { name: "Home", url: `/${locale}/` },
+  { name: page.title, url: `/${locale}/legal/${page.slug}/` },
+];
+
+const meta = seo({
+  title: `${page.title} | ${businessName}`,
+  description: `${page.title} for ${businessName} — ${city}. ${page.subtext}`,
+  locale,
+  path: `/${locale}/legal/${page.slug}/`,
+  schema: [breadcrumbSchema(crumbs)],
+  noindex: false,
+});
+---
+<BaseLayout seo={meta}>
+  <Hero
+    title={page.heading}
+    text={page.subtext}
+    image={(siteConfig as any).images?.hero ?? "https://images.unsplash.com/photo-1486325212027-8081e485255e?auto=format&fit=crop&w=1920&q=80"}
+    imageAlt={`${page.title} — ${businessName}`}
+    locale={locale}
+  />
+
+  <nav class="breadcrumb-bar" aria-label="Breadcrumb">
+    <div class="container">
+      <ol class="breadcrumb-list" itemscope itemtype="https://schema.org/BreadcrumbList">
+        {crumbs.map((crumb, i) => (
+          <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+            {i < crumbs.length - 1 ? (
+              <a href={crumb.url} itemprop="item"><span itemprop="name">{crumb.name}</span></a>
+            ) : (
+              <span itemprop="name" aria-current="page">{crumb.name}</span>
+            )}
+            <meta itemprop="position" content={String(i + 1)} />
+            {i < crumbs.length - 1 && <span class="breadcrumb-sep" aria-hidden="true">›</span>}
+          </li>
+        ))}
+      </ol>
+    </div>
+  </nav>
+
+  <section class="section section-white">
+    <div class="container">
+      <div class="legal-content">
+        {page.slug === "privacy-policy" && (
+          <>
+            <p class="legal-updated">Last updated: {new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}</p>
+            <h2>1. Information We Collect</h2>
+            <p>When you use our website or contact us through our inquiry form, we may collect the following information: your name, email address, phone number, the nature of your inquiry, the page you visited, and the source that referred you to our website. We also collect standard web analytics data such as IP address, browser type, and pages visited.</p>
+            <h2>2. How We Use Your Information</h2>
+            <p>We use the information you provide to respond to your inquiry, provide you with a quote or estimate, and communicate with you about our services. We do not sell, rent, or share your personal information with third parties for marketing purposes.</p>
+            <h2>3. Data Retention</h2>
+            <p>We retain your personal information for as long as necessary to fulfil the purposes described in this policy, or as required by applicable law.</p>
+            <h2>4. Your Rights</h2>
+            <p>You have the right to access, correct, or request deletion of your personal information. To exercise these rights, please contact us at <a href={`mailto:${email}`}>{email}</a>.</p>
+            <h2>5. Cookies</h2>
+            <p>Our website uses cookies to improve your browsing experience and to collect analytics data. You can control cookie settings through your browser preferences.</p>
+            <h2>6. Contact</h2>
+            <p>If you have any questions about this privacy policy, please contact us at <a href={`mailto:${email}`}>{email}</a>.</p>
+          </>
+        )}
+        {page.slug === "terms-of-service" && (
+          <>
+            <p class="legal-updated">Last updated: {new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}</p>
+            <h2>1. Acceptance of Terms</h2>
+            <p>By accessing and using this website, you accept and agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use this website.</p>
+            <h2>2. Use of Website</h2>
+            <p>This website is provided for informational purposes and to facilitate contact with {businessName}. You agree to use this website only for lawful purposes and in a manner that does not infringe the rights of others.</p>
+            <h2>3. Intellectual Property</h2>
+            <p>All content on this website, including text, images, logos, and design elements, is the property of {businessName} and is protected by applicable copyright and intellectual property laws.</p>
+            <h2>4. Limitation of Liability</h2>
+            <p>{businessName} makes no warranties about the accuracy or completeness of the information on this website. We are not liable for any damages arising from your use of this website or reliance on its content.</p>
+            <h2>5. Changes to Terms</h2>
+            <p>We reserve the right to modify these terms at any time. Continued use of the website after changes constitutes acceptance of the updated terms.</p>
+            <h2>6. Contact</h2>
+            <p>For questions about these terms, please contact us at <a href={`mailto:${email}`}>{email}</a>.</p>
+          </>
+        )}
+        {page.slug === "disclaimer" && (
+          <>
+            <p class="legal-updated">Last updated: {new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}</p>
+            <h2>Website Disclaimer</h2>
+            <p>The information provided on this website is for general informational purposes only. While we strive to keep the information accurate and up to date, we make no representations or warranties of any kind, express or implied, about the completeness, accuracy, reliability, or suitability of the information.</p>
+            <h2>Professional Advice</h2>
+            <p>The content on this website does not constitute professional advice. For specific advice about your situation, please contact us directly to discuss your needs with a qualified professional.</p>
+            <h2>External Links</h2>
+            <p>This website may contain links to external websites. We have no control over the content of those sites and accept no responsibility for them or for any loss or damage that may arise from your use of them.</p>
+            <h2>Contact</h2>
+            <p>For any questions about this disclaimer, please contact us at <a href={`mailto:${email}`}>{email}</a>.</p>
+          </>
+        )}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .breadcrumb-bar { background: var(--color-surface); border-bottom: 1px solid var(--color-border); padding: 0.75rem 0; }
+  .breadcrumb-list { display: flex; flex-wrap: wrap; gap: 0.25rem 0.5rem; list-style: none; margin: 0; padding: 0; font-size: 0.8125rem; color: var(--color-text-muted); }
+  .breadcrumb-list a { color: var(--color-accent); text-decoration: none; }
+  .breadcrumb-sep { color: var(--color-text-muted); }
+  .legal-content { max-width: 760px; margin: 0 auto; }
+  .legal-updated { font-size: 0.875rem; color: var(--color-text-muted); margin-bottom: 2rem; }
+  .legal-content h2 { font-size: 1.25rem; font-weight: 700; color: var(--color-dark); margin: 2rem 0 0.75rem; }
+  .legal-content p { color: var(--color-text-muted); line-height: 1.75; margin-bottom: 1rem; }
+  .legal-content a { color: var(--color-accent); text-decoration: none; }
+  .legal-content a:hover { text-decoration: underline; }
+</style>

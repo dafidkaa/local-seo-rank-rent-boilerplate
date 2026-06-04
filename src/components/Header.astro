@@ -12,7 +12,7 @@ import { localizedPath, servicePath, t } from "@/lib/routes";
 import { ui } from "@/i18n";
 
 interface Props {
-  locale: Locale;
+  locale: string;
   currentPath?: string;
 }
 const { locale, currentPath = "" } = Astro.props;

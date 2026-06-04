@@ -1,6 +1,6 @@
 import { allServices, siteConfig, type Locale, type ServiceItem } from "@/site.config";
 
-export const t = (value: Record<Locale, string>, locale: Locale) => value[locale] ?? value[siteConfig.defaultLocale];
+export const t = (value: Record<string, string>, locale: string) => value[locale] ?? value[siteConfig.defaultLocale];
 
 export const slugify = (value: string) =>
   value
@@ -10,25 +10,25 @@ export const slugify = (value: string) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
 
-export const localizedPath = (locale: Locale, path = "") => {
+export const localizedPath = (locale: string, path = "") => {
   const clean = path.replace(/^\/|\/$/g, "");
   return `/${locale}${clean ? `/${clean}` : ""}/`;
 };
 
-export const servicePath = (locale: Locale, service: Pick<ServiceItem, "id">) => localizedPath(locale, service.id);
+export const servicePath = (locale: string, service: Pick<ServiceItem, "id">) => localizedPath(locale, service.id);
 
-export const subservicePath = (locale: Locale, service: Pick<ServiceItem, "id">, childId: string) =>
+export const subservicePath = (locale: string, service: Pick<ServiceItem, "id">, childId: string) =>
   localizedPath(locale, `${service.id}/${childId}`);
 
-export const getLocaleConfig = (locale: Locale) =>
+export const getLocaleConfig = (locale: string) =>
   siteConfig.locales.find((l) => l.code === locale) ?? siteConfig.locales[0];
 
-export const locationSlug = (locale: Locale, locationId: string) => {
+export const locationSlug = (locale: string, locationId: string) => {
   const config = getLocaleConfig(locale);
   return `${slugify(t(siteConfig.business.primaryService, locale))}-${config.connector}-${locationId}`;
 };
 
-export const locationPath = (locale: Locale, locationId: string) =>
+export const locationPath = (locale: string, locationId: string) =>
   localizedPath(locale, locationSlug(locale, locationId));
 
 export const getServiceById = (id: string) => allServices.find((service) => service.id === id);
@@ -39,9 +39,9 @@ export const getParentForChildRoute = (parentId: string, childId: string) => {
   return parent && child ? { parent, child } : undefined;
 };
 
-export const blogPostPath = (locale: Locale, postId: string) => localizedPath(locale, `blog/${postId}`);
+export const blogPostPath = (locale: string, postId: string) => localizedPath(locale, `blog/${postId}`);
 
-export const dateLocale = (locale: Locale): string => {
+export const dateLocale = (locale: string): string => {
   const map: Record<string, string> = { en: "en-US", hr: "hr-HR" };
   return map[locale as string] ?? "en-US";
 };

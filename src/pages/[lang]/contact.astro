@@ -1,59 +1,228 @@
 ---
-import BaseLayout from "@/layouts/BaseLayout.astro";
-import Hero from "@/components/Hero.astro";
-import Breadcrumbs from "@/components/Breadcrumbs.astro";
-import EstimateForm from "@/components/EstimateForm.astro";
-import ProcessSection from "@/components/ProcessSection.astro";
-import MapSection from "@/components/MapSection.astro";
-import FinalCta from "@/components/FinalCta.astro";
-import { siteConfig, type Locale } from "@/site.config";
-import { localizedPath, t } from "@/lib/routes";
-import { localBusinessSchema, seo } from "@/lib/seo";
-export function getStaticPaths() { return siteConfig.locales.map((locale) => ({ params: { lang: locale.code } })); }
-const locale = Astro.params.lang as Locale;
-const pageSeo = seo({ locale, path: "contact", title: `Contact ${siteConfig.business.name} | ${t(siteConfig.business.primaryService, locale)} In ${siteConfig.business.city}`, description: `Contact ${siteConfig.business.name} for ${t(siteConfig.business.primaryService, locale)} in ${siteConfig.business.city}. Call, email, or request a free estimate online.`, schema: [localBusinessSchema(locale), { "@context": "https://schema.org", "@type": "ContactPage", name: `Contact ${siteConfig.business.name}` }] });
-const contactFaq = [
-  { q: "How quickly will I hear back after submitting the form?", a: "We review every estimate request within one business day and typically respond within a few hours during business hours." },
-  { q: "Is the estimate really free?", a: "Yes. All online estimates are provided at no cost and with no obligation. We believe you should know what to expect before making any commitment." },
-  { q: "What areas do you serve?", a: `We serve the entire ${siteConfig.business.serviceArea} area, including ${siteConfig.locations.slice(0, 5).map(l => l.name).join(", ")}, and surrounding communities.` },
-  { q: "Can I call instead of using the form?", a: `Absolutely. Call us at ${siteConfig.business.phone} during business hours and we will be happy to help directly.` },
-  { q: "What information should I include in my request?", a: "The more detail you provide — including your address, the type of service needed, and any time constraints — the faster and more accurate our response will be." }
+/**
+ * Contact page — popup form model, multiple contact paths, trust signals
+ */
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Hero from "../../components/Hero.astro";
+import FaqSection from "../../components/FaqSection.astro";
+import FinalCta from "../../components/FinalCta.astro";
+import { siteConfig } from "../../site.config";
+import { seo, localBusinessSchema, breadcrumbSchema, faqSchema } from "../../lib/seo";
+import { t } from "../../lib/routes";
+
+export async function getStaticPaths() {
+  return siteConfig.locales.map(locale => ({
+    params: { lang: locale.code },
+    props: { locale: locale.code },
+  }));
+}
+
+const { locale } = Astro.props;
+const city = siteConfig.business.city;
+const businessName = siteConfig.business.name;
+const phone = siteConfig.business.phone;
+const email = siteConfig.business.email;
+const address = siteConfig.business.address;
+const hours = siteConfig.business.hours;
+const primaryService = t(siteConfig.business.primaryService, locale);
+
+const crumbs = [
+  { name: "Home", url: `/${locale}/` },
+  { name: "Contact", url: `/${locale}/contact/` },
 ];
+
+const faqsRaw = [
+  { q: "How quickly will you respond to my inquiry?", a: `We aim to respond to all inquiries within the same business day. For urgent or emergency situations, please call us directly at ${phone} for the fastest response.` },
+  { q: "Do you offer free estimates?", a: `Yes. All estimates from ${businessName} are completely free and carry no obligation. We provide a clear written quote before any work begins.` },
+  { q: "What information should I have ready when I contact you?", a: "It helps to have your address, a brief description of what you need, and your preferred timeframe. The more detail you can provide, the more accurate our initial estimate will be." },
+  { q: "Can I contact you outside of business hours?", a: `You can submit our online form at any time and we will respond on the next business day. For emergencies outside business hours, please call ${phone}.` },
+];
+
+const faqs = faqsRaw.map(f => ({ question: f.q, answer: f.a }));
+const schema = [
+  localBusinessSchema(locale),
+  breadcrumbSchema(crumbs),
+  faqSchema(faqs),
+];
+
+const meta = seo({
+  title: `Contact ${businessName} | ${primaryService} in ${city}`,
+  description: `Contact ${businessName} for professional ${primaryService.toLowerCase()} in ${city}. Free estimates, same-day service. Call ${phone} or request a quote online.`,
+  locale,
+  path: `/${locale}/contact/`,
+  schema: schema ?? [],
+});
 ---
-<BaseLayout seo={pageSeo}>
-  <Hero eyebrow="Contact" title={`Contact ${siteConfig.business.name}`} text={`Request ${t(siteConfig.business.primaryService, locale)} in ${siteConfig.business.city}, ${siteConfig.business.region}, and surrounding areas.`} image={siteConfig.brand.heroImage} primaryHref="#estimate-form" primaryText="Get My Free Estimate" secondaryHref={`tel:${siteConfig.business.phone}`} secondaryText={`Call ${siteConfig.business.phone}`} />
-  <div class="container"><Breadcrumbs locale={locale} items={[{ label: "Contact", href: localizedPath(locale, "contact") }]} /></div>
-  <ProcessSection title={`How Our ${t(siteConfig.business.primaryService, locale)} Process Works`} steps={[{title:"Reach Out",text:"Call or send the form with a few details about what you need."},{title:"Project Review",text:"We review your request, confirm your location, and prepare a response."},{title:"Service Appointment",text:"We schedule a convenient time and confirm the details with you."},{title:"Follow-Up",text:"After the service is complete, we make sure everything meets your expectations."}]} />
-  <section class="section"><div class="container split">
-    <div>
-      <h2>Contact Details</h2>
-      <p>Reach out by phone, email, or use the form to request a free estimate. We respond to every inquiry during business hours.</p>
-      <p><strong>Phone:</strong> <a href={`tel:${siteConfig.business.phone}`}>{siteConfig.business.phone}</a></p>
-      <p><strong>Email:</strong> <a href={`mailto:${siteConfig.business.email}`}>{siteConfig.business.email}</a></p>
-      <p><strong>Address:</strong> {siteConfig.business.address}</p>
-      <p><strong>Hours:</strong></p>
-      <ul>
-        {Object.entries(siteConfig.business.hours).map(([day, hours]) => <li><strong>{day}:</strong> {hours}</li>)}
-      </ul>
+<BaseLayout seo={meta}>
+  <!-- HERO -->
+  <Hero
+    title={`Contact ${businessName}`}
+    text={`Ready to get started? Request a free estimate, call us directly, or send us a message. We respond to all inquiries within the same business day.`}
+    image={(siteConfig.brand as any).images?.contact ?? 'https://images.unsplash.com/photo-1423666639041-f56000c27a9a?auto=format&fit=crop&w=1920&q=80'}
+    imageAlt={`Contact ${businessName} — ${primaryService} in ${city}`}
+    locale={locale as any}
+  />
+
+  <!-- BREADCRUMBS -->
+  <nav class="breadcrumb-bar" aria-label="Breadcrumb">
+    <div class="container">
+      <ol class="breadcrumb-list" itemscope itemtype="https://schema.org/BreadcrumbList">
+        {crumbs.map((crumb, i) => (
+          <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+            {i < crumbs.length - 1 ? (
+              <a href={crumb.url} itemprop="item"><span itemprop="name">{crumb.name}</span></a>
+            ) : (
+              <span itemprop="name" aria-current="page">{crumb.name}</span>
+            )}
+            <meta itemprop="position" content={String(i + 1)} />
+            {i < crumbs.length - 1 && <span class="breadcrumb-sep" aria-hidden="true">›</span>}
+          </li>
+        ))}
+      </ol>
     </div>
-    <div class="card">
-      <div class="card-body" id="estimate-form">
-        <EstimateForm locale={locale} />
+  </nav>
+
+  <!-- CONTACT OPTIONS -->
+  <section class="section section-white">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-eyebrow">Get in Touch</span>
+        <h2 class="section-title">How Would You Like to Reach Us?</h2>
+        <p class="section-lead">Choose the contact method that works best for you. We are here to help.</p>
+      </div>
+      <div class="contact-options">
+        <!-- Request a Quote (popup trigger) -->
+        <div class="contact-card contact-card-primary">
+          <div class="contact-card-icon" aria-hidden="true">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          </div>
+          <h3>Request a Free Estimate</h3>
+          <p>Fill out our quick form and we will get back to you with a no-obligation quote within the same business day.</p>
+          <button class="btn btn-primary open-popup" data-popup="estimate" aria-label="Open estimate request form">Request a Free Estimate</button>
+        </div>
+
+        <!-- Phone -->
+        {phone && (
+          <div class="contact-card">
+            <div class="contact-card-icon" aria-hidden="true">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.5 19.79 19.79 0 0 1 1.61 4.93 2 2 0 0 1 3.6 2.73h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 10.09a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 17.5z"/></svg>
+            </div>
+            <h3>Call Us Directly</h3>
+            <p>For urgent requests or if you prefer to speak with someone immediately, call us directly. We answer during business hours.</p>
+            <a href={`tel:${phone}`} class="btn btn-outline-dark">{phone}</a>
+          </div>
+        )}
+
+        <!-- Email -->
+        {email && (
+          <div class="contact-card">
+            <div class="contact-card-icon" aria-hidden="true">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            </div>
+            <h3>Send Us an Email</h3>
+            <p>Prefer to write? Send us an email and we will respond within one business day with a detailed reply.</p>
+            <a href={`mailto:${email}`} class="btn btn-outline-dark">{email}</a>
+          </div>
+        )}
       </div>
     </div>
-  </div></section>
-  <MapSection title={`${siteConfig.business.name} Service Area Map`} text={`${siteConfig.business.name} serves ${siteConfig.business.city}, ${siteConfig.business.region}, and nearby areas.`} />
-  <section class="section"><div class="container" style="max-width:850px">
-    <p class="eyebrow">Common Questions</p>
-    <h2>Contact FAQ</h2>
-    <div style="margin-top:20px">
-      {contactFaq.map((item) => (
-        <details style="margin-bottom:12px;border:1px solid var(--color-border);border-radius:var(--radius);padding:14px 18px">
-          <summary style="cursor:pointer;font-weight:700">{item.q}</summary>
-          <p style="margin-top:10px">{item.a}</p>
-        </details>
-      ))}
+  </section>
+
+  <!-- BUSINESS DETAILS -->
+  <section class="section section-light">
+    <div class="container">
+      <div class="details-grid">
+        <div class="details-info">
+          <span class="section-eyebrow">Business Details</span>
+          <h2 class="details-title">{businessName}</h2>
+          <div class="details-list">
+            {address && (
+              <div class="detail-row">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                <span>{address}</span>
+              </div>
+            )}
+            {phone && (
+              <div class="detail-row">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.5 19.79 19.79 0 0 1 1.61 4.93 2 2 0 0 1 3.6 2.73h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 10.09a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 17.5z"/></svg>
+                <a href={`tel:${phone}`}>{phone}</a>
+              </div>
+            )}
+            {email && (
+              <div class="detail-row">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                <a href={`mailto:${email}`}>{email}</a>
+              </div>
+            )}
+            {hours && (
+              <div class="detail-row">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <div>
+                  {Object.entries(hours).map(([day, time]) => (
+                    <div class="hours-row"><span class="hours-day">{day}</span><span class="hours-time">{time}</span></div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+        <div class="details-trust">
+          <h3>What to Expect</h3>
+          <ul class="expect-list">
+            {[
+              "We respond to all inquiries within the same business day",
+              "Free, no-obligation estimates on all work",
+              "Clear pricing before any work begins",
+              "Licensed, bonded, and insured professionals",
+              "Same-day service available for most requests",
+              "100% satisfaction guarantee on every job",
+            ].map(item => (
+              <li>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
     </div>
-  </div></section>
-  <FinalCta locale={locale} title={`Ready to Get Started?`} text={`Fill out the quick form above or call us at ${siteConfig.business.phone} for ${t(siteConfig.business.primaryService, locale)} in ${siteConfig.business.city} and nearby areas.`} />
+  </section>
+
+  <!-- FAQ -->
+  <FaqSection faqs={faqsRaw.map(f => ({ q: f.q, a: f.a }))} locale={locale as any} />
+
+  <!-- FINAL CTA -->
+  <FinalCta locale={locale as any} />
 </BaseLayout>
+
+<style>
+  .breadcrumb-bar { background: var(--color-surface); border-bottom: 1px solid var(--color-border); padding: 0.75rem 0; }
+  .breadcrumb-list { display: flex; flex-wrap: wrap; gap: 0.25rem 0.5rem; list-style: none; margin: 0; padding: 0; font-size: 0.8125rem; color: var(--color-text-muted); }
+  .breadcrumb-list a { color: var(--color-accent); text-decoration: none; }
+  .breadcrumb-list a:hover { text-decoration: underline; }
+  .breadcrumb-sep { color: var(--color-text-muted); }
+  .contact-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 2.5rem; }
+  .contact-card { padding: 2rem; background: white; border: 1px solid var(--color-border); border-radius: 16px; box-shadow: var(--shadow-card); display: flex; flex-direction: column; gap: 1rem; }
+  .contact-card-primary { border-color: var(--color-accent); background: #fffbeb; }
+  .contact-card-icon { width: 56px; height: 56px; background: var(--color-accent); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--color-dark); }
+  .contact-card h3 { font-size: 1.125rem; font-weight: 700; color: var(--color-dark); margin: 0; }
+  .contact-card p { font-size: 0.9375rem; color: var(--color-text-muted); margin: 0; line-height: 1.6; flex: 1; }
+  .btn-outline-dark { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; border: 2px solid var(--color-dark); border-radius: 8px; font-weight: 600; color: var(--color-dark); text-decoration: none; font-size: 0.9375rem; transition: background 0.2s, color 0.2s; }
+  .btn-outline-dark:hover { background: var(--color-dark); color: white; }
+  .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start; }
+  .details-title { font-size: 1.75rem; font-weight: 800; color: var(--color-dark); margin: 0.5rem 0 1.5rem; }
+  .details-list { display: flex; flex-direction: column; gap: 1rem; }
+  .detail-row { display: flex; gap: 0.75rem; align-items: flex-start; font-size: 0.9375rem; color: var(--color-text-muted); }
+  .detail-row svg { flex-shrink: 0; color: var(--color-accent); margin-top: 2px; }
+  .detail-row a { color: var(--color-accent); text-decoration: none; }
+  .detail-row a:hover { text-decoration: underline; }
+  .hours-row { display: flex; gap: 1rem; }
+  .hours-day { font-weight: 600; color: var(--color-dark); min-width: 100px; }
+  .hours-time { color: var(--color-text-muted); }
+  .details-trust { padding: 2rem; background: white; border: 1px solid var(--color-border); border-radius: 16px; }
+  .details-trust h3 { font-size: 1.125rem; font-weight: 700; color: var(--color-dark); margin: 0 0 1.25rem; }
+  .expect-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.75rem; }
+  .expect-list li { display: flex; align-items: flex-start; gap: 0.75rem; font-size: 0.9375rem; color: var(--color-text-muted); }
+  .expect-list li svg { flex-shrink: 0; color: var(--color-accent); margin-top: 2px; }
+  @media (max-width: 768px) { .details-grid { grid-template-columns: 1fr; gap: 2rem; } }
+</style>

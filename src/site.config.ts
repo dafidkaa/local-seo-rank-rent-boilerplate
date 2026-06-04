@@ -197,6 +197,8 @@ export const siteConfig = {
     jobsCompleted:   "4,800+",
     averageRating:   "4.9",
     responseTime:    "1",
+    satisfactionRate: "99%",
+    citiesServed:    "12+",
   },
 
   // ── Service Areas / Locations ─────────────────────────────────────────────

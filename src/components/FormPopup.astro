@@ -12,7 +12,7 @@
 import { siteConfig, allServices, type Locale } from "@/site.config";
 import { localizedPath, t } from "@/lib/routes";
 import { ui } from "@/i18n";
-interface Props { locale: Locale; }
+interface Props { locale: string; }
 const { locale } = Astro.props;
 const webhookUrl  = siteConfig.integrations.crmWebhookUrl;
 const privacyUrl  = localizedPath(locale, "privacy-policy");

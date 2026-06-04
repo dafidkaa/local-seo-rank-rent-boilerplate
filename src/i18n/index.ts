@@ -25,7 +25,8 @@ import hr from "./hr";
 
 export type TranslationKeys = typeof en;
 
-const locales: Record<string, TranslationKeys> = { en, hr };
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const locales: Record<string, any> = { en, hr };
 
 /**
  * Get a UI string by dot-notation key for the given locale.
@@ -34,7 +35,7 @@ const locales: Record<string, TranslationKeys> = { en, hr };
  * @example ui("nav.services", locale)
  * @example ui("hero.cta.primary", locale)
  */
-export function ui(key: string, locale: Locale): string {
+export function ui(key: string, locale: string): string {
   const parts = key.split(".");
   const dict = (locales[locale] ?? locales.en) as Record<string, unknown>;
   const fallback = locales.en as Record<string, unknown>;

@@ -1,38 +1,169 @@
 ---
-import BaseLayout from "@/layouts/BaseLayout.astro";
-import Hero from "@/components/Hero.astro";
-import Breadcrumbs from "@/components/Breadcrumbs.astro";
-import ProcessSection from "@/components/ProcessSection.astro";
-import FinalCta from "@/components/FinalCta.astro";
-import FaqSection from "@/components/FaqSection.astro";
-import ServiceCard from "@/components/ServiceCard.astro";
-import LocationCard from "@/components/LocationCard.astro";
-import { allServices, siteConfig, type Locale } from "@/site.config";
-import { localizedPath, locationPath, servicePath, subservicePath, t } from "@/lib/routes";
-import { breadcrumbSchema, faqSchema, seo, serviceSchema } from "@/lib/seo";
+/**
+ * Sub-service (child) page template
+ * e.g. /en/drain-cleaning/kitchen-drain-cleaning/
+ */
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import Hero from "../../../components/Hero.astro";
+import FaqSection from "../../../components/FaqSection.astro";
+import ProcessSection from "../../../components/ProcessSection.astro";
+import ServiceCard from "../../../components/ServiceCard.astro";
+import { siteConfig, allServices } from "../../../site.config";
+import { t, servicePath, subservicePath } from "../../../lib/routes";
+import { seo, serviceSchema, breadcrumbSchema, faqSchema } from "../../../lib/seo";
+import type { Locale } from "../../../site.config";
 
-export function getStaticPaths() {
-  return siteConfig.locales.flatMap((locale) => allServices.flatMap((parent) => parent.children.map((child) => ({ params: { lang: locale.code, parent: parent.id, child: child.id }, props: { parent, child } }))));
+export async function getStaticPaths() {
+  const paths = [];
+  for (const locale of siteConfig.locales) {
+    for (const parent of allServices) {
+      for (const child of (parent.children ?? [])) {
+        paths.push({
+          params: { lang: locale.code, parent: parent.id, child: child.id },
+          props: { locale: locale.code as string, parent, child },
+        });
+      }
+    }
+  }
+  return paths;
 }
-const { parent, child } = Astro.props;
-const locale = Astro.params.lang as Locale;
+
+const { locale, parent, child } = Astro.props;
+const city = siteConfig.business.city;
+const businessName = siteConfig.business.name;
+const phone = siteConfig.business.phone;
+
+// Resolve localized text
+const parentName = t(parent.title, locale);
+const childName  = t(child.title, locale);
+const childShort = t(child.short, locale);
+
+const pageTitle       = `${childName} in ${city} | ${businessName}`;
+const pageDescription = `Professional ${childName.toLowerCase()} in ${city}. ${businessName} — licensed, insured, same-day service. Free estimates. Call ${phone}.`;
+
 const faqs = [
-  { question: `When should I request ${t(child.title, locale)}?`, answer: `Request ${t(child.title, locale)} when you want clear guidance, reliable scheduling, and professional help in ${siteConfig.business.serviceArea}.` },
-  { question: `Is ${t(child.title, locale)} available in ${siteConfig.business.city}?`, answer: `Yes. ${siteConfig.business.name} provides this service in ${siteConfig.business.city} and nearby communities.` },
-  { question: "What happens after I submit the form?", answer: "The team reviews your details and follows up about timing, scope, and next steps." }
+  ...(child.faq ?? []).map((f: any) => ({ q: t(f.question, locale), a: t(f.answer, locale) })),
+  { q: `What does ${childName.toLowerCase()} involve?`,
+    a: `${childName} covers ${childShort ?? `all aspects of ${childName.toLowerCase()} for residential and commercial properties in ${city}`}. Our licensed team handles every step professionally.` },
+  { q: `How much does ${childName.toLowerCase()} cost in ${city}?`,
+    a: `Costs vary depending on scope and complexity. We provide free, no-obligation estimates. Contact us for a quote.` },
+  { q: `How quickly can you provide ${childName.toLowerCase()} in ${city}?`,
+    a: `We offer same-day service for most ${childName.toLowerCase()} requests in ${city}. Contact us to check availability.` },
+  { q: `Is ${childName.toLowerCase()} covered by your satisfaction guarantee?`,
+    a: `Yes. All ${childName.toLowerCase()} work by ${businessName} is backed by our 100% satisfaction guarantee.` },
 ];
-const path = `${parent.id}/${child.id}`;
-const pageSeo = seo({ locale, path, title: `${t(child.title, locale)} In ${siteConfig.business.city} | ${siteConfig.business.name}`, description: `${siteConfig.business.name} provides ${t(child.title, locale)} in ${siteConfig.business.city} with clear communication, reliable scheduling, and free estimates.`, image: parent.image, schema: [serviceSchema(locale, t(child.title, locale), path), breadcrumbSchema([{ name: "Home", url: localizedPath(locale) }, { name: t(parent.title, locale), url: servicePath(locale, parent) }, { name: t(child.title, locale), url: subservicePath(locale, parent, child.id) }]), faqSchema(faqs)] });
+
+const crumbs = [
+  { name: "Home",      url: `/${locale}/` },
+  { name: parentName,  url: servicePath(locale, parent) },
+  { name: childName,   url: subservicePath(locale, parent, child.id) },
+];
+
+const schema = [
+  serviceSchema(locale, childName, subservicePath(locale, parent, child.id)),
+  breadcrumbSchema(crumbs),
+  faqSchema(faqs.map((f: any) => ({ question: f.q ?? f.question, answer: f.a ?? f.answer }))),
+];
+
+const meta = seo({
+  title: pageTitle,
+  description: pageDescription,
+  locale,
+  path: `/${locale}/${parent.id}/${child.id}/`,
+  schema,
+});
+
+const heroImage = parent.image ?? "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1920&q=80";
+const relatedServices = allServices.filter((s: any) => s.id !== parent.id).slice(0, 3);
 ---
-<BaseLayout seo={pageSeo}>
-  <Hero eyebrow="Subservice" title={`${t(child.title, locale)} In ${siteConfig.business.city}`} text={`${siteConfig.business.name} provides ${t(child.title, locale)} in ${siteConfig.business.city} and surrounding areas with clear communication, reliable scheduling, and professional service.`} image={parent.image} primaryHref={localizedPath(locale, "contact")} primaryText="Get A Free Estimate" secondaryHref={`tel:${siteConfig.business.phone}`} secondaryText={`Call ${siteConfig.business.phone}`} badges={[`Serving ${siteConfig.business.city}`, "Free Local Estimates", "Fast Response"]} />
-  <div class="container"><Breadcrumbs locale={locale} items={[{ label: t(parent.title, locale), href: servicePath(locale, parent) }, { label: t(child.title, locale), href: subservicePath(locale, parent, child.id) }]} /></div>
-  <section class="section"><div class="container" style="max-width:850px"><p class="eyebrow">Detailed Service</p><h2>Local Help For {t(child.title, locale)}</h2><p>This child page is designed to become a deep, non-duplicate page. Replace this starter copy with 900 to 1800 words of niche-specific information, real customer scenarios, what is included, when the service is needed, and practical local details.</p><p>For Rank-and-Rent builds, keep the page focused on one search intent. Link back to the parent page, link to related services, and mention relevant locations naturally.</p><p><a href={servicePath(locale, parent)}>View {t(parent.title, locale)}</a></p></div></section>
-  <section class="section section-light"><div class="container"><h2>When You Need {t(child.title, locale)}</h2><div class="grid grid-3">{["The problem is affecting daily use", "You need clear options before booking", "You want local help without confusing next steps"].map((item) => <article class="card"><div class="card-body"><span class="icon-mark">✓</span><h3>{item}</h3><p>Adapt this intent block to the niche so visitors can quickly recognize their situation and take the next step.</p></div></article>)}</div></div></section>
-  <section class="section section-light"><div class="container"><h2>What Is Included</h2><div class="grid grid-3">{["Problem review", "Clear estimate", "Professional service"].map((item) => <article class="card"><div class="card-body"><span class="icon-mark">✓</span><h3>{item}</h3><p>Customize this explanation for {t(child.title, locale)} so visitors understand the exact value and scope.</p></div></article>)}</div></div></section>
-  <ProcessSection title={`How ${t(child.title, locale)} Works`} steps={[{title:"Tell Us What You Need",text:"Share the situation and location."},{title:"Review The Scope",text:"We explain timing and next steps."},{title:"Complete The Service",text:"The work is handled professionally."},{title:"Confirm The Result",text:"You know what was completed and what to expect next."}]} />
-  <section class="section"><div class="container"><h2>Related Services</h2><div class="grid grid-3">{parent.children.filter((item) => item.id !== child.id).slice(0,3).map((item) => <ServiceCard title={t(item.title, locale)} description={t(item.short, locale)} image={parent.image} href={subservicePath(locale, parent, item.id)} alt={`${t(item.title, locale)} in ${siteConfig.business.city}`} />)}</div></div></section>
-  <section class="section section-light"><div class="container"><h2>Service Areas Served</h2><p>{siteConfig.business.name} provides {t(child.title, locale)} across {siteConfig.business.serviceArea}. These local pages help visitors and search engines understand where the service is available.</p><div class="grid grid-3">{siteConfig.locations.slice(0,6).map((location) => <LocationCard title={location.name} href={locationPath(locale, location.id)} image={location.image} />)}</div></div></section>
-  <FaqSection faqs={faqs} />
-  <FinalCta locale={locale} service={parent.id} title={`Request ${t(child.title, locale)} In ${siteConfig.business.city}`} text={`Use the form to request ${t(child.title, locale)} in ${siteConfig.business.city} and nearby areas.`} />
+<BaseLayout seo={meta}>
+  <!-- HERO -->
+  <Hero
+    title={`${childName} in ${city}`}
+    text={`Professional ${childName.toLowerCase()} services in ${city}. Licensed, insured, and backed by a 100% satisfaction guarantee.`}
+    image={heroImage}
+    imageAlt={`${childName} in ${city} — ${businessName}`}
+    locale={locale as any}
+  />
+
+  <!-- BREADCRUMBS -->
+  <nav class="breadcrumb-bar" aria-label="Breadcrumb">
+    <div class="container">
+      <ol class="breadcrumb-list" itemscope itemtype="https://schema.org/BreadcrumbList">
+        {crumbs.map((crumb, i) => (
+          <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+            {i < crumbs.length - 1 ? (
+              <a itemprop="item" href={crumb.url}><span itemprop="name">{crumb.name}</span></a>
+            ) : (
+              <span itemprop="name" aria-current="page">{crumb.name}</span>
+            )}
+            <meta itemprop="position" content={String(i + 1)} />
+          </li>
+        ))}
+      </ol>
+    </div>
+  </nav>
+
+  <!-- SERVICE DESCRIPTION -->
+  <section class="section-light">
+    <div class="container">
+      <div class="content-split">
+        <div class="content-split-text">
+          <p class="section-eyebrow">{parentName}</p>
+          <h2 class="section-heading">{childName} in {city}</h2>
+          <p class="section-subheading">{childShort}</p>
+          <p>Our team of licensed and insured professionals brings years of experience to every {childName.toLowerCase()} job in {city}. We use industry-leading techniques and equipment to ensure lasting results, every time.</p>
+          <p>When you choose {businessName} for {childName.toLowerCase()} in {city}, you get transparent pricing, same-day availability, and a 100% satisfaction guarantee on all work performed.</p>
+          <div class="hero-ctas" style="margin-top:2rem">
+            <button class="btn-primary open-popup-form">Get a Free Estimate</button>
+            {phone && <a href={`tel:${phone}`} class="btn-secondary">Call {phone}</a>}
+          </div>
+        </div>
+        <div class="content-split-image">
+          <img src={heroImage} alt={`${childName} in ${city}`} loading="lazy" width="600" height="400" style="border-radius:1rem;object-fit:cover;width:100%;height:auto" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROCESS -->
+  <ProcessSection
+    title={`How Our ${childName} Process Works`}
+    subtitle={`Professional ${childName.toLowerCase()} service in ${city}. Here is what to expect.`}
+    steps={[
+      { title: "Contact Us", text: `Call ${siteConfig.business.phone} or submit our quick online form.` },
+      { title: "Free Estimate", text: "We assess the job and give you a clear, upfront price — no hidden fees." },
+      { title: "We Get to Work", text: "Our licensed team arrives on time, fully equipped for the job." },
+      { title: "Satisfaction Guaranteed", text: "We do not consider the job done until you are completely satisfied." },
+    ]}
+  />
+
+  <!-- FAQ -->
+  <FaqSection
+    title={`${childName} in ${city} — Frequently Asked Questions`}
+    items={faqs}
+    locale={locale as any}
+  />
+
+  <!-- RELATED SERVICES -->
+  {relatedServices.length > 0 && (
+    <section class="section-light">
+      <div class="container">
+        <p class="section-eyebrow">Related Services</p>
+        <h2 class="section-heading">Other Services We Offer in {city}</h2>
+        <div class="services-grid">
+          {relatedServices.map((s: any) => (
+            <ServiceCard
+              title={t(s.title, locale)}
+              description={t(s.short, locale)}
+              image={s.image}
+              href={servicePath(locale, s)}
+              alt={t(s.title, locale)}
+             
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
 </BaseLayout>
