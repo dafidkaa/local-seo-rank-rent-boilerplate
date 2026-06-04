@@ -33,6 +33,11 @@ Your objective is to produce a website that looks and feels like a **$10,000 pro
   - `home-security-smart-home-automation` — Security Systems, Smart Home, Alarm Monitoring
   - `childcare-early-education` — Daycare, Preschool, After-School Programs
   - `funeral-memorial-services` — Funeral Homes, Cremation, Memorial Planning
+  - `waterproofing-specialist-services` — Basement Waterproofing, Foundation Repair, Damp-Proofing
+  - `prefab-modular-homes` — Prefab Houses, Modular Homes, Kit Houses (montažne kuće)
+  - `custom-furniture-joinery` — Bespoke Wardrobes, Custom Kitchens, Tailored Furniture (namještaj po mjeri)
+  - `fencing-gates-outdoor-structures` — Fencing, Automatic Gates, Pergolas, Decking (ograde, pergole)
+  - `swimming-pool-construction` — Inground Pools, Fiberglass Pools, Pool Renovation (izgradnja bazena)
 
 ---
 
