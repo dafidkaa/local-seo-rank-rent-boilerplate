@@ -50,6 +50,20 @@ export type ServiceItem = {
   }>;
 };
 
+export type LocationItem = {
+  id: string;
+  name: string;
+  region: string;
+  image: string;
+  detail: string;
+  /** 1-2 sentences about the location's character, demographics, or property types */
+  knowledge?: string;
+  /** 2-4 notable local landmarks, attractions, or well-known places */
+  attractions?: string[];
+  /** Google Maps embed search query, e.g. "Austin, Texas" or "Round Rock, TX" */
+  mapEmbedQuery?: string;
+};
+
 export type HeroSlide = {
   image: string;
   title: LocalizedText;
@@ -208,63 +222,90 @@ export const siteConfig = {
       name:   "Austin",
       region: "Texas",
       image:  "https://images.unsplash.com/photo-1531218150217-54595bc2b934?auto=format&fit=crop&w=900&q=80",
-      detail: "Central Austin neighborhoods, historic homes, and busy commercial corridors — all with unique plumbing challenges."
+      detail: "Central Austin neighborhoods, historic homes, and busy commercial corridors — all with unique plumbing challenges.",
+      knowledge: "Austin is the state capital of Texas and home to over 1 million residents. The city features a mix of historic bungalows in neighborhoods like Hyde Park and Bouldin Creek, mid-century homes in South Austin, and modern high-rises downtown. Older properties often have cast-iron or galvanized steel pipes that require specialized care.",
+      attractions: ["Texas State Capitol", "Sixth Street Entertainment District", "Barton Springs Pool", "South Congress Avenue"],
+      mapEmbedQuery: "Austin, Texas"
     },
     {
       id:     "round-rock",
       name:   "Round Rock",
       region: "Texas",
       image:  "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=900&q=80",
-      detail: "Fast-growing residential subdivisions and business parks north of Austin."
+      detail: "Fast-growing residential subdivisions and business parks north of Austin.",
+      knowledge: "Round Rock is one of the fastest-growing cities in the United States, located just 20 miles north of Austin. The city is known for its master-planned communities, top-rated schools, and the Dell Technologies campus. Newer construction dominates, but the city also has a historic downtown district with older commercial properties.",
+      attractions: ["Dell Diamond (Round Rock Express baseball)", "Old Settlers Park", "Round Rock Premium Outlets", "Brushy Creek Regional Trail"],
+      mapEmbedQuery: "Round Rock, Texas"
     },
     {
       id:     "cedar-park",
       name:   "Cedar Park",
       region: "Texas",
       image:  "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=900&q=80",
-      detail: "Family homes, local shops, and suburban plumbing service requests."
+      detail: "Family homes, local shops, and suburban plumbing service requests.",
+      knowledge: "Cedar Park is a suburban city northwest of Austin known for its family-friendly neighborhoods, strong school district, and rapidly expanding commercial corridor along US-183. The city has seen explosive growth over the past decade, with many homes built in the 2000s and 2010s now reaching the age where plumbing maintenance becomes important.",
+      attractions: ["H-E-B Center at Cedar Park (AHL hockey arena)", "Brushy Creek Lake Park", "Twin Lakes Park", "Cedar Park Town Center"],
+      mapEmbedQuery: "Cedar Park, Texas"
     },
     {
       id:     "georgetown",
       name:   "Georgetown",
       region: "Texas",
       image:  "https://images.unsplash.com/photo-1518005020951-eccb494ad742?auto=format&fit=crop&w=900&q=80",
-      detail: "Historic properties, newer developments, and planned communities with diverse plumbing needs."
+      detail: "Historic properties, newer developments, and planned communities with diverse plumbing needs.",
+      knowledge: "Georgetown is known as the 'Most Beautiful Town Square in Texas' and sits at the northern edge of the Austin metro. The city blends a charming Victorian-era downtown with large master-planned communities like Sun City Georgetown, one of the largest active-adult communities in the country. This mix of historic and modern properties creates diverse service needs.",
+      attractions: ["Georgetown Town Square", "Inner Space Cavern", "Blue Hole Regional Park", "Lake Georgetown"],
+      mapEmbedQuery: "Georgetown, Texas"
     },
     {
       id:     "pflugerville",
       name:   "Pflugerville",
       region: "Texas",
       image:  "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=900&q=80",
-      detail: "Residential neighborhoods, rental homes, and small-business properties."
+      detail: "Residential neighborhoods, rental homes, and small-business properties.",
+      knowledge: "Pflugerville is a suburban city northeast of Austin that has grown significantly due to its proximity to major tech employers and relatively affordable housing. The city is predominantly residential, with a large number of rental properties and single-family homes built in the 1990s and 2000s.",
+      attractions: ["Lake Pflugerville", "Pflugerville Community Library", "Stone Hill Town Center", "Typhoon Texas Waterpark"],
+      mapEmbedQuery: "Pflugerville, Texas"
     },
     {
       id:     "leander",
       name:   "Leander",
       region: "Texas",
       image:  "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=900&q=80",
-      detail: "Rapidly expanding communities where reliable same-day scheduling matters."
+      detail: "Rapidly expanding communities where reliable same-day scheduling matters.",
+      knowledge: "Leander is one of the fastest-growing cities in Texas, located northwest of Austin along the MetroRail corridor. The city has transformed from a small rural community into a major suburban hub, with thousands of new homes built each year. Crystal Falls, Travisso, and Bryson are among the most well-known master-planned communities in the area.",
+      attractions: ["Crystal Falls Golf Club", "Leander MetroRail Station", "Devine Lake Park", "Leander Activity Center"],
+      mapEmbedQuery: "Leander, Texas"
     },
     {
       id:     "lakeway",
       name:   "Lakeway",
       region: "Texas",
       image:  "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80",
-      detail: "Lake-area homes and premium service expectations."
+      detail: "Lake-area homes and premium service expectations.",
+      knowledge: "Lakeway is an affluent community on the shores of Lake Travis, west of Austin. The area is known for its luxury homes, golf courses, and waterfront properties. Many residences are built on rocky terrain, which presents unique challenges for plumbing installations and repairs. Homeowners in Lakeway typically expect premium service and fast response times.",
+      attractions: ["Lake Travis", "Lakeway Resort and Spa", "Rough Hollow Yacht Club", "Lakeway City Park"],
+      mapEmbedQuery: "Lakeway, Texas"
     },
     {
       id:     "bee-cave",
       name:   "Bee Cave",
       region: "Texas",
       image:  "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=900&q=80",
-      detail: "Residential and retail plumbing service calls west of Austin."
+      detail: "Residential and retail plumbing service calls west of Austin.",
+      knowledge: "Bee Cave is a small city in the Texas Hill Country west of Austin, known for its upscale retail, luxury residential developments, and proximity to Lake Travis. The Hill Country terrain means many properties are built on limestone, which can complicate underground plumbing work. The Shops at the Galleria is a major commercial hub in the area.",
+      attractions: ["The Shops at the Galleria", "Hamilton Pool Preserve (nearby)", "Barton Creek Greenbelt access", "Lake Travis Zipline Adventures"],
+      mapEmbedQuery: "Bee Cave, Texas"
     },
     {
       id:     "buda",
       name:   "Buda",
       region: "Texas",
       image:  "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=900&q=80",
-      detail: "Homes and local businesses south of the city."
+      detail: "Homes and local businesses south of the city.",
+      knowledge: "Buda is a rapidly growing city south of Austin along the I-35 corridor. Once a quiet small town, Buda has become a popular destination for Austin commuters seeking more affordable housing. The city has a charming historic downtown and a growing number of master-planned communities. Many older homes in the area have aging plumbing infrastructure.",
+      attractions: ["Buda City Park", "Garlic Festival (annual)", "Cabela's Buda", "Sunfield Community Park"],
+      mapEmbedQuery: "Buda, Texas"
     }
   ],
 

@@ -1,12 +1,17 @@
 ---
 /**
- * [slug].astro — Unified Service + Location page template
- * Handles both /en/drain-cleaning/ (service) and /en/round-rock/ (location)
+ * [slug].astro — Service Page Template
+ * ======================================
+ * Generates one page per top-level service (e.g. /en/drain-cleaning/)
  * Target: 1,200–1,500 words of structured, SEO-rich content
+ *
+ * SEO Strategy:
+ *   H1: [Service] in [City]                          ← primary keyword
+ *   H2: What is [Service]? / Why Choose Us / etc.    ← secondary keywords
+ *   H3: Sub-service names, benefit titles, FAQ items ← long-tail keywords
  */
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Hero from "../../components/Hero.astro";
-import ContentSection from "../../components/ContentSection.astro";
 import ProcessSection from "../../components/ProcessSection.astro";
 import ReviewsSection from "../../components/ReviewsSection.astro";
 import FaqSection from "../../components/FaqSection.astro";
@@ -14,188 +19,327 @@ import FinalCta from "../../components/FinalCta.astro";
 import ServiceCard from "../../components/ServiceCard.astro";
 import { siteConfig, allServices } from "../../site.config";
 import { t } from "../../lib/routes";
-import { seo, serviceSchema, localBusinessSchema, breadcrumbSchema, faqSchema, howToSchema } from "../../lib/seo";
-import { ui } from "../../i18n";
+import { seo, serviceSchema, breadcrumbSchema, faqSchema, howToSchema } from "../../lib/seo";
 
 export async function getStaticPaths() {
   const paths: { params: { lang: string; slug: string }; props: any }[] = [];
   for (const locale of siteConfig.locales) {
-    // Service pages
     for (const service of allServices) {
       paths.push({
         params: { lang: locale.code, slug: service.id },
-        props: { locale: locale.code, type: "service", service, location: null },
-      });
-    }
-    // Location pages
-    for (const location of siteConfig.locations) {
-      paths.push({
-        params: { lang: locale.code, slug: location.id },
-        props: { locale: locale.code, type: "location", service: null, location },
+        props: { locale: locale.code, service },
       });
     }
   }
   return paths;
 }
 
-const { locale, type, service, location } = Astro.props;
-const isService = type === "service";
+const { locale, service } = Astro.props;
 
 const businessName = siteConfig.business.name;
-const city = siteConfig.business.city;
-const phone = siteConfig.business.phone;
-const email = siteConfig.business.email;
+const city         = siteConfig.business.city;
+const area         = siteConfig.business.serviceArea;
+const phone        = siteConfig.business.phone;
+const email        = siteConfig.business.email;
+const founded      = siteConfig.business.foundedYear;
 const primaryService = t(siteConfig.business.primaryService, locale);
 
-// Resolve localized strings safely
-const serviceName = service ? t(service.title, locale) : primaryService;
+const serviceName      = t(service.title, locale);
 const serviceNameLower = serviceName.toLowerCase();
-const locationName = location ? location.name : city;
+const serviceShort     = t(service.short, locale);
+const children         = service.children ?? [];
 
-// Hero content
-const heroHeading = isService
-  ? `${serviceName} in ${city}`
-  : `${primaryService} in ${locationName}`;
-const heroSubtext = isService
-  ? `Professional, licensed ${serviceNameLower} for ${city} homeowners and businesses. Free estimates · Same-day service · 100% satisfaction guaranteed.`
-  : `${businessName} serves ${locationName} with the same fast, professional ${primaryService.toLowerCase()} service available throughout the ${city} metro area.`;
-const heroImage = isService
-  ? (service?.image ?? "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1920&q=80")
-  : (location?.image ?? "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=1920&q=80");
-
-// Page meta
-const pageTitle = isService
-  ? `${serviceName} in ${city} | ${businessName}`
-  : `${primaryService} in ${locationName} | ${businessName}`;
-const pageDescription = isService
-  ? `Need ${serviceNameLower} in ${city}? ${businessName} provides professional, licensed ${serviceNameLower} with free estimates and same-day service. Call now.`
-  : `${businessName} provides professional ${primaryService.toLowerCase()} in ${locationName}. Licensed, insured, and backed by a satisfaction guarantee. Free estimates available.`;
-
-// FAQs
-const faqs = isService ? [
-  { question: `How much does ${serviceNameLower} cost in ${city}?`, a: `The cost of ${serviceNameLower} in ${city} depends on the scope of work. ${businessName} provides free, written estimates with no obligation. Contact us to schedule your assessment.` },
-  { question: `How quickly can you respond for ${serviceNameLower} in ${city}?`, answer: `We offer same-day service for most ${serviceNameLower} requests in ${city}. Emergency service is also available. Call us now to confirm availability.` },
-  { question: `Is ${businessName} licensed for ${serviceNameLower} in ${city}?`, answer: `Yes. ${businessName} is fully licensed, bonded, and insured for all ${serviceNameLower} work in ${city} and the surrounding metro area.` },
-  { question: `Do you offer a warranty on ${serviceNameLower} work?`, answer: `Yes. All our ${serviceNameLower} work is backed by a satisfaction guarantee. If you are not satisfied with the result, we will return to make it right at no additional cost.` },
-  { question: `What areas do you serve for ${serviceNameLower}?`, answer: `We serve ${city} and the surrounding metro area including ${siteConfig.locations.slice(0, 4).map((l: any) => l.name).join(", ")}, and more.` },
-] : [
-  { question: `Do you provide ${primaryService.toLowerCase()} in ${locationName}?`, answer: `Yes. ${businessName} serves ${locationName} and the surrounding area with the same professional, licensed service we provide throughout the ${city} metro. Same-day appointments are available.` },
-  { question: `How quickly can you respond in ${locationName}?`, answer: `We typically respond to requests in ${locationName} within the same business day. Emergency service is available for urgent situations.` },
-  { question: `Are your prices the same in ${locationName} as in ${city}?`, answer: `Yes. We charge consistent, transparent rates throughout our service area. You will receive the same upfront pricing and quality of work in ${locationName} as anywhere else we serve.` },
-  { question: `What services are available in ${locationName}?`, answer: `We offer our full range of services in ${locationName}, including ${allServices.slice(0, 3).map((s: any) => t(s.title, locale)).join(", ")}, and more.` },
-  { question: `How do I book a service in ${locationName}?`, answer: `You can request a free estimate by filling out our online form, calling us at ${phone}, or sending an email to ${email ?? "our team"}. We will confirm your appointment and provide a clear quote before any work begins.` },
-];
-
-// Problems section data (must be defined in frontmatter, not inline JSX)
-const problemCards = isService ? [
-  { icon: "⚡", title: "Unexpected emergencies", desc: `Problems can arise without warning. Our team is available for same-day and emergency ${serviceNameLower} service throughout ${city}.` },
-  { icon: "💰", title: "Uncertainty about costs", desc: `Many customers are unsure what a fair price looks like. We provide free estimates and transparent pricing so you can make an informed decision.` },
-  { icon: "🔍", title: "Finding a reliable provider", desc: `Not all service providers are equal. ${businessName} is licensed, insured, and has a proven track record in ${city}.` },
-  { icon: "✅", title: "Concerns about quality", desc: `Our work is backed by a satisfaction guarantee. We do not consider a job complete until you are satisfied with the result.` },
-  { icon: "🕐", title: "Tight schedules", desc: `We offer flexible appointment times and same-day service to work around your schedule.` },
-  { icon: "📋", title: "Hidden fees and surprises", desc: `We provide written estimates before work begins. The price we quote is the price you pay.` },
-] : [
-  { icon: "📍", title: `Finding local coverage in ${locationName}`, desc: `Some companies advertise broadly but are slow to respond outside their primary area. ${businessName} genuinely serves ${locationName} with fast response times.` },
-  { icon: "💰", title: "Getting consistent pricing", desc: `We charge the same transparent rates in ${locationName} as anywhere else in our service area. No travel surcharges or inflated prices.` },
-  { icon: "✅", title: "Uncertainty about quality", desc: `Our work in ${locationName} is held to the same high standards as every other area we serve, and is backed by our satisfaction guarantee.` },
-  { icon: "🕐", title: "Needing service quickly", desc: `Same-day appointments are available for ${locationName} customers. Call us now to confirm availability.` },
-  { icon: "📋", title: "Understanding what you are paying for", desc: `We provide free written estimates before any work begins. No surprises, no hidden fees.` },
-  { icon: "🔍", title: "Verifying credentials", desc: `${businessName} is fully licensed, bonded, and insured. We are happy to provide documentation on request.` },
-];
 // Breadcrumbs
-const crumbs = isService
-  ? [{ name: "Home", url: `/${locale}/` }, { name: "Services", url: `/${locale}/#services` }, { name: serviceName, url: `/${locale}/${service?.id}/` }]
-  : [{ name: "Home", url: `/${locale}/` }, { name: "Service Areas", url: `/${locale}/service-area/` }, { name: locationName, url: `/${locale}/${location?.id}/` }];
+const crumbs = [
+  { name: "Home",     url: `/${locale}/` },
+  { name: "Services", url: `/${locale}/#services` },
+  { name: serviceName, url: `/${locale}/${service.id}/` },
+];
+
+// FAQs — 5 keyword-rich questions
+const faqs = [
+  {
+    question: `How much does ${serviceNameLower} cost in ${city}?`,
+    answer: `The cost of ${serviceNameLower} in ${city} depends on the scope and complexity of the work. ${businessName} provides free, written estimates with no obligation. Contact us to schedule your assessment and receive a clear upfront price.`
+  },
+  {
+    question: `How quickly can you respond for ${serviceNameLower} in ${city}?`,
+    answer: `We offer same-day service for most ${serviceNameLower} requests in ${city}. Emergency service is available around the clock. Call us now to confirm availability and book your appointment.`
+  },
+  {
+    question: `Is ${businessName} licensed for ${serviceNameLower} in ${city}?`,
+    answer: `Yes. ${businessName} is fully licensed, bonded, and insured for all ${serviceNameLower} work in ${city} and the surrounding ${area}. We are happy to provide documentation on request.`
+  },
+  {
+    question: `Do you offer a warranty on ${serviceNameLower} work?`,
+    answer: `Yes. All our ${serviceNameLower} work in ${city} is backed by a written satisfaction guarantee. If you are not satisfied with the result, we return and make it right at no additional cost.`
+  },
+  {
+    question: `What areas do you serve for ${serviceNameLower}?`,
+    answer: `We serve ${city} and the surrounding ${area} including ${siteConfig.locations.slice(0, 4).map((l: any) => l.name).join(", ")}, and more. Contact us to confirm coverage in your area.`
+  },
+];
 
 // Schema
 const schemas = [
-  isService
-    ? serviceSchema(locale, serviceName, `${siteConfig.siteUrl}/${locale}/${service?.id}/`)
-    : localBusinessSchema(locale),
+  serviceSchema(locale, serviceName, `${siteConfig.siteUrl}/${locale}/${service.id}/`),
   breadcrumbSchema(crumbs),
-  faqSchema(faqs.map((f: any) => ({ question: f.q ?? f.question, answer: f.a ?? f.answer }))),
-  howToSchema(
-    isService
-      ? [
-          { name: "Contact us for a free estimate", text: "Call or fill out our online form to request a free, no-obligation estimate." },
-          { name: "Schedule your appointment", text: "We confirm your appointment and provide a written quote before any work begins." },
-          { name: "Our team arrives on time", text: "Our licensed technicians arrive at the scheduled time, fully equipped." },
-          { name: "Work is completed to your satisfaction", text: "We complete the job to the highest standard and walk you through the results." },
-          { name: "Final walkthrough and sign-off", text: "We do not consider the job done until you are fully satisfied." },
-        ]
-      : [
-          { name: "Request a free estimate online or by phone", text: "Contact us through our website or by phone to request a free estimate." },
-          { name: "We confirm your appointment and provide a quote", text: "We provide a written quote before any work begins — no surprises." },
-          { name: "Our licensed team arrives at your location", text: "Our team arrives on time, fully equipped for the job." },
-          { name: "Work is completed professionally and on schedule", text: "We complete the job to the highest standard." },
-          { name: "You receive a satisfaction guarantee on every job", text: "Every job is backed by our 100% satisfaction guarantee." },
-        ]
-  ),
+  faqSchema(faqs.map((f) => ({ question: f.question, answer: f.answer }))),
+  howToSchema([
+    { name: "Contact us for a free estimate",        text: "Call or fill out our online form to request a free, no-obligation estimate for your job." },
+    { name: "Schedule your appointment",             text: "We confirm your appointment and provide a written quote before any work begins — no surprises." },
+    { name: "Our licensed team arrives on time",     text: "Our qualified technicians arrive at the scheduled time, fully equipped for the job." },
+    { name: "Work is completed to your satisfaction",text: "We complete the job to the highest professional standard and walk you through the results." },
+    { name: "Final walkthrough and written warranty",text: "We do not consider the job done until you are fully satisfied. All work is backed by a written guarantee." },
+  ]),
 ];
-const meta = seo({ title: pageTitle, description: pageDescription, locale, path: `/${locale}/${isService ? service?.id : location?.id}/`, schema: schemas });
+
+const meta = seo({
+  title:       `${serviceName} in ${city} | ${businessName}`,
+  description: `Need ${serviceNameLower} in ${city}? ${businessName} provides professional, licensed ${serviceNameLower} with free estimates and same-day service. Call now.`,
+  locale,
+  path:        `/${locale}/${service.id}/`,
+  schema:      schemas,
+});
 
 // Related services (exclude current)
-const relatedServices = allServices.filter((s: any) => !isService || s.id !== service?.id).slice(0, 3);
+const relatedServices = allServices.filter((s: any) => s.id !== service.id).slice(0, 3);
 
 // Image helpers
-const teamImg = "https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=900&q=80";
-const serviceImg = service?.image ?? "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=900&q=80";
-const locationImg = location?.image ?? "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=900&q=80";
-const aboutImg = "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=900&q=80";
+const heroImage  = service.image ?? "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1920&q=80";
+const teamImg    = (siteConfig.brand as any).images?.team  ?? "https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=900&q=80";
+const aboutImg   = (siteConfig.brand as any).images?.about ?? "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=900&q=80";
 ---
+
 <BaseLayout seo={meta}>
-  <!-- 1. HERO with breadcrumbs inside -->
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       1. HERO — H1: [Service] in [City]
+       Primary keyword in H1, subtext reinforces trust signals
+  ═══════════════════════════════════════════════════════════════════════════ -->
   <Hero
-    title={heroHeading}
-    text={heroSubtext}
+    title={`${serviceName} in ${city}`}
+    text={`Professional, licensed ${serviceNameLower} for ${city} homeowners and businesses. Free estimates · Same-day service · 100% satisfaction guaranteed.`}
     image={heroImage}
-    imageAlt={`${heroHeading} — ${businessName}`}
+    imageAlt={`${serviceName} professionals in ${city} — ${businessName}`}
     locale={locale}
     breadcrumbs={crumbs}
   />
 
-  <!-- 3. INTRODUCTION -->
-  <ContentSection
-    eyebrow={isService ? `${serviceName} in ${city}` : `Serving ${locationName}`}
-    title={isService ? `Professional ${serviceName} You Can Trust` : `${primaryService} in ${locationName}`}
-    text={isService
-      ? `When you need ${serviceNameLower} in ${city}, you deserve a team that shows up on time, communicates clearly, and gets the job done right the first time. ${businessName} has been serving ${city} and the surrounding metro area since ${siteConfig.business.foundedYear}. We are licensed, bonded, and insured — and every job we complete is backed by our 100% satisfaction guarantee.\n\nOur ${serviceNameLower} service is designed for homeowners and businesses who want professional results without the stress. We provide free, no-obligation estimates, upfront pricing with no hidden fees, and same-day service for most requests.`
-      : `${businessName} is proud to serve ${locationName} and the surrounding communities with professional, licensed ${primaryService.toLowerCase()} services. Our team understands the specific needs of ${locationName} residents and businesses, and we are committed to delivering the same high standard of work that has made us the trusted choice throughout the ${city} metro area.\n\nWhen you contact us from ${locationName}, you receive the same fast response times, transparent pricing, and satisfaction guarantee that all our customers enjoy.`}
-    image={isService ? serviceImg : locationImg}
-    imageAlt={isService ? `${serviceName} professionals in ${city}` : `${primaryService} service in ${locationName}`}
-  />
-
-  <!-- 4. BENEFITS / WHY CHOOSE US -->
-  <ContentSection
-    eyebrow="Why Choose Us"
-    title={isService ? `Why ${city} Chooses ${businessName} for ${serviceName}` : `Why ${locationName} Residents Choose ${businessName}`}
-    text={isService
-      ? `Choosing the right ${serviceNameLower} provider in ${city} matters. Here is what sets ${businessName} apart:\n\n**Licensed and insured.** All our technicians are fully licensed and insured, giving you peace of mind on every job.\n\n**Transparent pricing.** You receive a clear written estimate before any work begins. No surprises, no hidden fees.\n\n**Same-day service.** We understand that ${serviceNameLower} issues often cannot wait. We offer same-day appointments for most requests.\n\n**Satisfaction guarantee.** We do not consider a job complete until you are satisfied with the result.\n\n**Local expertise.** We know ${city} and the surrounding area. Our team has completed thousands of jobs throughout the metro.`
-      : `When you choose ${businessName} for ${primaryService.toLowerCase()} in ${locationName}, you are choosing a company with a proven track record throughout the ${city} metro area.\n\n**Genuine local coverage.** We actually serve ${locationName} — not just advertise there. Our team is familiar with the area and can respond quickly.\n\n**Consistent quality.** The same licensed technicians and quality standards apply in ${locationName} as everywhere else we serve.\n\n**Transparent pricing.** You receive a clear written estimate before any work begins. No travel surcharges or inflated rates for ${locationName} customers.\n\n**Satisfaction guaranteed.** Every job we complete in ${locationName} is backed by our 100% satisfaction guarantee.`}
-    reversed={true}
-    image={teamImg}
-    imageAlt={`${businessName} team — trusted ${isService ? serviceNameLower : primaryService.toLowerCase()} professionals`}
-    dark={true}
-  />
-
-  <!-- 5. COMMON PROBLEMS / CHALLENGES -->
-  <section class="section section-light">
-    <div class="container">
-      <div class="section-header center">
-        <p class="eyebrow">Common Challenges</p>
-        <h2>{isService ? `Common ${serviceName} Problems in ${city}` : `Why ${locationName} Residents Contact Us`}</h2>
-        <p class="section-subtext">
-          {isService
-            ? `Many ${city} homeowners and businesses face similar challenges. Here are the most common situations our customers contact us about.`
-            : `Residents and businesses in ${locationName} often face the same challenges when searching for a reliable ${primaryService.toLowerCase()} provider.`}
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       2. INTRODUCTION — What is [Service]? (~200 words)
+       H2 with primary keyword, body copy answers "what does this service include?"
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  <section class="section section-light" aria-labelledby="intro-heading">
+    <div class="container service-intro">
+      <div class="service-intro-copy">
+        <p class="eyebrow">{serviceName} in {city}</p>
+        <h2 id="intro-heading">Professional {serviceName} You Can Trust in {city}</h2>
+        <p>
+          When you need {serviceNameLower} in {city}, you deserve a team that shows up on time,
+          communicates clearly, and gets the job done right the first time. {businessName} has been
+          serving {city} and the surrounding {area} since {founded}. We are licensed, bonded, and
+          insured — and every job we complete is backed by our 100% satisfaction guarantee.
         </p>
+        <p>
+          Our {serviceNameLower} service is designed for homeowners and businesses who want professional
+          results without the stress. We provide free, no-obligation estimates, upfront pricing with
+          no hidden fees, and same-day service for most requests in {city}.
+        </p>
+        <p>
+          {serviceShort} Whether you are dealing with a minor issue or a major problem, our experienced
+          team has the tools, training, and local knowledge to handle it efficiently and professionally.
+          We have completed thousands of {serviceNameLower} jobs throughout {city} and the {area},
+          earning a reputation for reliability, quality, and honest communication.
+        </p>
+        <div class="intro-actions">
+          <button class="btn btn-primary" data-open-form-popup aria-haspopup="dialog">
+            Get a Free Estimate
+          </button>
+          <a href={`tel:${phone}`} class="btn btn-outline">Call {phone}</a>
+        </div>
       </div>
+      <div class="service-intro-image">
+        <img
+          src={heroImage}
+          alt={`${serviceName} service in ${city} — ${businessName}`}
+          width="600" height="400"
+          loading="lazy" decoding="async"
+          class="intro-img"
+        />
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       3. SUB-SERVICES GRID — [Service] Types We Offer (~200 words)
+       H2 with service keyword, H3 per sub-service = long-tail keyword coverage
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  {children.length > 0 && (
+    <section class="section" aria-labelledby="subservices-heading">
+      <div class="container">
+        <p class="eyebrow">What We Cover</p>
+        <h2 id="subservices-heading">{serviceName} Services We Offer in {city}</h2>
+        <p class="section-lead">
+          {businessName} provides a full range of {serviceNameLower} solutions for {city} homes and
+          businesses. From routine maintenance to emergency repairs, our licensed team handles every
+          aspect of {serviceNameLower} with the same high standard of care.
+        </p>
+        <div class="subservices-grid">
+          {children.map((child: any) => (
+            <a href={`/${locale}/${service.id}/${child.id}/`} class="subservice-card">
+              <div class="subservice-card-inner">
+                <h3 class="subservice-title">{t(child.title, locale)}</h3>
+                <p class="subservice-desc">{t(child.short, locale)}</p>
+                <span class="subservice-link" aria-hidden="true">
+                  Learn more →
+                </span>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       4. SIGNS YOU NEED THIS SERVICE (~200 words)
+       H2 with problem-aware keyword, answers "do I need [service]?"
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  <section class="section section-light" aria-labelledby="signs-heading">
+    <div class="container">
+      <p class="eyebrow">Warning Signs</p>
+      <h2 id="signs-heading">Signs You Need {serviceName} in {city}</h2>
+      <p class="section-lead">
+        Many {city} homeowners and businesses delay calling a professional until a small problem
+        becomes a costly emergency. Here are the most common warning signs that you need
+        {serviceNameLower} right away.
+      </p>
+      <div class="signs-grid">
+        {[
+          { icon: "⚠️", title: "Visible damage or deterioration",   desc: `If you can see signs of wear, damage, or failure, do not wait. Early intervention for ${serviceNameLower} in ${city} almost always costs less than emergency repairs.` },
+          { icon: "📉", title: "Reduced performance or efficiency", desc: `A noticeable drop in performance is often the first sign that ${serviceNameLower} is needed. Address it early to avoid more serious problems.` },
+          { icon: "💧", title: "Leaks, spills, or unexpected moisture", desc: `Any unexplained moisture, leaks, or water damage around your property in ${city} should be assessed by a licensed professional immediately.` },
+          { icon: "🔊", title: "Unusual sounds or smells",          desc: `Strange noises or odors are often early warning signs of a problem that requires professional ${serviceNameLower} attention.` },
+          { icon: "📅", title: "It has been more than a year",      desc: `Regular maintenance is the best way to prevent costly repairs. If you have not had a professional ${serviceNameLower} inspection in over a year, now is the time.` },
+          { icon: "🏚️", title: "Older property or aging systems",   desc: `Properties in ${city} built before the 1990s often have systems that are approaching the end of their service life. A professional assessment can prevent unexpected failures.` },
+        ].map((sign) => (
+          <div class="sign-card">
+            <div class="sign-icon" aria-hidden="true">{sign.icon}</div>
+            <div>
+              <h3 class="sign-title">{sign.title}</h3>
+              <p class="sign-desc">{sign.desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       5. WHY CHOOSE US — Benefits deep-dive (~250 words)
+       H2 with brand + city keyword, H3 per benefit
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  <section class="section section-charcoal" aria-labelledby="why-heading">
+    <div class="container">
+      <p class="eyebrow" style="color:var(--brand-accent)">Why Choose Us</p>
+      <h2 id="why-heading" style="color:#fff">Why {city} Chooses {businessName} for {serviceName}</h2>
+      <p class="section-lead" style="color:rgba(255,255,255,.75)">
+        Choosing the right {serviceNameLower} provider in {city} matters. Here is what sets
+        {businessName} apart from other companies in the {area}.
+      </p>
+      <div class="benefits-grid">
+        <div class="benefit-item">
+          <h3>Licensed, Bonded &amp; Insured</h3>
+          <p>
+            Every technician on our team is fully licensed and insured for {serviceNameLower} work in
+            {city}. You are protected from the moment we arrive on site. We carry full liability
+            insurance and are happy to provide documentation on request.
+          </p>
+        </div>
+        <div class="benefit-item">
+          <h3>Transparent Upfront Pricing</h3>
+          <p>
+            We provide a clear, written estimate before any {serviceNameLower} work begins in {city}.
+            The price we quote is the price you pay — no hidden fees, no surprise charges, no
+            pressure. Our goal is to earn your trust, not maximize your invoice.
+          </p>
+        </div>
+        <div class="benefit-item">
+          <h3>Same-Day Service Available</h3>
+          <p>
+            We understand that {serviceNameLower} issues in {city} often cannot wait. We offer
+            same-day appointments for most requests and emergency service around the clock. Call
+            us now and we will do our best to be there today.
+          </p>
+        </div>
+        <div class="benefit-item">
+          <h3>100% Satisfaction Guarantee</h3>
+          <p>
+            We do not consider any {serviceNameLower} job in {city} complete until you are fully
+            satisfied with the result. If anything is not right, we return and fix it at no
+            additional cost. That is our written commitment on every job.
+          </p>
+        </div>
+        <div class="benefit-item">
+          <h3>Local {city} Expertise</h3>
+          <p>
+            Our team has completed thousands of {serviceNameLower} jobs throughout {city} and the
+            {area}. We know the local infrastructure, building codes, and common challenges
+            specific to this area — which means faster diagnosis and better results for you.
+          </p>
+        </div>
+        <div class="benefit-item">
+          <h3>Clean, Respectful Work</h3>
+          <p>
+            We treat every home and business in {city} with the same care and respect we would
+            give our own. We use protective coverings, keep the work area clean throughout the
+            job, and leave your property in better condition than we found it.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       6. PROCESS SECTION — How it works
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  <ProcessSection
+    title={`How Our ${serviceName} Process Works in ${city}`}
+    subtitle={`Professional ${serviceNameLower} service in ${city}. Here is what to expect when you contact ${businessName}.`}
+    steps={[
+      { title: "Contact Us",          text: `Call ${phone} or submit our quick online form. We respond within the hour and confirm your appointment.` },
+      { title: "Free Written Estimate", text: `We assess the ${serviceNameLower} job and provide a clear, written price — no hidden fees, no surprises, no pressure.` },
+      { title: "We Get to Work",      text: `Our licensed ${city} team arrives on time, fully equipped, and completes the job to the highest professional standard.` },
+      { title: "Satisfaction Guaranteed", text: `We do not consider the ${serviceNameLower} job done until you are completely satisfied. All work is backed by a written guarantee.` },
+    ]}
+  />
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       7. COMMON PROBLEMS SECTION (~150 words)
+       H2 with problem-aware keyword, answers "what problems do you solve?"
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  <section class="section section-light" aria-labelledby="problems-heading">
+    <div class="container">
+      <p class="eyebrow">Common Challenges</p>
+      <h2 id="problems-heading">Common {serviceName} Problems in {city}</h2>
+      <p class="section-lead">
+        Many {city} homeowners and businesses face similar challenges. Here are the most common
+        situations our customers contact us about — and how we resolve them.
+      </p>
       <div class="problems-grid">
-        {problemCards.map((item) => (
+        {[
+          { icon: "⚡", title: "Unexpected emergencies",       desc: `Problems can arise without warning. Our team is available for same-day and emergency ${serviceNameLower} service throughout ${city}.` },
+          { icon: "💰", title: "Uncertainty about costs",      desc: `Many customers are unsure what a fair price looks like. We provide free estimates and transparent pricing so you can make an informed decision.` },
+          { icon: "🔍", title: "Finding a reliable provider",  desc: `Not all ${serviceNameLower} providers are equal. ${businessName} is licensed, insured, and has a proven track record in ${city}.` },
+          { icon: "✅", title: "Concerns about quality",       desc: `Our work is backed by a satisfaction guarantee. We do not consider a job complete until you are satisfied with the result.` },
+          { icon: "🕐", title: "Tight schedules",              desc: `We offer flexible appointment times and same-day service to work around your schedule in ${city}.` },
+          { icon: "📋", title: "Hidden fees and surprises",    desc: `We provide written estimates before work begins. The price we quote is the price you pay — always.` },
+        ].map((item) => (
           <div class="problem-card">
             <div class="problem-icon" aria-hidden="true">{item.icon}</div>
             <div>
-              <p class="problem-title">{item.title}</p>
+              <h3 class="problem-title">{item.title}</h3>
               <p class="problem-desc">{item.desc}</p>
             </div>
           </div>
@@ -204,34 +348,81 @@ const aboutImg = "https://images.unsplash.com/photo-1581578731548-c64695cc6952?a
     </div>
   </section>
 
-  <!-- 6. PROCESS SECTION -->
-  <ProcessSection
-    title={`How Our ${isService ? serviceName : primaryService} Process Works`}
-    subtitle={`Professional ${isService ? serviceNameLower : primaryService.toLowerCase()} service in ${city}. Here is what to expect.`}
-    steps={[
-      { title: "Contact Us", text: `Call ${phone} or submit our quick online form. We respond within the hour.` },
-      { title: "Free Estimate", text: "We assess the job and give you a clear, upfront price — no hidden fees." },
-      { title: "We Get to Work", text: "Our licensed team arrives on time, fully equipped for the job." },
-      { title: "Satisfaction Guaranteed", text: "We do not consider the job done until you are completely satisfied." },
-    ]}
-  />
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       8. ABOUT / TRUST SECTION (~150 words)
+       H2 with brand + service keyword
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  <section class="section" aria-labelledby="about-heading">
+    <div class="container about-split">
+      <div class="about-copy">
+        <p class="eyebrow">About {businessName}</p>
+        <h2 id="about-heading">Trusted {serviceName} Professionals in {city} Since {founded}</h2>
+        <p>
+          {businessName} was founded in {founded} with a simple mission: to provide honest,
+          professional {serviceNameLower} services to homeowners and businesses in {city} and the
+          surrounding {area}. Since then, we have completed thousands of jobs throughout the metro,
+          earning a reputation for reliability, quality, and honest communication.
+        </p>
+        <p>
+          We believe that every customer deserves to know exactly what they are paying for before
+          work begins. That is why we provide free, written estimates with no obligation. Our
+          pricing is transparent, our work is guaranteed, and our team is always on time.
+        </p>
+        <p>
+          When you choose {businessName} for {serviceNameLower} in {city}, you are choosing a
+          locally owned company that is invested in this community. We live and work here — and
+          our reputation depends on every single job we complete.
+        </p>
+      </div>
+      <div class="about-image-wrap">
+        <img
+          src={aboutImg}
+          alt={`${businessName} — trusted ${serviceNameLower} professionals in ${city}`}
+          width="600" height="400"
+          loading="lazy" decoding="async"
+          class="about-img"
+        />
+      </div>
+    </div>
+  </section>
 
-  <!-- 7. RELATED SERVICES -->
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       9. SERVICE AREA — Other locations we serve
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  <section class="section section-light" aria-labelledby="area-heading">
+    <div class="container">
+      <p class="eyebrow">Service Area</p>
+      <h2 id="area-heading">{serviceName} Across {area}</h2>
+      <p class="section-lead">
+        {businessName} provides {serviceNameLower} throughout {area}. Whether you are in {city} or
+        a surrounding community, our licensed team is nearby and ready to help.
+      </p>
+      <div class="area-tags">
+        {siteConfig.locations.map((loc: any) => (
+          <a href={`/${locale}/${loc.id}/`} class="area-tag">
+            {serviceName} in {loc.name}
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       10. RELATED SERVICES
+  ═══════════════════════════════════════════════════════════════════════════ -->
   {relatedServices.length > 0 && (
-    <section class="section">
+    <section class="section" aria-labelledby="related-heading">
       <div class="container">
-        <div class="section-header center">
-          <p class="eyebrow">Our Services</p>
-          <h2>{isService ? `Other Services in ${city}` : `Services Available in ${locationName}`}</h2>
-        </div>
+        <p class="eyebrow">Our Services</p>
+        <h2 id="related-heading">Other {t(siteConfig.business.primaryService, locale)} Services in {city}</h2>
         <div class="services-grid">
           {relatedServices.map((s: any) => (
             <ServiceCard
               title={t(s.title, locale)}
-              description={t(s.short ?? s.description ?? s.title, locale)}
-              image={s.image ?? (siteConfig.brand as any).images?.hero ?? 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=600&q=80'}
+              description={t(s.short, locale)}
+              image={s.image ?? (siteConfig.brand as any).images?.hero1 ?? 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=600&q=80'}
               href={`/${locale}/${s.id}/`}
-              alt={t(s.title, locale)}
+              alt={`${t(s.title, locale)} in ${city}`}
             />
           ))}
         </div>
@@ -239,28 +430,26 @@ const aboutImg = "https://images.unsplash.com/photo-1581578731548-c64695cc6952?a
     </section>
   )}
 
-  <!-- 8. ABOUT / TRUST SECTION -->
-  <ContentSection
-    eyebrow={`About ${businessName}`}
-    title={`Trusted ${primaryService} Professionals Since ${siteConfig.business.foundedYear}`}
-    text={`${businessName} was founded in ${siteConfig.business.foundedYear} with a simple mission: to provide honest, professional ${primaryService.toLowerCase()} services to homeowners and businesses in ${city} and the surrounding area. Since then, we have completed thousands of jobs throughout the ${city} metro area, earning a reputation for reliability, quality, and honest communication.\n\nWe believe that every customer deserves to know exactly what they are paying for before work begins. That is why we provide free, written estimates with no obligation. Our pricing is transparent, our work is guaranteed, and our team is always on time.`}
-    image={aboutImg}
-    imageAlt={`${businessName} team — professional ${isService ? serviceNameLower : primaryService.toLowerCase()} in ${city}`}
-    reversed={true}
-    dark={true}
-  />
-
-  <!-- 9. REVIEWS -->
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       11. REVIEWS
+  ═══════════════════════════════════════════════════════════════════════════ -->
   <ReviewsSection locale={locale as string} />
 
-  <!-- 10. FAQ -->
-  <FaqSection faqs={(faqs as any[])} locale={locale} />
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       12. FAQ — AEO/GEO optimised
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  <FaqSection
+    title={`Frequently Asked Questions About ${serviceName} in ${city}`}
+    items={faqs.map((f) => ({ q: f.question, a: f.answer }))}
+  />
 
-  <!-- 11. INLINE CTA STRIP -->
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       13. CTA STRIP
+  ═══════════════════════════════════════════════════════════════════════════ -->
   <section class="cta-strip">
     <div class="container cta-strip-inner">
       <div class="cta-strip-text">
-        <h2>{isService ? `Ready to Book ${serviceName} in ${city}?` : `Need ${primaryService} in ${locationName}?`}</h2>
+        <h2>Ready to Book {serviceName} in {city}?</h2>
         <p>Free estimates · Same-day service · 100% satisfaction guaranteed</p>
       </div>
       <div class="cta-strip-actions">
@@ -275,23 +464,291 @@ const aboutImg = "https://images.unsplash.com/photo-1581578731548-c64695cc6952?a
     </div>
   </section>
 
-  <!-- 12. FINAL CTA FORM -->
-  <FinalCta locale={locale} />
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       14. FINAL CTA FORM
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  <FinalCta
+    locale={locale}
+    title={`Get A Free ${serviceName} Estimate in ${city}`}
+    text={`Fill out the quick form to schedule a no-pressure, no-obligation quote for ${serviceNameLower} in ${city} and nearby areas. We respond within one business hour.`}
+  />
+
 </BaseLayout>
 
 <style>
-  .problems-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-top: 2.5rem; }
-  .problem-card { display: flex; gap: 1rem; padding: 1.5rem; background: white; border: 1px solid var(--color-border); border-radius: 12px; box-shadow: var(--shadow-card); }
-  .problem-icon { flex-shrink: 0; width: 36px; height: 36px; background: var(--color-accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; margin-top: 2px; }
-  .problem-title { font-size: 0.9375rem; font-weight: 700; color: var(--color-dark); margin: 0 0 0.375rem; }
-  .problem-desc { font-size: 0.875rem; color: var(--color-text-muted); margin: 0; line-height: 1.6; }
-  .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 2.5rem; }
-  .cta-strip { background: var(--color-dark); padding: 3rem 0; }
+  /* ── Service intro split ─────────────────────────────────────────────────── */
+  .service-intro {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(40px, 6vw, 80px);
+    align-items: center;
+  }
+  .service-intro-copy h2 { margin-bottom: 20px; }
+  .service-intro-copy p {
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--color-text-muted);
+    margin-bottom: 16px;
+  }
+  .intro-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px; }
+  .intro-img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3/2;
+    object-fit: cover;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-hover);
+    display: block;
+  }
+  @media (max-width: 768px) {
+    .service-intro { grid-template-columns: 1fr; }
+    .service-intro-image { order: -1; }
+  }
+
+  /* ── Sub-services grid ───────────────────────────────────────────────────── */
+  .subservices-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.25rem;
+    margin-top: clamp(32px, 5vw, 48px);
+  }
+  .subservice-card {
+    display: block;
+    text-decoration: none;
+    background: #fff;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card);
+    transition: box-shadow .2s ease, border-color .2s ease, transform .2s ease;
+  }
+  .subservice-card:hover {
+    box-shadow: var(--shadow-hover);
+    border-color: var(--brand-accent);
+    transform: translateY(-2px);
+  }
+  .subservice-card-inner { padding: clamp(20px, 3vw, 28px); }
+  .subservice-title {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-heading);
+    margin: 0 0 10px;
+  }
+  .subservice-desc {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    line-height: 1.65;
+    margin: 0 0 14px;
+  }
+  .subservice-link {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--brand-accent);
+  }
+
+  /* ── Signs grid ──────────────────────────────────────────────────────────── */
+  .signs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.25rem;
+    margin-top: clamp(32px, 5vw, 48px);
+  }
+  .sign-card {
+    display: flex;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: white;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card);
+  }
+  .sign-icon {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    background: var(--brand-accent-light, #fef3c7);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    margin-top: 2px;
+  }
+  .sign-title {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--color-heading);
+    margin: 0 0 0.375rem;
+  }
+  .sign-desc {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  /* ── Benefits grid ───────────────────────────────────────────────────────── */
+  .benefits-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(24px, 4vw, 40px);
+    margin-top: clamp(32px, 5vw, 48px);
+  }
+  .benefit-item h3 {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0 0 10px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--brand-accent);
+  }
+  .benefit-item p {
+    font-size: 0.9rem;
+    color: rgba(255,255,255,.7);
+    line-height: 1.75;
+    margin: 0;
+  }
+  @media (max-width: 768px) {
+    .benefits-grid { grid-template-columns: 1fr; }
+  }
+  @media (min-width: 769px) and (max-width: 1024px) {
+    .benefits-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ── Problems grid ───────────────────────────────────────────────────────── */
+  .problems-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.25rem;
+    margin-top: clamp(32px, 5vw, 48px);
+  }
+  .problem-card {
+    display: flex;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: white;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card);
+  }
+  .problem-icon {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    background: var(--brand-accent-light, #fef3c7);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    margin-top: 2px;
+  }
+  .problem-title {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--color-heading);
+    margin: 0 0 0.375rem;
+  }
+  .problem-desc {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  /* ── About split ─────────────────────────────────────────────────────────── */
+  .about-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(40px, 6vw, 80px);
+    align-items: center;
+  }
+  .about-copy h2 { margin-bottom: 20px; }
+  .about-copy p {
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--color-text-muted);
+    margin-bottom: 16px;
+  }
+  .about-img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3/2;
+    object-fit: cover;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-hover);
+    display: block;
+  }
+  @media (max-width: 768px) {
+    .about-split { grid-template-columns: 1fr; }
+    .about-image-wrap { order: -1; }
+  }
+
+  /* ── Area tags ───────────────────────────────────────────────────────────── */
+  .area-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: clamp(24px, 4vw, 36px);
+  }
+  .area-tag {
+    display: inline-block;
+    padding: 8px 16px;
+    background: #fff;
+    border: 1px solid var(--color-border);
+    border-radius: 100px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-text);
+    text-decoration: none;
+    transition: background .2s, border-color .2s, color .2s;
+  }
+  .area-tag:hover {
+    background: var(--brand-accent);
+    border-color: var(--brand-accent);
+    color: #fff;
+  }
+
+  /* ── Services grid ───────────────────────────────────────────────────────── */
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: clamp(32px, 5vw, 48px);
+  }
+
+  /* ── CTA strip ───────────────────────────────────────────────────────────── */
+  .cta-strip { background: var(--brand-primary); padding: 3rem 0; }
   .cta-strip-inner { display: flex; align-items: center; justify-content: space-between; gap: 2rem; flex-wrap: wrap; }
-  .cta-strip-text h2 { font-size: 1.5rem; font-weight: 800; color: white; margin: 0 0 0.5rem; }
-  .cta-strip-text p { color: rgba(255,255,255,0.7); margin: 0; font-size: 0.9375rem; }
+  .cta-strip-text h2 { font-size: clamp(1.25rem, 2.5vw, 1.5rem); font-weight: 800; color: white; margin: 0 0 0.5rem; }
+  .cta-strip-text p { color: rgba(255,255,255,0.75); margin: 0; font-size: 0.9375rem; }
   .cta-strip-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
-  .btn-outline-light { border: 2px solid rgba(255,255,255,0.4); color: white; background: transparent; display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; text-decoration: none; transition: border-color 0.2s, background 0.2s; }
-  .btn-outline-light:hover { border-color: white; background: rgba(255,255,255,0.1); }
-  @media (max-width: 640px) { .cta-strip-inner { flex-direction: column; text-align: center; } .cta-strip-actions { justify-content: center; } }
+  .btn-outline-light {
+    border: 2px solid rgba(255,255,255,0.5);
+    color: white;
+    background: transparent;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    text-decoration: none;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .btn-outline-light:hover { border-color: white; background: rgba(255,255,255,0.12); color: white; }
+  @media (max-width: 640px) {
+    .cta-strip-inner { flex-direction: column; text-align: center; }
+    .cta-strip-actions { justify-content: center; }
+  }
+
+  /* ── Section lead ────────────────────────────────────────────────────────── */
+  .section-lead {
+    font-size: clamp(1rem, 1.5vw, 1.125rem);
+    color: var(--color-text-muted);
+    max-width: 680px;
+    line-height: 1.7;
+    margin-top: 12px;
+  }
 </style>
