@@ -2,12 +2,14 @@
 /**
  * Sub-service (child) page template
  * e.g. /en/drain-cleaning/kitchen-drain-cleaning/
+ * Target: 600–900 words of visible body copy
  */
 import BaseLayout from "../../../layouts/BaseLayout.astro";
 import Hero from "../../../components/Hero.astro";
 import FaqSection from "../../../components/FaqSection.astro";
 import ProcessSection from "../../../components/ProcessSection.astro";
 import ServiceCard from "../../../components/ServiceCard.astro";
+import FinalCta from "../../../components/FinalCta.astro";
 import { siteConfig, allServices } from "../../../site.config";
 import { t, servicePath, subservicePath } from "../../../lib/routes";
 import { seo, serviceSchema, breadcrumbSchema, faqSchema } from "../../../lib/seo";
@@ -32,11 +34,13 @@ const { locale, parent, child } = Astro.props;
 const city = siteConfig.business.city;
 const businessName = siteConfig.business.name;
 const phone = siteConfig.business.phone;
+const stats = siteConfig.stats;
 
 // Resolve localized text
 const parentName = t(parent.title, locale);
 const childName  = t(child.title, locale);
 const childShort = t(child.short, locale);
+const parentShort = t(parent.short, locale);
 
 const pageTitle       = `${childName} in ${city} | ${businessName}`;
 const pageDescription = `Professional ${childName.toLowerCase()} in ${city}. ${businessName} — licensed, insured, same-day service. Free estimates. Call ${phone}.`;
@@ -44,13 +48,15 @@ const pageDescription = `Professional ${childName.toLowerCase()} in ${city}. ${b
 const faqs = [
   ...(child.faq ?? []).map((f: any) => ({ q: t(f.question, locale), a: t(f.answer, locale) })),
   { q: `What does ${childName.toLowerCase()} involve?`,
-    a: `${childName} covers ${childShort ?? `all aspects of ${childName.toLowerCase()} for residential and commercial properties in ${city}`}. Our licensed team handles every step professionally.` },
+    a: `${childName} covers ${childShort ?? `all aspects of ${childName.toLowerCase()} for residential and commercial properties in ${city}`}. Our licensed team handles every step professionally, from initial assessment through to final inspection.` },
   { q: `How much does ${childName.toLowerCase()} cost in ${city}?`,
-    a: `Costs vary depending on scope and complexity. We provide free, no-obligation estimates. Contact us for a quote.` },
+    a: `Costs vary depending on the scope, complexity, and materials required. We provide free, no-obligation written estimates before any work begins. Contact us today for a transparent quote.` },
   { q: `How quickly can you provide ${childName.toLowerCase()} in ${city}?`,
-    a: `We offer same-day service for most ${childName.toLowerCase()} requests in ${city}. Contact us to check availability.` },
+    a: `We offer same-day and next-day service for most ${childName.toLowerCase()} requests in ${city}. Our team is fully equipped and ready to respond quickly to urgent needs.` },
   { q: `Is ${childName.toLowerCase()} covered by your satisfaction guarantee?`,
-    a: `Yes. All ${childName.toLowerCase()} work by ${businessName} is backed by our 100% satisfaction guarantee.` },
+    a: `Yes. All ${childName.toLowerCase()} work by ${businessName} is backed by our 100% satisfaction guarantee. If you are not fully satisfied, we will return to make it right at no additional cost.` },
+  { q: `Do I need ${childName.toLowerCase()} or the full ${parentName.toLowerCase()} service?`,
+    a: `${childName} is a specialized component of our broader ${parentName.toLowerCase()} offering. If you are unsure which service you need, our team will assess your situation and recommend the most cost-effective solution.` },
 ];
 
 const crumbs = [
@@ -74,10 +80,12 @@ const meta = seo({
 });
 
 const heroImage = parent.image ?? "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1920&q=80";
+const siblingServices = (parent.children ?? []).filter((c: any) => c.id !== child.id).slice(0, 3);
 const relatedServices = allServices.filter((s: any) => s.id !== parent.id).slice(0, 3);
 ---
 <BaseLayout seo={meta}>
-  <!-- HERO -->
+
+  <!-- 1. HERO -->
   <Hero
     title={`${childName} in ${city}`}
     text={`Professional ${childName.toLowerCase()} services in ${city}. Licensed, insured, and backed by a 100% satisfaction guarantee.`}
@@ -87,52 +95,169 @@ const relatedServices = allServices.filter((s: any) => s.id !== parent.id).slice
     breadcrumbs={crumbs}
   />
 
-  <!-- SERVICE DESCRIPTION -->
+  <!-- 2. OVERVIEW + INTRO COPY -->
   <section class="section-light">
     <div class="container">
-      <div class="content-split">
-        <div class="content-split-text">
-          <p class="section-eyebrow">{parentName}</p>
-          <h2 class="section-heading">{childName} in {city}</h2>
-          <p class="section-subheading">{childShort}</p>
-          <p>Our team of licensed and insured professionals brings years of experience to every {childName.toLowerCase()} job in {city}. We use industry-leading techniques and equipment to ensure lasting results, every time.</p>
-          <p>When you choose {businessName} for {childName.toLowerCase()} in {city}, you get transparent pricing, same-day availability, and a 100% satisfaction guarantee on all work performed.</p>
-          <div class="hero-ctas" style="margin-top:2rem">
+      <div class="child-intro-grid">
+        <div class="child-intro-text">
+          <p class="section-eyebrow">{parentName} › {childName}</p>
+          <h2 class="section-heading">{childName} in {city}: What You Need to Know</h2>
+          <p class="section-lead">{childShort}</p>
+          <p>
+            When it comes to {childName.toLowerCase()} in {city}, the difference between a quick fix and a lasting solution comes down to experience and the right equipment. At {businessName}, our licensed professionals have handled hundreds of {childName.toLowerCase()} jobs across {city} — from straightforward residential calls to complex commercial projects.
+          </p>
+          <p>
+            Every {childName.toLowerCase()} job we take on starts with a thorough assessment. We identify the root cause, not just the symptom, so you are not paying for the same repair twice. Our team arrives fully stocked with professional-grade tools and materials, so most {childName.toLowerCase()} work is completed in a single visit.
+          </p>
+          <p>
+            We understand that {childName.toLowerCase()} issues rarely happen at a convenient time. That is why {businessName} offers same-day scheduling for urgent {childName.toLowerCase()} needs throughout {city}. Our dispatch team will give you a realistic arrival window and keep you updated — no waiting around all day.
+          </p>
+          <div class="child-ctas">
             <button class="btn btn-primary" data-open-form-popup aria-haspopup="dialog">Get a Free Estimate</button>
             {phone && <a href={`tel:${phone}`} class="btn-secondary">Call {phone}</a>}
           </div>
         </div>
-        <div class="content-split-image">
-          <img src={heroImage} alt={`${childName} in ${city}`} loading="lazy" width="600" height="400" style="border-radius:1rem;object-fit:cover;width:100%;height:auto" />
+        <div class="child-intro-sidebar">
+          <div class="child-trust-card">
+            <h3>Why Choose {businessName}?</h3>
+            <ul class="child-trust-list">
+              <li>
+                <span class="trust-icon">✓</span>
+                <span><strong>Licensed &amp; Insured</strong> — All technicians fully certified</span>
+              </li>
+              <li>
+                <span class="trust-icon">✓</span>
+                <span><strong>Same-Day Service</strong> — Available across {city}</span>
+              </li>
+              <li>
+                <span class="trust-icon">✓</span>
+                <span><strong>Transparent Pricing</strong> — Written estimate before we start</span>
+              </li>
+              <li>
+                <span class="trust-icon">✓</span>
+                <span><strong>100% Satisfaction Guarantee</strong> — We make it right</span>
+              </li>
+              <li>
+                <span class="trust-icon">✓</span>
+                <span><strong>{stats.yearsInBusiness} Years Experience</strong> — Trusted in {city}</span>
+              </li>
+              <li>
+                <span class="trust-icon">✓</span>
+                <span><strong>{stats.averageRating}-Star Rated</strong> — {stats.jobsCompleted} jobs completed</span>
+              </li>
+            </ul>
+            <button class="btn btn-primary btn-full" data-open-form-popup aria-haspopup="dialog">Request a Free Quote</button>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- PROCESS -->
+  <!-- 3. WHEN YOU NEED IT + BENEFITS -->
+  <section class="section-dark">
+    <div class="container">
+      <div class="child-benefits-grid">
+        <div class="child-benefits-col">
+          <h2 class="section-heading light">Signs You Need {childName} in {city}</h2>
+          <p class="section-lead light">Recognizing the warning signs early can save you significant time and money. Here are the most common indicators that you need professional {childName.toLowerCase()} right away.</p>
+          <ul class="child-signs-list">
+            <li>Visible damage, wear, or deterioration that is getting progressively worse</li>
+            <li>Recurring issues that temporary fixes have not resolved permanently</li>
+            <li>Unusual sounds, smells, or performance issues related to {parentName.toLowerCase()}</li>
+            <li>An upcoming property inspection, sale, or renovation that requires everything to be in order</li>
+            <li>Your current system is more than 10 years old and showing its age</li>
+            <li>You have noticed a sudden increase in utility bills or operating costs</li>
+          </ul>
+          <p>
+            If any of these apply to your situation, do not wait for the problem to escalate. Early intervention with professional {childName.toLowerCase()} is almost always more cost-effective than emergency repairs later. Contact {businessName} today for a free assessment.
+          </p>
+        </div>
+        <div class="child-benefits-col">
+          <h2 class="section-heading light">Benefits of Professional {childName}</h2>
+          <p class="section-lead light">Choosing a licensed professional for {childName.toLowerCase()} in {city} delivers results that DIY attempts simply cannot match.</p>
+          <div class="child-benefit-cards">
+            <div class="child-benefit-card">
+              <span class="benefit-num">01</span>
+              <div>
+                <strong>Lasting Results</strong>
+                <p>Professional {childName.toLowerCase()} addresses the root cause, not just the surface symptom — so the problem stays fixed.</p>
+              </div>
+            </div>
+            <div class="child-benefit-card">
+              <span class="benefit-num">02</span>
+              <div>
+                <strong>Code Compliance</strong>
+                <p>All work meets local {city} building codes and manufacturer specifications, protecting your warranty and property value.</p>
+              </div>
+            </div>
+            <div class="child-benefit-card">
+              <span class="benefit-num">03</span>
+              <div>
+                <strong>Safety Assurance</strong>
+                <p>Licensed technicians identify and eliminate safety risks that untrained eyes might miss during {childName.toLowerCase()}.</p>
+              </div>
+            </div>
+            <div class="child-benefit-card">
+              <span class="benefit-num">04</span>
+              <div>
+                <strong>Cost Efficiency</strong>
+                <p>A properly executed {childName.toLowerCase()} job prevents costly repeat repairs and extends the life of your system significantly.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. PROCESS -->
   <ProcessSection
-    title={`How Our ${childName} Process Works`}
-    subtitle={`Professional ${childName.toLowerCase()} service in ${city}. Here is what to expect.`}
+    title={`Our ${childName} Process in ${city}`}
+    subtitle={`Here is exactly what to expect when you book ${childName.toLowerCase()} with ${businessName}.`}
     steps={[
-      { title: "Contact Us", text: `Call ${siteConfig.business.phone} or submit our quick online form.` },
-      { title: "Free Estimate", text: "We assess the job and give you a clear, upfront price — no hidden fees." },
-      { title: "We Get to Work", text: "Our licensed team arrives on time, fully equipped for the job." },
-      { title: "Satisfaction Guaranteed", text: "We do not consider the job done until you are completely satisfied." },
+      { title: "Contact & Schedule", text: `Call ${phone} or submit our quick online form. We will confirm your appointment and give you an accurate arrival window.` },
+      { title: "On-Site Assessment", text: `Our licensed technician inspects the situation thoroughly and provides a clear, written estimate before any work begins — no surprises.` },
+      { title: "Professional Execution", text: `We complete the ${childName.toLowerCase()} using professional-grade tools and materials. Most jobs are finished in a single visit.` },
+      { title: "Final Inspection & Guarantee", text: `We walk you through the completed work, answer your questions, and ensure you are 100% satisfied before we leave.` },
     ]}
   />
 
-  <!-- FAQ -->
+  <!-- 5. SIBLING SERVICES (other children of same parent) -->
+  {siblingServices.length > 0 && (
+    <section class="section-light">
+      <div class="container">
+        <p class="section-eyebrow">Part of {parentName}</p>
+        <h2 class="section-heading">Related {parentName} Services in {city}</h2>
+        <p class="section-subheading">
+          {childName} is one component of our complete {parentName.toLowerCase()} offering. Explore the other specialized services we provide in {city}.
+        </p>
+        <div class="services-grid">
+          {siblingServices.map((s: any) => (
+            <ServiceCard
+              title={`${t(s.title, locale)} in ${city}`}
+              description={t(s.short, locale)}
+              image={heroImage}
+              href={subservicePath(locale, parent, s.id)}
+              alt={t(s.title, locale)}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- 6. FAQ -->
   <FaqSection
     title={`${childName} in ${city} — Frequently Asked Questions`}
     items={faqs}
     locale={locale as any}
   />
 
-  <!-- RELATED SERVICES -->
+  <!-- 7. OTHER SERVICES -->
   {relatedServices.length > 0 && (
     <section class="section-light">
       <div class="container">
-        <p class="section-eyebrow">Related Services</p>
+        <p class="section-eyebrow">More Services</p>
         <h2 class="section-heading">Other Services We Offer in {city}</h2>
         <div class="services-grid">
           {relatedServices.map((s: any) => (
@@ -142,11 +267,149 @@ const relatedServices = allServices.filter((s: any) => s.id !== parent.id).slice
               image={s.image}
               href={servicePath(locale, s)}
               alt={t(s.title, locale)}
-             
             />
           ))}
         </div>
       </div>
     </section>
   )}
+
+  <!-- 8. FINAL CTA -->
+  <FinalCta locale={locale as any} />
+
 </BaseLayout>
+
+<style>
+/* ── Child page layout ─────────────────────────────────────────────────────── */
+.child-intro-grid {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 3rem;
+  align-items: start;
+}
+.child-intro-text p {
+  color: var(--color-muted);
+  line-height: 1.85;
+  margin-bottom: 1.25rem;
+}
+.child-ctas {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 2rem;
+}
+.child-trust-card {
+  background: var(--color-light);
+  border: 1px solid var(--color-border);
+  border-radius: 1rem;
+  padding: 2rem;
+  position: sticky;
+  top: 6rem;
+}
+.child-trust-card h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-dark);
+  margin-bottom: 1.25rem;
+}
+.child-trust-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.child-trust-list li {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  font-size: 0.9rem;
+  color: var(--color-muted);
+  line-height: 1.5;
+}
+.trust-icon {
+  color: var(--brand-accent);
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+.btn-full { width: 100%; justify-content: center; }
+
+/* ── Benefits section ──────────────────────────────────────────────────────── */
+.child-benefits-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: start;
+}
+.section-heading.light,
+.section-lead.light { color: var(--color-light); }
+.child-signs-list {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.child-signs-list li {
+  color: rgba(255,255,255,0.8);
+  padding-left: 1.5rem;
+  position: relative;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+.child-signs-list li::before {
+  content: "→";
+  position: absolute;
+  left: 0;
+  color: var(--brand-accent);
+}
+.child-benefits-col > p {
+  color: rgba(255,255,255,0.75);
+  line-height: 1.8;
+  margin-bottom: 1rem;
+}
+.child-benefit-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.child-benefit-card {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+}
+.benefit-num {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--brand-accent);
+  line-height: 1;
+  flex-shrink: 0;
+  min-width: 2rem;
+}
+.child-benefit-card strong {
+  display: block;
+  color: var(--color-light);
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+}
+.child-benefit-card p {
+  color: rgba(255,255,255,0.7);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ── Responsive ────────────────────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .child-intro-grid { grid-template-columns: 1fr; }
+  .child-trust-card { position: static; }
+  .child-benefits-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+}
+</style>

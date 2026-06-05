@@ -1,20 +1,203 @@
 ---
+/**
+ * Service Area Hub page
+ * URL: /en/service-area/
+ * Target: 800+ words of visible body copy
+ */
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import Hero from "@/components/Hero.astro";
-import Breadcrumbs from "@/components/Breadcrumbs.astro";
 import LocationCard from "@/components/LocationCard.astro";
 import FinalCta from "@/components/FinalCta.astro";
+import FaqSection from "@/components/FaqSection.astro";
 import { siteConfig, type Locale } from "@/site.config";
-import { localizedPath, locationPath, t } from "@/lib/routes";
-import { localBusinessSchema, seo } from "@/lib/seo";
-export function getStaticPaths() { return siteConfig.locales.map((locale) => ({ params: { lang: locale.code } })); }
+import { locationPath, t } from "@/lib/routes";
+import { localBusinessSchema, breadcrumbSchema, faqSchema, seo } from "@/lib/seo";
+
+export function getStaticPaths() {
+  return siteConfig.locales.map((locale) => ({ params: { lang: locale.code } }));
+}
+
 const locale = Astro.params.lang as Locale;
-const pageSeo = seo({ locale, path: "service-area", title: `${t(siteConfig.business.primaryService, locale)} Service Areas | ${siteConfig.business.name}`, description: `${siteConfig.business.name} provides ${t(siteConfig.business.primaryService, locale)} throughout ${siteConfig.business.serviceArea}, including ${siteConfig.business.city} and nearby communities.`, schema: [localBusinessSchema(locale)] });
+const city = siteConfig.business.city;
+const businessName = siteConfig.business.name;
+const phone = siteConfig.business.phone;
+const primaryService = t(siteConfig.business.primaryService, locale);
+const stats = siteConfig.stats;
+
+const crumbs = [
+  { name: "Home", url: `/${locale}/` },
+  { name: "Service Areas", url: `/${locale}/service-area/` },
+];
+
+const faqs = [
+  { q: `What areas does ${businessName} serve?`, a: `We serve ${city} and the surrounding metro area including ${siteConfig.locations.map(l => l.name).join(", ")}. Contact us to confirm coverage for your specific address.` },
+  { q: `Do you charge extra for service calls outside ${city}?`, a: `We do not charge extra travel fees for locations within our standard service area. For areas at the edge of our coverage zone, we will let you know upfront if any additional charges apply.` },
+  { q: `How quickly can you respond in my area?`, a: `We offer same-day service for most locations within our service area. Response times vary by location and availability, but we always give you a realistic arrival window when you book.` },
+  { q: `Can I get a free estimate in my area?`, a: `Yes. We provide free, no-obligation written estimates for all ${primaryService.toLowerCase()} work throughout our service area. Call ${phone} or submit our online form to schedule your estimate.` },
+  { q: `Do you serve both residential and commercial properties?`, a: `Yes. ${businessName} serves both residential homeowners and commercial businesses throughout ${city} and the surrounding area. Our team is equipped to handle projects of all sizes.` },
+];
+
+const pageSeo = seo({
+  locale,
+  path: "service-area",
+  title: `${primaryService} Service Areas | ${businessName}`,
+  description: `${businessName} provides ${primaryService.toLowerCase()} throughout ${siteConfig.business.serviceArea}, including ${city} and nearby communities. Same-day service, free estimates.`,
+  schema: [
+    localBusinessSchema(locale),
+    breadcrumbSchema(crumbs),
+    faqSchema(faqs.map(f => ({ question: f.q, answer: f.a }))),
+  ],
+});
+
+const heroImage = (siteConfig.brand as any).images?.hero1 ?? "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1920&q=80";
 ---
 <BaseLayout seo={pageSeo}>
-  <Hero eyebrow="Service Areas" title={`${t(siteConfig.business.primaryService, locale)} Service Areas`} text={`${siteConfig.business.name} provides ${t(siteConfig.business.primaryService, locale)} throughout ${siteConfig.business.region}, including ${siteConfig.business.city} and nearby communities.`} image={(siteConfig.brand as any).images?.hero ?? 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1920&q=80'} primaryHref="#locations" primaryText="View Locations" />
-  <div class="container"><Breadcrumbs locale={locale} items={[{ label: "Service Areas", href: localizedPath(locale, "service-area") }]} /></div>
-  <section id="locations" class="section"><div class="container"><h2>Areas We Serve</h2><div class="grid grid-3">{siteConfig.locations.map((location) => <LocationCard title={location.name} href={locationPath(locale, location.id)} image={location.image} />)}</div></div></section>
-  <section class="section section-light"><div class="container" style="max-width:900px"><h2>What Makes Us Different From Other {t(siteConfig.business.primaryService, locale)} Companies In {siteConfig.business.serviceArea}?</h2><p>Use this section to explain dispatch coverage, local familiarity, scheduling windows, and how the business can serve the entire region effectively without overpromising.</p></div></section>
-  <FinalCta locale={locale} title={`Need ${t(siteConfig.business.primaryService, locale)} In Your Area?`} text={`Call ${siteConfig.business.phone} or request a free estimate today.`} />
+
+  <!-- 1. HERO -->
+  <Hero
+    title={`${primaryService} Service Areas`}
+    text={`${businessName} provides ${primaryService.toLowerCase()} throughout ${siteConfig.business.serviceArea}. Same-day service, free estimates, and a 100% satisfaction guarantee.`}
+    image={heroImage}
+    imageAlt={`${primaryService} service area — ${businessName}`}
+    locale={locale}
+    breadcrumbs={crumbs}
+  />
+
+  <!-- 2. INTRO COPY -->
+  <section class="section-light">
+    <div class="container">
+      <div class="sa-intro-grid">
+        <div class="sa-intro-text">
+          <p class="section-eyebrow">Coverage Area</p>
+          <h2 class="section-heading">{primaryService} Throughout {siteConfig.business.serviceArea}</h2>
+          <p class="section-lead">
+            {businessName} is a locally owned {primaryService.toLowerCase()} company based in {city}. We provide professional, licensed, and insured {primaryService.toLowerCase()} services to homeowners and businesses across the entire {siteConfig.business.serviceArea}.
+          </p>
+          <p>
+            Our team is strategically dispatched from {city} to ensure fast response times across all of our service locations. Whether you are in the heart of {city} or in one of the surrounding communities, you can count on {businessName} to arrive promptly, assess your situation honestly, and complete the work to the highest professional standard.
+          </p>
+          <p>
+            We have been serving {city} and the surrounding area since {siteConfig.business.foundedYear}. Over the years, we have built a deep understanding of the local infrastructure, building codes, and common {primaryService.toLowerCase()} challenges specific to this region. That local knowledge means faster diagnosis, smarter solutions, and better results for you.
+          </p>
+          <p>
+            All of our {primaryService.toLowerCase()} work comes with a written estimate before we start, same-day scheduling for urgent needs, and a 100% satisfaction guarantee. We do not consider the job done until you are completely happy with the result.
+          </p>
+          <div class="sa-ctas">
+            <button class="btn btn-primary" data-open-form-popup aria-haspopup="dialog">Get a Free Estimate</button>
+            {phone && <a href={`tel:${phone}`} class="btn-secondary">Call {phone}</a>}
+          </div>
+        </div>
+        <div class="sa-stats-sidebar">
+          <div class="sa-stat-card">
+            <div class="sa-stat-number">{stats.citiesServed}</div>
+            <div class="sa-stat-label">Cities Served</div>
+          </div>
+          <div class="sa-stat-card">
+            <div class="sa-stat-number">{stats.yearsInBusiness}</div>
+            <div class="sa-stat-label">Years in Business</div>
+          </div>
+          <div class="sa-stat-card">
+            <div class="sa-stat-number">{stats.responseTime}hr</div>
+            <div class="sa-stat-label">Avg Response</div>
+          </div>
+          <div class="sa-stat-card">
+            <div class="sa-stat-number">{stats.averageRating}★</div>
+            <div class="sa-stat-label">Avg Rating</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. LOCATION CARDS GRID -->
+  <section class="section-dark" id="locations">
+    <div class="container">
+      <p class="section-eyebrow" style="color:var(--brand-accent)">All Locations</p>
+      <h2 class="section-heading" style="color:var(--color-light)">Areas We Serve</h2>
+      <p class="section-subheading" style="color:rgba(255,255,255,0.75)">
+        Click any location to see our full {primaryService.toLowerCase()} services available in that area, including availability and local service details.
+      </p>
+      <div class="sa-locations-grid">
+        {siteConfig.locations.map((location) => (
+          <LocationCard
+            title={location.name}
+            href={locationPath(locale, location.id)}
+            image={location.image}
+          />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. WHY LOCAL COVERAGE MATTERS -->
+  <section class="section-light">
+    <div class="container">
+      <div class="sa-why-grid">
+        <div>
+          <p class="section-eyebrow">Local Expertise</p>
+          <h2 class="section-heading">Why Our Coverage Area Matters</h2>
+          <p>
+            Choosing a {primaryService.toLowerCase()} company that genuinely knows your area is more important than most people realize. Local knowledge means understanding the specific building codes in each municipality, knowing which materials perform best in the local climate, and having established relationships with local suppliers for faster parts sourcing.
+          </p>
+          <p>
+            {businessName} has been operating in {city} and the surrounding communities long enough to know the unique challenges each area presents. From the older infrastructure in established neighborhoods to the high-volume demands of newer developments, our team has seen it all — and we know how to handle it efficiently.
+          </p>
+          <p>
+            Our service area is not just a list of zip codes. It represents communities where our team members live, where our children go to school, and where we have built lasting relationships with thousands of satisfied customers. We are invested in these communities, and that investment shows in the quality of our work.
+          </p>
+        </div>
+        <div class="sa-coverage-features">
+          {[
+            { title: "Same-Day Dispatch", desc: `We dispatch from ${city} to all service areas, ensuring fast arrival times for urgent ${primaryService.toLowerCase()} needs.` },
+            { title: "Local Code Knowledge", desc: `Our team knows the building codes and permit requirements for every municipality in our service area.` },
+            { title: "No Travel Surcharges", desc: `We do not charge extra for service calls within our standard coverage area. The price you are quoted is the price you pay.` },
+            { title: "Emergency Coverage", desc: `Emergency ${primaryService.toLowerCase()} service is available across our full service area. Call us any time for urgent situations.` },
+          ].map(f => (
+            <div class="sa-feature">
+              <span class="sa-feature-icon">✓</span>
+              <div>
+                <strong>{f.title}</strong>
+                <p>{f.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. FAQ -->
+  <FaqSection
+    title={`${primaryService} Service Area — Frequently Asked Questions`}
+    items={faqs}
+    locale={locale}
+  />
+
+  <!-- 6. FINAL CTA -->
+  <FinalCta
+    locale={locale}
+    title={`Need ${primaryService} in Your Area?`}
+    text={`Call ${phone} or request a free estimate today. We serve all of ${siteConfig.business.serviceArea}.`}
+  />
+
 </BaseLayout>
+
+<style>
+.sa-intro-grid { display: grid; grid-template-columns: 1fr 220px; gap: 3rem; align-items: start; }
+.sa-intro-text p { color: var(--color-muted); line-height: 1.85; margin-bottom: 1.25rem; }
+.sa-ctas { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 2rem; }
+.sa-stats-sidebar { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; position: sticky; top: 6rem; }
+.sa-stat-card { background: var(--color-light); border: 1px solid var(--color-border); border-radius: 1rem; padding: 1.25rem 1rem; text-align: center; }
+.sa-stat-number { font-family: var(--font-display); font-size: 1.75rem; font-weight: 800; color: var(--brand-accent); line-height: 1; }
+.sa-stat-label { font-size: 0.75rem; color: var(--color-muted); margin-top: 0.35rem; text-transform: uppercase; letter-spacing: 0.04em; }
+.sa-locations-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1.25rem; margin-top: 2.5rem; }
+.sa-why-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start; }
+.sa-why-grid > div > p { color: var(--color-muted); line-height: 1.85; margin-bottom: 1.25rem; }
+.sa-coverage-features { display: flex; flex-direction: column; gap: 1.25rem; }
+.sa-feature { display: flex; gap: 1rem; align-items: flex-start; padding: 1.25rem; background: white; border: 1px solid var(--color-border); border-radius: 0.75rem; box-shadow: var(--shadow-card); }
+.sa-feature-icon { width: 28px; height: 28px; border-radius: 50%; background: var(--brand-accent); color: var(--color-dark); font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.85rem; }
+.sa-feature strong { display: block; font-weight: 700; color: var(--color-dark); margin-bottom: 0.25rem; font-size: 0.95rem; }
+.sa-feature p { color: var(--color-muted); font-size: 0.875rem; line-height: 1.6; margin: 0; }
+@media (max-width: 1024px) { .sa-intro-grid { grid-template-columns: 1fr; } .sa-stats-sidebar { position: static; grid-template-columns: repeat(4, 1fr); } .sa-why-grid { grid-template-columns: 1fr; gap: 2.5rem; } }
+@media (max-width: 640px) { .sa-stats-sidebar { grid-template-columns: 1fr 1fr; } }
+</style>

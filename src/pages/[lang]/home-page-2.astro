@@ -1,21 +1,287 @@
 ---
+/**
+ * HOMEPAGE VARIANT B — Conversion-first layout for A/B testing
+ * URL: /en/home-page-2/ (swap with index.astro to test)
+ * Differences from Variant A:
+ *  - Estimate form appears ABOVE the fold (no scroll required)
+ *  - Shorter hero copy, faster CTA
+ *  - Services grid appears earlier (section 3 vs section 6)
+ *  - Condensed "Why Us" section with icon grid instead of cards
+ *  - No HeroSlider — uses static Hero for faster LCP
+ *  - Same total word count target: 1,000–1,500 words
+ */
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import Hero from "@/components/Hero.astro";
 import ServiceCard from "@/components/ServiceCard.astro";
 import ProcessSection from "@/components/ProcessSection.astro";
 import ReviewsSection from "@/components/ReviewsSection.astro";
+import FaqSection from "@/components/FaqSection.astro";
 import FinalCta from "@/components/FinalCta.astro";
+import LocationCard from "@/components/LocationCard.astro";
 import { allServices, siteConfig, type Locale } from "@/site.config";
-import { servicePath, t } from "@/lib/routes";
-import { localBusinessSchema, seo } from "@/lib/seo";
-export function getStaticPaths() { return siteConfig.locales.map((locale) => ({ params: { lang: locale.code } })); }
+import { servicePath, locationPath, t } from "@/lib/routes";
+import { localBusinessSchema, breadcrumbSchema, faqSchema, seo } from "@/lib/seo";
+
+export function getStaticPaths() {
+  return siteConfig.locales.map((locale) => ({ params: { lang: locale.code } }));
+}
+
 const locale = Astro.params.lang as Locale;
-const pageSeo = seo({ locale, path: "home-page-2", title: `${t(siteConfig.business.primaryService, locale)} Estimates In ${siteConfig.business.city} | ${siteConfig.business.name}`, description: `Alternative conversion homepage for ${siteConfig.business.name}, built for A/B testing local ${t(siteConfig.business.primaryService, locale)} leads.`, schema: [localBusinessSchema(locale)] });
+const city = siteConfig.business.city;
+const name = siteConfig.business.name;
+const phone = siteConfig.business.phone;
+const area = siteConfig.business.serviceArea;
+const serviceName = t(siteConfig.business.primaryService, locale);
+const year = siteConfig.business.foundedYear ?? "2012";
+const stats = siteConfig.stats;
+
+const crumbs = [{ name: "Home", url: `/${locale}/` }];
+
+const faqs = [
+  { q: `How quickly can ${name} respond in ${city}?`, a: `We offer same-day service for most ${serviceName.toLowerCase()} requests in ${city}. For urgent situations, call ${phone} directly and we will dispatch the nearest available technician.` },
+  { q: `Does ${name} provide free estimates?`, a: `Yes. We provide free, no-obligation written estimates for all ${serviceName.toLowerCase()} work in ${city} and the surrounding area. There is no pressure to proceed after receiving your estimate.` },
+  { q: `Is ${name} licensed and insured?`, a: `Yes. ${name} is fully licensed, bonded, and insured for all ${serviceName.toLowerCase()} work in ${siteConfig.business.region}. We carry full liability insurance and workers' compensation on every job.` },
+  { q: `What areas does ${name} serve?`, a: `We serve ${city} and the surrounding metro area including ${siteConfig.locations.slice(0, 6).map(l => l.name).join(", ")}, and more. Contact us to confirm coverage for your address.` },
+  { q: `What is your satisfaction guarantee?`, a: `Every job we complete is backed by our 100% satisfaction guarantee. If you are not completely satisfied with our work, we will return to make it right at no additional cost.` },
+];
+
+const pageSeo = seo({
+  locale,
+  path: "home-page-2",
+  title: `${serviceName} in ${city} | ${name} — Free Estimates`,
+  description: `${name} provides professional ${serviceName.toLowerCase()} in ${city} and ${area}. Same-day service, free estimates, licensed and insured. Call ${phone}.`,
+  schema: [
+    localBusinessSchema(locale),
+    breadcrumbSchema(crumbs),
+    faqSchema(faqs.map(f => ({ question: f.q, answer: f.a }))),
+  ],
+});
+
+const heroImage = (siteConfig.brand as any).images?.hero2 ?? (siteConfig.brand as any).images?.hero1 ?? "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1920&q=80";
 ---
 <BaseLayout seo={pageSeo}>
-  <Hero eyebrow="Local Service Team" title={`Schedule ${t(siteConfig.business.primaryService, locale)} In ${siteConfig.business.city}`} text={`A conversion-focused alternate homepage with different hero copy, earlier form placement, six service cards, and a shorter process for A/B testing.`} image={(siteConfig.brand as any).images?.hero ?? 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1920&q=80'} primaryHref="#estimate-form" primaryText="Schedule An Estimate" secondaryHref={`tel:${siteConfig.business.phone}`} secondaryText={`Call ${siteConfig.business.phone}`} badges={["Simple Scheduling", "Free Estimates", "Local Response"]} />
-  <FinalCta locale={locale} title={`Get A Free Estimate On ${t(siteConfig.business.primaryService, locale)}`} text={`Tell us what you need and we will follow up about ${t(siteConfig.business.primaryService, locale)} in ${siteConfig.business.city}.`} />
-  <section class="section"><div class="container"><h2>Featured Services</h2><div class="grid grid-3">{allServices.slice(0,6).map((service) => <ServiceCard title={t(service.title, locale)} description={t(service.short, locale)} image={service.image} href={servicePath(locale, service)} alt={`${t(service.title, locale)} in ${siteConfig.business.city}`} />)}</div></div></section>
-  <ProcessSection title="Simple Three-Step Process" steps={[{title:"Reach Out",text:"Call or send the form."},{title:"Schedule Your Service",text:"We review your request and timing."},{title:"We Provide The Service",text:"The work is handled with clear communication."}]} />
+
+  <!-- 1. HERO — Static, fast LCP, form-first CTA -->
+  <Hero
+    title={`${serviceName} in ${city}`}
+    text={`${name} provides professional, licensed ${serviceName.toLowerCase()} for ${city} homeowners and businesses. Same-day service available. Free estimates, no obligation.`}
+    image={heroImage}
+    imageAlt={`Professional ${serviceName.toLowerCase()} in ${city} — ${name}`}
+    locale={locale}
+    breadcrumbs={crumbs}
+    primaryText="Get a Free Estimate"
+    primaryHref="#estimate-form"
+    secondaryText={`Call ${phone}`}
+    secondaryHref={`tel:${phone}`}
+    badges={["Same-Day Service", "Free Estimates", "Licensed & Insured"]}
+  />
+
+  <!-- 2. TRUST BAR -->
+  <div class="trust-bar-b" aria-label="Key statistics">
+    <div class="container">
+      <div class="trust-bar-b-inner">
+        {[
+          { n: stats.yearsInBusiness, l: "Years in Business" },
+          { n: stats.jobsCompleted, l: "Jobs Completed" },
+          { n: stats.averageRating + "★", l: "Average Rating" },
+          { n: stats.citiesServed, l: "Cities Served" },
+        ].map(s => (
+          <div class="trust-b-item">
+            <span class="trust-b-num">{s.n}</span>
+            <span class="trust-b-label">{s.l}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. SERVICES GRID — Earlier than Variant A for faster conversion -->
+  <section class="section section-light" id="services" aria-labelledby="services-b-heading">
+    <div class="container">
+      <p class="eyebrow">What We Do</p>
+      <h2 id="services-b-heading">{serviceName} Services in {city}</h2>
+      <p class="section-lead">
+        {name} provides a complete range of {serviceName.toLowerCase()} services for {city} homeowners and businesses. All work is performed by licensed professionals with free estimates and a written satisfaction guarantee.
+      </p>
+      <div class="services-b-grid">
+        {allServices.slice(0, 6).map((service) => (
+          <ServiceCard
+            title={t(service.title, locale)}
+            description={t(service.short, locale)}
+            image={service.image}
+            href={servicePath(locale, service)}
+            alt={`${t(service.title, locale)} in ${city}`}
+          />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. ESTIMATE FORM — Anchor target, above-the-fold on desktop -->
+  <section class="section section-charcoal" id="estimate-form" aria-labelledby="form-b-heading">
+    <div class="container">
+      <div class="form-b-grid">
+        <div class="form-b-copy">
+          <p class="eyebrow" style="color:var(--brand-accent)">Free Estimate</p>
+          <h2 id="form-b-heading" style="color:var(--color-light)">Get Your Free {serviceName} Estimate in {city}</h2>
+          <p style="color:rgba(255,255,255,0.8)">
+            Tell us what you need and we will follow up with a free, no-obligation written estimate. Most requests receive a response within the same business day.
+          </p>
+          <ul class="form-b-checklist">
+            <li>No obligation — you decide whether to proceed</li>
+            <li>Written estimate before any work begins</li>
+            <li>Licensed, insured technicians for every job</li>
+            <li>100% satisfaction guarantee on all work</li>
+          </ul>
+          {phone && (
+            <p style="color:rgba(255,255,255,0.7); margin-top:1.5rem; font-size:0.95rem;">
+              Prefer to call? Reach us at <a href={`tel:${phone}`} style="color:var(--brand-accent); font-weight:700;">{phone}</a>
+            </p>
+          )}
+        </div>
+        <div class="form-b-action">
+          <button class="btn btn-primary btn-lg" data-open-form-popup aria-haspopup="dialog">
+            Request Your Free Estimate
+          </button>
+          <p class="form-b-note">We respond within 1 business day. No spam, no pressure.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. WHY CHOOSE US — Condensed icon grid -->
+  <section class="section section-light" aria-labelledby="why-b-heading">
+    <div class="container">
+      <p class="eyebrow">Why {name}</p>
+      <h2 id="why-b-heading">The {city} {serviceName} Company That Gets It Right</h2>
+      <p class="section-lead">
+        There are many {serviceName.toLowerCase()} companies in {city}. Here is why thousands of {city} homeowners and businesses choose {name} — and keep coming back.
+      </p>
+      <div class="why-b-grid">
+        {[
+          { icon: "⚡", title: "Same-Day Service", desc: `We dispatch quickly across ${city} and the surrounding area. When you need ${serviceName.toLowerCase()} fast, we deliver.` },
+          { icon: "📋", title: "Written Estimates", desc: "We provide a clear, itemized written estimate before any work begins. No surprises, no hidden fees." },
+          { icon: "🛡️", title: "Licensed & Insured", desc: `Every technician is fully licensed for ${serviceName.toLowerCase()} work in ${siteConfig.business.region} and covered by full liability insurance.` },
+          { icon: "✅", title: "Satisfaction Guarantee", desc: "We stand behind every job we complete. If you are not satisfied, we come back and make it right at no additional cost." },
+          { icon: "🏠", title: "Locally Owned", desc: `${name} is locally owned and operated in ${city}. We are your neighbours — and we take that seriously.` },
+          { icon: "⭐", title: `${stats.averageRating}-Star Rated`, desc: `${stats.jobsCompleted} jobs completed with a ${stats.averageRating}-star average rating from ${city} homeowners and businesses.` },
+        ].map(w => (
+          <div class="why-b-card">
+            <div class="why-b-icon" aria-hidden="true">{w.icon}</div>
+            <h3 class="why-b-title">{w.title}</h3>
+            <p class="why-b-desc">{w.desc}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. PROCESS — Condensed 3-step -->
+  <ProcessSection
+    title={`How ${name} Works`}
+    subtitle={`Getting ${serviceName.toLowerCase()} in ${city} should be simple. Here is our straightforward process.`}
+    steps={[
+      { title: "Request Your Estimate", text: `Call ${phone} or submit our online form. Tell us what you need and where you are located in ${city}.` },
+      { title: "We Confirm & Schedule", text: `We review your request, confirm availability, and schedule a time that works for you — often same-day.` },
+      { title: "We Complete The Work", text: `Our licensed technician arrives on time, completes the work to the highest standard, and ensures you are fully satisfied before leaving.` },
+    ]}
+  />
+
+  <!-- 7. LOCAL EXPERTISE NARRATIVE -->
+  <section class="section section-light" aria-labelledby="local-b-heading">
+    <div class="container">
+      <div class="local-b-grid">
+        <div>
+          <p class="eyebrow">Local Knowledge</p>
+          <h2 id="local-b-heading">We Know {city} — And It Shows</h2>
+          <p>
+            {name} has been serving {city} and the surrounding area since {year}. In that time, we have developed a deep understanding of the local infrastructure, building codes, and the specific {serviceName.toLowerCase()} challenges that {city} homeowners and businesses face.
+          </p>
+          <p>
+            That local knowledge translates directly into better service for you. We know which approaches work best for the building types common in {city}, we have established relationships with local suppliers for faster parts sourcing, and we understand the permit requirements for every municipality in our service area.
+          </p>
+          <p>
+            When you call {name}, you are not calling a national franchise that sends a generic technician. You are calling a local team that knows your city, knows your neighborhood, and is invested in the quality of work we do here — because this is where we live and work too.
+          </p>
+        </div>
+        <div class="local-b-features">
+          {siteConfig.locations.slice(0, 6).map(loc => (
+            <a href={locationPath(locale, loc.id)} class="local-b-pill">
+              {serviceName} in {loc.name} →
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. REVIEWS -->
   <ReviewsSection locale={locale} />
+
+  <!-- 9. SERVICE AREA -->
+  <section class="section" id="service-area" aria-labelledby="area-b-heading">
+    <div class="container">
+      <p class="eyebrow">Service Area</p>
+      <h2 id="area-b-heading">{serviceName} Across {area}</h2>
+      <p class="section-lead">
+        We provide {serviceName.toLowerCase()} throughout {area}. Click any location to see services available in your area.
+      </p>
+      <div class="area-b-grid">
+        {siteConfig.locations.map(loc => (
+          <LocationCard title={loc.name} href={locationPath(locale, loc.id)} image={loc.image} />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 10. FAQ -->
+  <FaqSection
+    title={`${serviceName} in ${city} — Frequently Asked Questions`}
+    items={faqs}
+    locale={locale}
+  />
+
+  <!-- 11. FINAL CTA -->
+  <FinalCta
+    locale={locale}
+    title={`Ready to Schedule ${serviceName} in ${city}?`}
+    text={`Call ${phone} or request a free estimate online. We serve all of ${area}.`}
+  />
+
 </BaseLayout>
+
+<style>
+/* Trust bar */
+.trust-bar-b { background: var(--color-dark); padding: 1.25rem 0; }
+.trust-bar-b-inner { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 1rem; }
+.trust-b-item { text-align: center; }
+.trust-b-num { display: block; font-family: var(--font-display); font-size: 1.75rem; font-weight: 800; color: var(--brand-accent); line-height: 1; }
+.trust-b-label { font-size: 0.75rem; color: rgba(255,255,255,0.65); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.25rem; }
+/* Services grid */
+.services-b-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem; margin-top: 2.5rem; }
+/* Form section */
+.form-b-grid { display: grid; grid-template-columns: 1fr auto; gap: 3rem; align-items: center; }
+.form-b-copy p { line-height: 1.75; margin-bottom: 1rem; }
+.form-b-checklist { list-style: none; padding: 0; margin: 1rem 0 0; display: flex; flex-direction: column; gap: 0.5rem; }
+.form-b-checklist li { color: rgba(255,255,255,0.8); font-size: 0.9rem; padding-left: 1.5rem; position: relative; }
+.form-b-checklist li::before { content: "✓"; position: absolute; left: 0; color: var(--brand-accent); font-weight: 700; }
+.form-b-action { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; min-width: 260px; }
+.btn-lg { padding: 1rem 2rem; font-size: 1.05rem; width: 100%; }
+.form-b-note { font-size: 0.8rem; color: rgba(255,255,255,0.5); text-align: center; margin: 0; }
+/* Why grid */
+.why-b-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.25rem; margin-top: 2.5rem; }
+.why-b-card { padding: 1.5rem; background: white; border: 1px solid var(--color-border); border-radius: 12px; box-shadow: var(--shadow-card); }
+.why-b-icon { font-size: 1.75rem; margin-bottom: 0.75rem; }
+.why-b-title { font-size: 1rem; font-weight: 700; color: var(--color-dark); margin: 0 0 0.5rem; }
+.why-b-desc { font-size: 0.875rem; color: var(--color-muted); line-height: 1.65; margin: 0; }
+/* Local expertise */
+.local-b-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start; }
+.local-b-grid > div > p { color: var(--color-muted); line-height: 1.85; margin-bottom: 1.25rem; }
+.local-b-features { display: flex; flex-direction: column; gap: 0.75rem; }
+.local-b-pill { display: block; padding: 0.75rem 1.25rem; background: white; border: 1px solid var(--color-border); border-radius: 0.5rem; font-size: 0.9rem; font-weight: 500; color: var(--color-dark); text-decoration: none; transition: background 0.2s, color 0.2s, border-color 0.2s; }
+.local-b-pill:hover { background: var(--brand-accent); border-color: var(--brand-accent); color: var(--color-dark); }
+/* Service area */
+.area-b-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; margin-top: 2rem; }
+@media (max-width: 1024px) { .form-b-grid { grid-template-columns: 1fr; } .local-b-grid { grid-template-columns: 1fr; gap: 2rem; } }
+@media (max-width: 640px) { .trust-bar-b-inner { justify-content: center; } }
+</style>

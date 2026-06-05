@@ -91,12 +91,21 @@ export const siteConfig = {
   brand: {
     primary: "#6366f1",
     secondary: "#10b981",
+    accent: "#f59e0b",
+    accentDark: "#d97706",
+    accentLight: "#fef3c7",
     dark: "#0f172a",
     light: "#f8fafc",
-    heroImage: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1920&q=80",
-    alternateHeroImage: "https://images.unsplash.com/photo-1675557009875-436f7a5a1536?auto=format&fit=crop&w=1920&q=80",
-    teamImage: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80",
-    ogImage: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1200&q=80",
+    images: {
+      hero1: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1920&q=80",
+      hero2: "https://images.unsplash.com/photo-1675557009875-436f7a5a1536?auto=format&fit=crop&w=1920&q=80",
+      hero3: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1920&q=80",
+      about: "https://images.unsplash.com/photo-1675557009875-436f7a5a1536?auto=format&fit=crop&w=1920&q=80",
+      team:  "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80",
+      process: "https://images.unsplash.com/photo-1675557009875-436f7a5a1536?auto=format&fit=crop&w=1920&q=80",
+      cta:   "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1920&q=80",
+      og:    "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1200&q=80",
+    },
     logoText: "IsItAgentReady"
   },
   integrations: {
@@ -111,7 +120,15 @@ export const siteConfig = {
     googleMapEmbedUrl: "",
     requireCookieConsent: false
   },
-  locations: [
+  stats: {
+    yearsInBusiness: "10+",
+    jobsCompleted: "2,500+",
+    satisfactionRate: "99%",
+    citiesServed: "9+",
+    averageRating: "4.9",
+    responseTime: "2",
+  },
+    locations: [
     { id: "remote", name: "Online", region: "Worldwide", image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=900&q=80", detail: "Our AI readiness assessment is available to businesses worldwide, delivered remotely." }
   ],
   mainServices: [

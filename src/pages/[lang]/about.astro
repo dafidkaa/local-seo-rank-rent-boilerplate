@@ -76,6 +76,59 @@ const meta = seo({
     imageAlt={`${businessName} team in ${city}`}
   />
 
+  <!-- COMPANY TIMELINE -->
+  <section class="section section-light">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-eyebrow">Our Journey</span>
+        <h2 class="section-title">How We Grew in {city}</h2>
+        <p class="section-lead">From a small local operation to one of {city}'s most trusted {primaryService.toLowerCase()} providers — here is our story.</p>
+      </div>
+      <div class="timeline">
+        {[
+          { year: founded, event: `${businessName} was founded in ${city} with a small team and a big commitment to quality and honest communication.` },
+          { year: String(parseInt(founded) + 2), event: `Expanded service area to cover the full ${city} metro, adding more licensed technicians to meet growing demand.` },
+          { year: String(parseInt(founded) + 4), event: `Reached 1,000 completed jobs milestone. Introduced same-day service guarantee across all service areas.` },
+          { year: String(parseInt(founded) + 6), event: `Launched commercial services division, serving local businesses, property managers, and multi-unit developments.` },
+          { year: "Today", event: `${siteConfig.stats?.jobsCompleted ?? "Thousands of"} jobs completed. ${siteConfig.stats?.averageRating ?? "5"}-star rated. Still locally owned, still committed to ${city}.` },
+        ].map((item, i) => (
+          <div class="timeline-item">
+            <div class="timeline-year">{item.year}</div>
+            <div class="timeline-connector"><div class="timeline-dot"></div></div>
+            <div class="timeline-content">{item.event}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CERTIFICATIONS & CREDENTIALS -->
+  <section class="section section-dark">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-eyebrow">Credentials</span>
+        <h2 class="section-title" style="color:var(--color-light)">Licensed, Certified &amp; Insured</h2>
+        <p class="section-lead" style="color:rgba(255,255,255,0.75)">Every technician at {businessName} meets the professional standards required to work in {city} and the surrounding area.</p>
+      </div>
+      <div class="certs-grid">
+        {[
+          { label: "State Licensed", desc: `All technicians hold valid state licenses for ${primaryService.toLowerCase()} work in ${siteConfig.business.region}.` },
+          { label: "Fully Insured", desc: "We carry full liability insurance and workers' compensation on every job — protecting you and your property." },
+          { label: "Background Checked", desc: "Every team member passes a thorough background check before joining our crew. Your home is in safe hands." },
+          { label: "Ongoing Training", desc: `We invest in continuous professional development to stay current with the latest ${primaryService.toLowerCase()} codes and best practices.` },
+        ].map(cert => (
+          <div class="cert-card">
+            <div class="cert-badge">✓</div>
+            <div>
+              <h3 class="cert-label">{cert.label}</h3>
+              <p class="cert-desc">{cert.desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
   <!-- OUR VALUES -->
   <section class="section section-light">
     <div class="container">
@@ -180,4 +233,20 @@ const meta = seo({
   .area-grid { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 2rem; }
   .area-pill { padding: 0.5rem 1.25rem; background: white; border: 1px solid var(--color-border); border-radius: 100px; font-size: 0.875rem; font-weight: 500; color: var(--color-dark); text-decoration: none; transition: background 0.2s, border-color 0.2s, color 0.2s; }
   .area-pill:hover { background: var(--color-accent); border-color: var(--color-accent); color: var(--color-dark); }
+  /* Timeline */
+  .timeline { display: flex; flex-direction: column; gap: 0; margin-top: 3rem; position: relative; }
+  .timeline-item { display: grid; grid-template-columns: 100px 40px 1fr; gap: 1rem; align-items: flex-start; padding-bottom: 2rem; }
+  .timeline-year { font-family: var(--font-display); font-size: 1.1rem; font-weight: 800; color: var(--brand-accent); text-align: right; padding-top: 0.1rem; }
+  .timeline-connector { display: flex; flex-direction: column; align-items: center; }
+  .timeline-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--brand-accent); flex-shrink: 0; margin-top: 0.2rem; }
+  .timeline-connector::after { content: ''; display: block; width: 2px; background: var(--color-border); flex: 1; margin-top: 6px; min-height: 2rem; }
+  .timeline-item:last-child .timeline-connector::after { display: none; }
+  .timeline-content { color: var(--color-muted); line-height: 1.7; font-size: 0.95rem; padding-top: 0.05rem; }
+  /* Certifications */
+  .certs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem; margin-top: 2.5rem; }
+  .cert-card { display: flex; gap: 1rem; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 1.5rem; align-items: flex-start; }
+  .cert-badge { width: 36px; height: 36px; border-radius: 50%; background: var(--brand-accent); color: var(--color-dark); font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1rem; }
+  .cert-label { font-size: 1rem; font-weight: 700; color: var(--color-light); margin: 0 0 0.35rem; }
+  .cert-desc { font-size: 0.875rem; color: rgba(255,255,255,0.7); margin: 0; line-height: 1.6; }
+  @media (max-width: 640px) { .timeline-item { grid-template-columns: 70px 30px 1fr; } .timeline-year { font-size: 0.9rem; } }
 </style>

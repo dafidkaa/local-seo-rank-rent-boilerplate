@@ -91,12 +91,21 @@ export const siteConfig = {
   brand: {
     primary: "#0f766e",
     secondary: "#f59e0b",
+    accent: "#f59e0b",
+    accentDark: "#d97706",
+    accentLight: "#fef3c7",
     dark: "#111827",
     light: "#f8fafc",
-    heroImage: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1920&q=80",
-    alternateHeroImage: "https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?auto=format&fit=crop&w=1920&q=80",
-    teamImage: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80",
-    ogImage: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80",
+    images: {
+      hero1: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1920&q=80",
+      hero2: "https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?auto=format&fit=crop&w=1920&q=80",
+      hero3: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1920&q=80",
+      about: "https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?auto=format&fit=crop&w=1920&q=80",
+      team:  "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80",
+      process: "https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?auto=format&fit=crop&w=1920&q=80",
+      cta:   "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1920&q=80",
+      og:    "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80",
+    },
     logoText: "DualMark"
   },
   integrations: {
@@ -111,7 +120,15 @@ export const siteConfig = {
     googleMapEmbedUrl: "",
     requireCookieConsent: true
   },
-  locations: [
+  stats: {
+    yearsInBusiness: "10+",
+    jobsCompleted: "2,500+",
+    satisfactionRate: "99%",
+    citiesServed: "9+",
+    averageRating: "4.9",
+    responseTime: "2",
+  },
+    locations: [
     { id: "austin", name: "Austin", region: "Texas", image: "https://images.unsplash.com/photo-1531218150217-54595bc2b934?auto=format&fit=crop&w=900&q=80", detail: "Central Austin businesses, from downtown startups to South Congress shops." },
     { id: "round-rock", name: "Round Rock", region: "Texas", image: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=900&q=80", detail: "Growing business parks and residential service companies north of Austin." },
     { id: "cedar-park", name: "Cedar Park", region: "Texas", image: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=900&q=80", detail: "Family-owned businesses and suburban service providers in Cedar Park." },

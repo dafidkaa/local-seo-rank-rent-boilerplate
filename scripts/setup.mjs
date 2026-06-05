@@ -1,4 +1,11 @@
 #!/usr/bin/env node
+/**
+ * setup.mjs — Interactive setup wizard for the rank-and-rent boilerplate.
+ * Run with: node scripts/setup.mjs  (or: npm run setup)
+ *
+ * Generates src/site.config.ts from user answers.
+ * Updated to match the current site.config.ts shape (v2).
+ */
 
 import { writeFileSync } from "node:fs";
 import { createInterface } from "node:readline/promises";
@@ -13,20 +20,16 @@ const RESET = "\x1b[0m";
 function heading(text) {
   console.log(`\n${BOLD}${CYAN}▸ ${text}${RESET}\n`);
 }
-
 function success(text) {
   console.log(`${GREEN}${text}${RESET}`);
 }
-
 function dim(text) {
   return `${DIM}${text}${RESET}`;
 }
-
-async function ask(rl, label, fallback) {
-  const answer = await rl.question(`  ${label} ${dim(`[${fallback}]`)}: `);
+async function ask(rl, label, fallback = "") {
+  const answer = await rl.question(`  ${label} ${fallback ? dim(`[${fallback}]`) : ""}: `);
   return answer.trim() || fallback;
 }
-
 async function askRequired(rl, label) {
   while (true) {
     const answer = await rl.question(`  ${label}: `);
@@ -34,63 +37,59 @@ async function askRequired(rl, label) {
     console.log("    This field is required.");
   }
 }
-
-async function askList(rl, label) {
-  const raw = await rl.question(`  ${label} ${dim("(comma-separated)")}: `);
-  return raw
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
+async function askList(rl, label, fallback = "") {
+  const raw = await rl.question(`  ${label} ${dim("(comma-separated)")} ${fallback ? dim(`[${fallback}]`) : ""}: `);
+  const result = raw.split(",").map((s) => s.trim()).filter(Boolean);
+  return result.length ? result : fallback.split(",").map((s) => s.trim()).filter(Boolean);
 }
-
-async function askYesNo(rl, label, fallback) {
+async function askYesNo(rl, label, fallback = false) {
   const answer = await rl.question(`  ${label} ${dim(fallback ? "[Y/n]" : "[y/N]")}: `);
   const lower = answer.trim().toLowerCase();
   if (!lower) return fallback;
   return lower === "y" || lower === "yes";
 }
 
+// ─── Config generator ────────────────────────────────────────────────────────
+
 function generateConfig(data) {
   const { business, locales, brand, services, locations, integrations, heroSlides, blogCategories, legalLastUpdated } = data;
 
-  const localeEntries = locales
-    .map(
-      (l) =>
-        `    { code: "${l.code}" as Locale, label: "${l.label}", path: "/${l.code}", connector: "${l.connector}" }`
-    )
-    .join(",\n");
+  const localeEntries = locales.map((l) =>
+    `    { code: "${l.code}" as Locale, label: "${l.label}", path: "/${l.code}", connector: "${l.connector}" }`
+  ).join(",\n");
 
-  const locationEntries = locations
-    .map(
-      (l) =>
-        `    { id: "${l.id}", name: "${l.name}", region: "${l.region}", image: "${l.image}", detail: "${l.detail}" }`
-    )
-    .join(",\n");
+  const locationEntries = locations.map((l) =>
+    `    {
+      id: "${l.id}",
+      name: "${l.name}",
+      region: "${l.region}",
+      image: "${l.image}",
+      detail: "${l.detail}",
+      knowledge: "${l.knowledge}",
+      attractions: ${JSON.stringify(l.attractions)},
+      mapEmbedQuery: "${l.mapEmbedQuery}"
+    }`
+  ).join(",\n");
 
   function serviceBlock(service, indent = "    ") {
-    const children = service.children
-      .map(
-        (ch) =>
-          `${indent}  { id: "${ch.id}", title: ${JSON.stringify(ch.title)}, short: ${JSON.stringify(ch.short)}, faq: [] }`
-      )
-      .join(",\n");
+    const children = service.children.map((ch) =>
+      `${indent}  { id: "${ch.id}", title: ${JSON.stringify(ch.title)}, short: ${JSON.stringify(ch.short)}, faq: [] }`
+    ).join(",\n");
     return `${indent}{
 ${indent}  id: "${service.id}",
 ${indent}  title: ${JSON.stringify(service.title)},
 ${indent}  short: ${JSON.stringify(service.short)},
 ${indent}  image: "${service.image}",
 ${indent}  children: [
-${indent}    ${children}
+${children}
 ${indent}  ]
 ${indent}}`;
   }
 
   const mainServiceEntries = services.main.map((s) => serviceBlock(s)).join(",\n");
 
-  const secondaryServiceEntries = services.secondary
-    .map(
-      (s) =>
-        `    {
+  const secondaryServiceEntries = services.secondary.map((s) =>
+    `    {
       id: "${s.id}",
       title: ${JSON.stringify(s.title)},
       short: ${JSON.stringify(s.short)},
@@ -102,28 +101,21 @@ ${indent}}`;
         faq: []
       }))
     }`
-    )
-    .join(",\n");
+  ).join(",\n");
 
-  const heroSlideEntries = heroSlides
-    .map(
-      (s) =>
-        `    {
+  const heroSlideEntries = heroSlides.map((s) =>
+    `    {
       image: "${s.image}",
       title: ${JSON.stringify(s.title)},
       text: ${JSON.stringify(s.text)},
       primaryText: ${JSON.stringify(s.primaryText)},
       primaryHref: "${s.primaryHref}"${s.secondaryText ? `,\n      secondaryText: ${JSON.stringify(s.secondaryText)},\n      secondaryHref: "${s.secondaryHref}"` : ""}
     }`
-    )
-    .join(",\n");
+  ).join(",\n");
 
-  const blogCategoryEntries = blogCategories
-    .map(
-      (c) =>
-        `    { id: "${c.id}", label: ${JSON.stringify(c.label)} }`
-    )
-    .join(",\n");
+  const blogCategoryEntries = blogCategories.map((c) =>
+    `    { id: "${c.id}", label: ${JSON.stringify(c.label)} }`
+  ).join(",\n");
 
   const legalDate = legalLastUpdated || new Date().toISOString().split("T")[0];
 
@@ -149,6 +141,17 @@ export type ServiceItem = {
     short: LocalizedText;
     faq: Array<{ question: LocalizedText; answer: LocalizedText }>;
   }>;
+};
+
+export type LocationItem = {
+  id: string;
+  name: string;
+  region: string;
+  image: string;
+  detail: string;
+  knowledge?: string;
+  attractions?: string[];
+  mapEmbedQuery?: string;
 };
 
 export type HeroSlide = {
@@ -187,6 +190,7 @@ ${localeEntries}
     phone: "${business.phone}",
     email: "${business.email}",
     address: "${business.address}",
+    ctaMode: "${business.ctaMode}",
     hours: {
       Monday: "${business.hours.Monday}",
       Tuesday: "${business.hours.Tuesday}",
@@ -204,13 +208,26 @@ ${localeEntries}
   brand: {
     primary: "${brand.primary}",
     secondary: "${brand.secondary}",
+    accent: "${brand.accent}",
+    accentDark: "${brand.accentDark}",
+    accentLight: "${brand.accentLight}",
     dark: "${brand.dark}",
     light: "${brand.light}",
-    heroImage: "${brand.heroImage}",
-    alternateHeroImage: "${brand.alternateHeroImage}",
-    teamImage: "${brand.teamImage}",
-    ogImage: "${brand.ogImage}",
-    logoText: "${brand.logoText}"
+    heroOverlay: "${brand.heroOverlay}",
+    fontDisplay: "${brand.fontDisplay}",
+    fontBody: "${brand.fontBody}",
+    logoText: "${brand.logoText}",
+    logoAccent: "${brand.logoAccent}",
+    images: {
+      hero1: "${brand.images.hero1}",
+      hero2: "${brand.images.hero2}",
+      hero3: "${brand.images.hero3}",
+      about: "${brand.images.about}",
+      team: "${brand.images.team}",
+      process: "${brand.images.process}",
+      cta: "${brand.images.cta}",
+      og: "${brand.images.og}"
+    }
   },
   integrations: {
     gtmId: "${integrations.gtmId}",
@@ -224,9 +241,17 @@ ${localeEntries}
     googleMapEmbedUrl: "${integrations.googleMapEmbedUrl}",
     requireCookieConsent: ${integrations.requireCookieConsent}
   },
+  stats: {
+    yearsInBusiness: "${business.stats.yearsInBusiness}",
+    jobsCompleted: "${business.stats.jobsCompleted}",
+    averageRating: "${business.stats.averageRating}",
+    responseTime: "${business.stats.responseTime}",
+    satisfactionRate: "${business.stats.satisfactionRate}",
+    citiesServed: "${business.stats.citiesServed}"
+  },
   locations: [
 ${locationEntries}
-  ],
+  ] satisfies LocationItem[],
   mainServices: [
 ${mainServiceEntries}
   ] satisfies ServiceItem[],
@@ -245,12 +270,13 @@ export const allServices = [...siteConfig.mainServices, ...siteConfig.secondaryC
 `;
 }
 
+// ─── Collectors ───────────────────────────────────────────────────────────────
+
 async function collectLocales(rl) {
   heading("Languages / Locales");
-  const localeCodes = await askList(rl, "Locale codes", "en, hr");
-  const localeLabels = await askList(rl, "Locale labels", "English, Hrvatski");
-  const localeConnectors = await askList(rl, 'Location connector word (e.g. "in", "u", "en")', "in, u");
-
+  const localeCodes = await askList(rl, "Locale codes", "en");
+  const localeLabels = await askList(rl, "Locale labels", "English");
+  const localeConnectors = await askList(rl, 'Location connector word (e.g. "in", "u", "en")', "in");
   return localeCodes.map((code, i) => ({
     code,
     label: localeLabels[i] || code.toUpperCase(),
@@ -276,6 +302,7 @@ async function collectBusiness(rl, locales) {
   const phone = await askRequired(rl, "Phone number");
   const email = await askRequired(rl, "Email address");
   const address = await ask(rl, "Address", `Serving ${serviceArea}`);
+  const ctaMode = await ask(rl, "CTA mode (form_phone | form_email | form_phone_email | phone_only)", "form_phone");
 
   heading("Business Hours");
   const weekdayDefault = "8:00AM-5:00PM";
@@ -289,69 +316,55 @@ async function collectBusiness(rl, locales) {
     Sunday: await ask(rl, "Sunday", "Closed")
   };
 
+  heading("Trust Stats");
+  const stats = {
+    yearsInBusiness: await ask(rl, "Years in business", "5+"),
+    jobsCompleted: await ask(rl, "Jobs completed", "1,000+"),
+    averageRating: await ask(rl, "Average rating (e.g. 4.9)", "4.9"),
+    responseTime: await ask(rl, "Response time in hours (e.g. 1)", "1"),
+    satisfactionRate: await ask(rl, "Satisfaction rate (e.g. 99%)", "99%"),
+    citiesServed: await ask(rl, "Cities served (e.g. 8+)", "8+")
+  };
+
   const descriptionByLocale = {};
   const problemByLocale = {};
   const outcomeByLocale = {};
   const ctaByLocale = {};
   for (const l of locales) {
-    descriptionByLocale[l.code] = await ask(
-      rl,
-      `Business description (${l.label})`,
-      `Reliable ${primaryServiceByLocale[l.code]} in ${city} with clear communication and professional service.`
-    );
-    problemByLocale[l.code] = await ask(
-      rl,
-      `Customer problem (${l.label})`,
-      `finding reliable ${primaryServiceByLocale[l.code]} without delays or unclear pricing`
-    );
-    outcomeByLocale[l.code] = await ask(
-      rl,
-      `Customer outcome (${l.label})`,
-      `get the job handled clearly, quickly, and correctly`
-    );
+    descriptionByLocale[l.code] = await ask(rl, `Business description (${l.label})`, `Reliable ${primaryServiceByLocale[l.code]} in ${city} with clear communication and professional service.`);
+    problemByLocale[l.code] = await ask(rl, `Customer problem (${l.label})`, `finding reliable ${primaryServiceByLocale[l.code]} without delays or unclear pricing`);
+    outcomeByLocale[l.code] = await ask(rl, `Customer outcome (${l.label})`, `get the job handled clearly, quickly, and correctly`);
     ctaByLocale[l.code] = await ask(rl, `CTA button text (${l.label})`, "Get A Free Estimate");
   }
 
-  return {
-    name,
-    legalName,
-    foundedYear,
-    primaryService: primaryServiceByLocale,
-    primaryGbpCategory,
-    secondaryGbpCategories,
-    city,
-    region,
-    country,
-    serviceArea,
-    phone,
-    email,
-    address,
-    hours,
-    description: descriptionByLocale,
-    customerProblem: problemByLocale,
-    customerOutcome: outcomeByLocale,
-    cta: ctaByLocale
-  };
+  return { name, legalName, foundedYear, primaryService: primaryServiceByLocale, primaryGbpCategory, secondaryGbpCategories, city, region, country, serviceArea, phone, email, address, ctaMode, hours, stats, description: descriptionByLocale, customerProblem: problemByLocale, customerOutcome: outcomeByLocale, cta: ctaByLocale };
 }
 
 async function collectBrand(rl, businessName) {
   heading("Brand & Colors");
-  const primary = await ask(rl, "Primary color (hex)", "#0f766e");
-  const secondary = await ask(rl, "Secondary / accent color (hex)", "#f59e0b");
+  const primary = await ask(rl, "Primary color (hex)", "#1e3a5f");
+  const secondary = await ask(rl, "Secondary color (hex)", "#0f2a47");
+  const accent = await ask(rl, "Accent color (hex)", "#f59e0b");
+  const accentDark = await ask(rl, "Accent dark (hex)", "#d97706");
+  const accentLight = await ask(rl, "Accent light (hex)", "#fef3c7");
+  const fontDisplay = await ask(rl, "Display font (Google Fonts name)", "Poppins");
+  const fontBody = await ask(rl, "Body font (Google Fonts name)", "Inter");
+  const logoText = await ask(rl, "Logo text", businessName);
+  const logoAccent = await ask(rl, "Logo accent word (gets accent color)", "");
+  const heroOverlay = await ask(rl, "Hero overlay RGBA", "rgba(10, 24, 50, 0.68)");
+  const heroImg = "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1920&q=80";
   return {
-    primary,
-    secondary,
-    dark: "#111827",
-    light: "#f8fafc",
-    heroImage:
-      "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1920&q=80",
-    alternateHeroImage:
-      "https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=1920&q=80",
-    teamImage:
-      "https://images.unsplash.com/photo-1521791055366-0d553872125f?auto=format&fit=crop&w=1200&q=80",
-    ogImage:
-      "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1200&q=80",
-    logoText: await ask(rl, "Logo text", businessName)
+    primary, secondary, accent, accentDark, accentLight,
+    dark: "#0f172a", light: "#f8fafc",
+    heroOverlay, fontDisplay, fontBody,
+    logoText, logoAccent,
+    images: {
+      hero1: heroImg, hero2: heroImg, hero3: heroImg,
+      about: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=1200&q=80",
+      team: "https://images.unsplash.com/photo-1521791055366-0d553872125f?auto=format&fit=crop&w=1200&q=80",
+      process: heroImg, cta: heroImg,
+      og: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1200&q=80"
+    }
   };
 }
 
@@ -362,24 +375,17 @@ async function collectLocations(rl) {
   for (let i = 0; i < count; i++) {
     console.log(`\n  ${BOLD}Location ${i + 1}${RESET}`);
     const name = await askRequired(rl, "  City name");
-    const id = name
-      .toLowerCase()
-      .normalize("NFKD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-|-$/g, "");
+    const id = name.toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
     const region = await ask(rl, "  State / Region", "Texas");
-    const detail = await ask(
-      rl,
-      "  Short description",
-      `${name} neighborhoods and local service calls.`
-    );
+    const detail = await ask(rl, "  Short description", `${name} neighborhoods and local service calls.`);
+    const knowledge = await ask(rl, "  Local knowledge (property types, infrastructure)", `${name} is a growing area with a mix of residential and commercial properties.`);
+    const attractionsRaw = await ask(rl, "  3 local landmarks (comma-separated)", `${name} City Park, ${name} Main Street, ${name} Town Hall`);
+    const attractions = attractionsRaw.split(",").map((s) => s.trim()).filter(Boolean);
+    const mapEmbedQuery = await ask(rl, "  Google Maps embed query", `${name}, ${region}`);
     locations.push({
-      id,
-      name,
-      region,
+      id, name, region,
       image: `https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=900&q=80`,
-      detail
+      detail, knowledge, attractions, mapEmbedQuery
     });
   }
   return locations;
@@ -387,7 +393,6 @@ async function collectLocations(rl) {
 
 async function collectServices(rl, locales, primaryService) {
   heading("Services");
-
   const mainCount = parseInt(await ask(rl, "How many main services?", "3"), 10);
   const main = [];
   for (let i = 0; i < mainCount; i++) {
@@ -397,11 +402,7 @@ async function collectServices(rl, locales, primaryService) {
     const shortByLocale = {};
     for (const l of locales) {
       titleByLocale[l.code] = await ask(rl, `  Title (${l.label})`, `${primaryService[l.code]} ${i + 1}`);
-      shortByLocale[l.code] = await ask(
-        rl,
-        `  Short description (${l.label})`,
-        `A primary ${titleByLocale[l.code].toLowerCase()} page for your niche.`
-      );
+      shortByLocale[l.code] = await ask(rl, `  Short description (${l.label})`, `A primary ${(titleByLocale[l.code] || "service").toLowerCase()} page for your niche.`);
     }
     const childCount = parseInt(await ask(rl, "  How many subservices?", "3"), 10);
     const children = [];
@@ -409,31 +410,12 @@ async function collectServices(rl, locales, primaryService) {
       const childTitleByLocale = {};
       const childShortByLocale = {};
       for (const l of locales) {
-        childTitleByLocale[l.code] = await ask(
-          rl,
-          `    Subservice ${j + 1} title (${l.label})`,
-          `${titleByLocale[l.code]} Subservice ${j + 1}`
-        );
-        childShortByLocale[l.code] = await ask(
-          rl,
-          `    Subservice ${j + 1} short (${l.label})`,
-          `A focused child page for ${childTitleByLocale[l.code].toLowerCase()}.`
-        );
+        childTitleByLocale[l.code] = await ask(rl, `    Subservice ${j + 1} title (${l.label})`, `${titleByLocale[l.code]} Subservice ${j + 1}`);
+        childShortByLocale[l.code] = await ask(rl, `    Subservice ${j + 1} short (${l.label})`, `A focused child page for ${(childTitleByLocale[l.code] || "subservice").toLowerCase()}.`);
       }
-      children.push({
-        id: `sub-service-${j + 1}`,
-        title: childTitleByLocale,
-        short: childShortByLocale
-      });
+      children.push({ id: `sub-service-${j + 1}`, title: childTitleByLocale, short: childShortByLocale });
     }
-    main.push({
-      id,
-      title: titleByLocale,
-      short: shortByLocale,
-      image:
-        "https://images.unsplash.com/photo-1581091215367-59ab6b4f4f76?auto=format&fit=crop&w=900&q=80",
-      children
-    });
+    main.push({ id, title: titleByLocale, short: shortByLocale, image: "https://images.unsplash.com/photo-1581091215367-59ab6b4f4f76?auto=format&fit=crop&w=900&q=80", children });
   }
 
   const secondaryCount = parseInt(await ask(rl, "How many secondary categories?", "2"), 10);
@@ -443,28 +425,11 @@ async function collectServices(rl, locales, primaryService) {
     const titleByLocale = {};
     const shortByLocale = {};
     for (const l of locales) {
-      titleByLocale[l.code] = await ask(
-        rl,
-        `  Category ${i + 1} title (${l.label})`,
-        `Service Category ${i + 1}`
-      );
-      shortByLocale[l.code] = await ask(
-        rl,
-        `  Category ${i + 1} short (${l.label})`,
-        "A secondary category for supporting services."
-      );
+      titleByLocale[l.code] = await ask(rl, `  Category ${i + 1} title (${l.label})`, `Service Category ${i + 1}`);
+      shortByLocale[l.code] = await ask(rl, `  Category ${i + 1} short (${l.label})`, "A secondary category for supporting services.");
     }
-    secondary.push({
-      id,
-      title: titleByLocale,
-      short: shortByLocale,
-      titleBase: titleByLocale,
-      shortBase: shortByLocale,
-      image:
-        "https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=900&q=80"
-    });
+    secondary.push({ id, title: titleByLocale, short: shortByLocale, titleBase: titleByLocale, shortBase: shortByLocale, image: "https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=900&q=80" });
   }
-
   return { main, secondary };
 }
 
@@ -501,13 +466,7 @@ async function collectHeroSlides(rl, locales, business) {
     }
     const primaryHref = await ask(rl, "  Primary CTA href", "contact");
     const addSecondary = await askYesNo(rl, "  Add secondary CTA?", i === 0);
-    const slide = {
-      image: `https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1920&q=80`,
-      title: titleByLocale,
-      text: textByLocale,
-      primaryText: primaryTextByLocale,
-      primaryHref
-    };
+    const slide = { image: `https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1920&q=80`, title: titleByLocale, text: textByLocale, primaryText: primaryTextByLocale, primaryHref };
     if (addSecondary) {
       const secondaryTextByLocale = {};
       for (const l of locales) {
@@ -536,6 +495,8 @@ async function collectBlogCategories(rl, locales) {
   return categories;
 }
 
+// ─── Main ─────────────────────────────────────────────────────────────────────
+
 async function main() {
   console.log(`\n${BOLD}${CYAN}╔══════════════════════════════════════════════════╗`);
   console.log(`║  Local SEO Rank-and-Rent Boilerplate Setup     ║`);
@@ -563,27 +524,16 @@ async function main() {
       return;
     }
 
-    const configContent = generateConfig({
-      business,
-      locales,
-      brand,
-      services,
-      locations,
-      integrations,
-      heroSlides,
-      blogCategories,
-      legalLastUpdated
-    });
-
+    const configContent = generateConfig({ business, locales, brand, services, locations, integrations, heroSlides, blogCategories, legalLastUpdated });
     writeFileSync("src/site.config.ts", configContent, "utf-8");
 
-    success("\n  Done! site.config.ts generated.");
+    success("\n  ✓ Done! site.config.ts generated.");
     console.log(`\n  Next steps:`);
-    console.log(`    1. Replace placeholder images with real images`);
-    console.log(`    2. Add unique content to subservice and location pages`);
+    console.log(`    1. Replace placeholder Unsplash images with niche-appropriate photos`);
+    console.log(`    2. Populate src/i18n/en.ts (and hr.ts) with localized copy`);
     console.log(`    3. Create blog posts in src/content/blog/ as .md files`);
-    console.log(`    4. Connect your CRM, analytics, and review widget`);
-    console.log(`    5. Run ${BOLD}npm run build${RESET} to generate the site\n`);
+    console.log(`    4. Connect your CRM webhook, analytics IDs, and review widget`);
+    console.log(`    5. Run ${BOLD}npm run build${RESET} to generate all 140+ pages\n`);
   } catch (err) {
     if (err.message !== " aborted") {
       console.error("\n  Error:", err.message);
