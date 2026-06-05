@@ -201,6 +201,57 @@ const homeFaqs = [
   </section>
 
   <!-- ═══════════════════════════════════════════════════════════════════════
+       4b. LOCAL EXPERTISE NARRATIVE — ~200 words of city-specific body copy
+       (AEO: answers "why choose a local provider in [city]?")
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  <section class="section section-light" aria-labelledby="local-heading">
+    <div class="container local-narrative">
+      <div class="local-narrative-text">
+        <p class="eyebrow">Local Expertise</p>
+        <h2 id="local-heading">Your Trusted {serviceName} Experts in {city}</h2>
+        <p>
+          Choosing a local {serviceName.toLowerCase()} provider in {city} means more than just finding someone nearby.
+          It means working with a team that understands the specific infrastructure, building codes, and
+          climate conditions that affect homes and businesses in {area}. At {name}, every technician
+          lives and works in this community — which means faster response times, better local knowledge,
+          and a genuine stake in the quality of every job we complete.
+        </p>
+        <p>
+          We have built our reputation one job at a time over {siteConfig.stats?.yearsInBusiness ?? "more than a decade"} of
+          serving {city} residents and business owners. Our customers return to us because they know
+          what to expect: clear communication before the work starts, skilled professionals who respect
+          their property, and a final result that meets the highest standards. We do not subcontract
+          work or send untrained helpers — every technician on our team is fully qualified and
+          background-checked.
+        </p>
+        <p>
+          Whether you need routine maintenance, an urgent repair, or a full installation project,
+          {name} is the {city} team that shows up on time, explains every step, and stands behind
+          the work with a written satisfaction guarantee. That is the local difference.
+        </p>
+      </div>
+      <div class="local-narrative-features">
+        {[
+          { title: "Same-Day Availability",      body: `When you call ${name}, we aim to have a technician on-site in ${city} within hours — not days. Emergencies are answered around the clock.` },
+          { title: "Transparent Upfront Pricing", body: `We provide a detailed written estimate before any work begins. The price you are quoted is the price you pay — no surprise charges, ever.` },
+          { title: "Fully Licensed & Insured",    body: `Every member of our team carries full licensing, bonding, and liability insurance. You are protected from the moment we arrive.` },
+          { title: "Written Satisfaction Guarantee", body: `If you are not completely satisfied with the result, we return and make it right at no additional cost. That is our commitment to every ${city} customer.` },
+        ].map((feat) => (
+          <div class="local-feature-item">
+            <div class="local-feature-icon" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div>
+              <strong class="local-feature-title">{feat.title}</strong>
+              <p class="local-feature-body">{feat.body}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
        5. SERVICES GRID — ServiceCard components
   ═══════════════════════════════════════════════════════════════════════════ -->
   <section class="section section-light" id="services" aria-labelledby="services-heading">
@@ -317,6 +368,113 @@ const homeFaqs = [
           loading="lazy" decoding="async"
           class="work-img"
         />
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       8b. SERVICE COMMITMENT — full-width 3-column narrative (~300 words)
+       (AEO: answers "what is your service standard?" and "what warranty do you offer?")
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  <section class="section section-charcoal" aria-labelledby="commitment-heading">
+    <div class="container">
+      <p class="eyebrow" style="color:var(--brand-accent)">Our Commitment</p>
+      <h2 id="commitment-heading" style="color:#fff">The {name} Standard of Service</h2>
+      <p class="section-lead" style="color:rgba(255,255,255,.75)">
+        Every {serviceName.toLowerCase()} job we complete in {city} is held to the same high standard — whether it is a
+        small repair or a major installation. Here is what that standard means in practice.
+      </p>
+      <div class="commitment-grid">
+        <div class="commitment-col">
+          <h3>Before We Start</h3>
+          <p>
+            Every job begins with a thorough site assessment. We take the time to understand exactly
+            what the problem is, what caused it, and what the best long-term solution looks like.
+            We then provide a clear, written estimate that covers all labour, materials, and any
+            potential complications — so you can make an informed decision with no pressure.
+          </p>
+          <p>
+            We will never recommend unnecessary work or upsell services you do not need. Our goal
+            is to solve your problem efficiently and cost-effectively, not to maximize the invoice.
+          </p>
+        </div>
+        <div class="commitment-col">
+          <h3>While We Work</h3>
+          <p>
+            Our technicians treat your home or business with the same care and respect they would
+            give their own. We use protective coverings, keep the work area clean throughout the
+            job, and communicate any unexpected findings immediately — before proceeding with
+            additional work.
+          </p>
+          <p>
+            All materials we use meet or exceed {city} building code requirements. We do not cut
+            corners on materials to save time or reduce costs — because the quality of what goes
+            into a job determines how long it lasts.
+          </p>
+        </div>
+        <div class="commitment-col">
+          <h3>After We Finish</h3>
+          <p>
+            When the job is complete, we walk you through everything that was done and explain
+            how to maintain the result. We leave the site clean, document all work completed,
+            and provide a written warranty covering both labour and parts.
+          </p>
+          <p>
+            Our relationship with {city} customers does not end when we leave the job site.
+            If any issue arises related to our work, we return promptly and resolve it at no
+            charge. That is the written guarantee we stand behind on every single job.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       8c. COMMUNITY TRUST NARRATIVE — ~150 words of social proof copy
+       (AEO: answers "are you a trusted local business?")
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  <section class="section section-light" aria-labelledby="community-heading">
+    <div class="container community-trust">
+      <div class="community-trust-copy">
+        <p class="eyebrow">Community Trust</p>
+        <h2 id="community-heading">Proudly Serving {city} Since {year}</h2>
+        <p>
+          Over the years, {name} has become one of the most recognized and trusted names in
+          {serviceName.toLowerCase()} across {area}. That reputation was not built through advertising —
+          it was built through consistent, reliable service delivered to thousands of homeowners
+          and business owners who chose to trust us with their properties.
+        </p>
+        <p>
+          We are proud to be a locally owned and operated business. When you call {name}, you
+          are not reaching a national call centre. You are speaking directly with a local team
+          that knows {city}, knows the challenges that local properties face, and is invested
+          in the long-term wellbeing of this community. That local accountability is something
+          no national franchise can replicate.
+        </p>
+        <p>
+          Our customers recommend us to their neighbors, family members, and colleagues because
+          they know we will treat every referral with the same care and professionalism they
+          experienced themselves. Word-of-mouth from satisfied {city} customers remains our
+          single greatest source of new business — and we intend to keep it that way.
+        </p>
+      </div>
+      <div class="community-trust-stats">
+        <div class="community-stat">
+          <span class="community-stat-number">{siteConfig.stats?.jobsCompleted ?? "500+"}</span>
+          <span class="community-stat-label">Jobs Completed in {area}</span>
+        </div>
+        <div class="community-stat">
+          <span class="community-stat-number">{siteConfig.stats?.yearsInBusiness ?? "12"}+</span>
+          <span class="community-stat-label">Years Serving {city}</span>
+        </div>
+        <div class="community-stat">
+          <span class="community-stat-number">{siteConfig.stats?.averageRating ?? "4.9"}★</span>
+          <span class="community-stat-label">Average Customer Rating</span>
+        </div>
+        <div class="community-stat">
+          <span class="community-stat-number">100%</span>
+          <span class="community-stat-label">Satisfaction Guarantee</span>
+        </div>
       </div>
     </div>
   </section>
@@ -690,5 +848,140 @@ const homeFaqs = [
     max-width: 640px;
     line-height: 1.7;
     margin-top: 12px;
+  }
+
+  /* ── Local narrative section ─────────────────────────────────────────────── */
+  .local-narrative {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(40px, 6vw, 80px);
+    align-items: start;
+  }
+  .local-narrative-text h2 {
+    margin-bottom: 20px;
+  }
+  .local-narrative-text p {
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--color-text-muted);
+    margin-bottom: 16px;
+  }
+  .local-narrative-features {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding-top: 8px;
+  }
+  .local-feature-item {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .local-feature-icon {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--brand-accent);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2px;
+  }
+  .local-feature-title {
+    display: block;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--color-heading);
+    margin-bottom: 4px;
+  }
+  .local-feature-body {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    line-height: 1.65;
+    margin: 0;
+  }
+  @media (max-width: 768px) {
+    .local-narrative { grid-template-columns: 1fr; }
+  }
+
+  /* ── Service commitment section ──────────────────────────────────────────── */
+  .commitment-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(24px, 4vw, 48px);
+    margin-top: clamp(32px, 5vw, 48px);
+  }
+  .commitment-col h3 {
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0 0 14px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--brand-accent);
+  }
+  .commitment-col p {
+    font-size: 0.9375rem;
+    color: rgba(255,255,255,.7);
+    line-height: 1.75;
+    margin-bottom: 14px;
+  }
+  .commitment-col p:last-child { margin-bottom: 0; }
+  @media (max-width: 768px) {
+    .commitment-grid { grid-template-columns: 1fr; }
+  }
+  @media (min-width: 769px) and (max-width: 1024px) {
+    .commitment-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ── Community trust section ─────────────────────────────────────────────── */
+  .community-trust {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(40px, 6vw, 80px);
+    align-items: center;
+  }
+  .community-trust-copy p {
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--color-text-muted);
+    margin-bottom: 16px;
+  }
+  .community-trust-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    background: var(--color-border);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+  .community-stat {
+    background: #fff;
+    padding: clamp(20px, 3vw, 32px);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    text-align: center;
+  }
+  .community-stat-number {
+    font-family: var(--font-display);
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
+    font-weight: 800;
+    color: var(--brand-accent);
+    line-height: 1;
+  }
+  .community-stat-label {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    line-height: 1.4;
+  }
+  @media (max-width: 768px) {
+    .community-trust { grid-template-columns: 1fr; }
   }
 </style>
