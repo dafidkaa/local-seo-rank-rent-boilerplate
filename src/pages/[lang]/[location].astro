@@ -188,22 +188,20 @@ const aboutImg  = (siteConfig.brand as any).images?.about ?? "https://images.uns
       <div class="loc-services-grid">
         {allServices.map((service: any) => (
           <a href={`/${locale}/${service.id}/`} class="loc-service-card">
-            <div class="loc-service-card-inner">
-              <h3 class="loc-service-title">{t(service.title, locale)} in {locationName}</h3>
-              <p class="loc-service-desc">{t(service.short, locale)}</p>
-              {service.children && service.children.length > 0 && (
-                <ul class="loc-service-children">
-                  {service.children.slice(0, 3).map((child: any) => (
-                    <li>
-                      <a href={`/${locale}/${service.id}/${child.id}/`} class="loc-child-link">
-                        {t(child.title, locale)} in {locationName}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              )}
-              <span class="loc-service-cta" aria-hidden="true">Learn more →</span>
-            </div>
+            <h3 class="loc-service-title">{t(service.title, locale)} in {locationName}</h3>
+            <p class="loc-service-desc">{t(service.short, locale)}</p>
+            {service.children && service.children.length > 0 && (
+              <ul class="loc-service-children">
+                {service.children.slice(0, 3).map((child: any) => (
+                  <li>
+                    <span class="loc-child-link">
+                      {t(child.title, locale)} in {locationName}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <span class="loc-service-cta" aria-hidden="true">Learn more →</span>
           </a>
         ))}
       </div>
@@ -437,12 +435,14 @@ const aboutImg  = (siteConfig.brand as any).images?.about ?? "https://images.uns
     margin-top: clamp(32px, 5vw, 48px);
   }
   .loc-service-card {
-    display: block;
+    display: flex;
+    flex-direction: column;
     text-decoration: none;
     background: #fff;
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-card);
+    padding: clamp(20px, 3vw, 28px);
     transition: box-shadow .2s ease, border-color .2s ease, transform .2s ease;
   }
   .loc-service-card:hover {
@@ -450,7 +450,7 @@ const aboutImg  = (siteConfig.brand as any).images?.about ?? "https://images.uns
     border-color: var(--brand-accent);
     transform: translateY(-2px);
   }
-  .loc-service-card-inner { padding: clamp(20px, 3vw, 28px); }
+  /* .loc-service-card-inner removed — padding now on .loc-service-card directly */
   .loc-service-title {
     font-family: var(--font-display);
     font-size: 1rem;
@@ -483,6 +483,9 @@ const aboutImg  = (siteConfig.brand as any).images?.about ?? "https://images.uns
     font-size: 0.875rem;
     font-weight: 600;
     color: var(--brand-accent);
+    margin-top: auto;
+    padding-top: 12px;
+    display: block;
   }
 
   /* ── Why grid ────────────────────────────────────────────────────────────── */
