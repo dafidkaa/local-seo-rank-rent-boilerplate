@@ -29,7 +29,7 @@ graph TD
    - Open `PROMPT.md` in the root of the project.
    - Copy the entire prompt.
    - Paste it into **Cursor** (using Composer/Agent mode) or **Claude Projects**.
-   - Specify your target **Niche** (e.g., Roofing, Towing, Dental), **Location** (e.g., Austin TX, Zagreb HR), and **Languages** (EN, HR, or both).
+   - Specify your target **Niche** (e.g., Plumbing, Towing, Roofing, Dental), **Location** (e.g., Austin TX, Zagreb HR), and **Languages** (EN, HR, or both).
 
 3. **AI Generation:**
    - The AI will read the corresponding niche design brief (e.g., `DESIGN-construction.md` for roofing, `DESIGN-beauty.md` for dental).
@@ -61,10 +61,10 @@ graph TD
 
 ## 🎨 Premium Component Suite ($10k Agency Quality)
 
-Every component in this boilerplate has been meticulously redesigned to match the aesthetics of high-end custom web design firms (referencing premium sites like *adaptacijazagreb.com.hr* and *eventria.com.hr*):
+Every component in this boilerplate has been meticulously redesigned to match the aesthetics of high-end custom web design firms:
 
-*   **`HeroSlider.astro` (Homepage Hero):** A full-bleed, full-viewport slideshow with dark high-contrast overlays, bold display typography (Plus Jakarta Sans), trust badge pills, dual CTAs, and a sleek dot navigation system (no distracting side arrows).
-*   **`Hero.astro` (Inner Page Hero):** A thin, high-impact banner with a dark background photo overlay, breadcrumb navigation, and a quick estimate form popup trigger.
+*   **`HeroSlider.astro` (Homepage Hero):** A full-bleed, full-viewport slideshow with dark high-contrast overlays, bold display typography (Plus Jakarta Sans), trust badge pills, dual CTAs, and a sleek dot navigation system.
+*   **`Hero.astro` (Inner Page Hero):** A compact, high-impact banner with a dark background photo overlay, integrated breadcrumbs inside a dark bottom bar, and a quick estimate form popup trigger.
 *   **`ServiceCard.astro`:** Photo-rich cards featuring subtle hover zoom effects, card lifts, and bold amber "LEARN MORE" call-to-actions.
 *   **`ProcessSection.astro`:** A dark charcoal-styled section displaying large amber numbered badges (`01`–`04`) connected by a continuous visual path to guide user reading.
 *   **`FinalCta.astro`:** A split-layout section with a dark photo background on one side and a clean, high-converting 2-column white form card on the other.
@@ -88,8 +88,10 @@ Every page automatically injects precise structured data to establish topical au
 *   **`HowTo`**: Embedded in the Process section to capture step-by-step rich results.
 *   **`BreadcrumbList`**: Injected on all inner pages to establish clean hierarchical crawling.
 
-### 2. Generative Engine Optimization (GEO)
-*   **1,500-Word Content Density:** The homepage and service templates are structured into 12 rich sections to satisfy word-count requirements without creating unreadable walls of text.
+### 2. Generative Engine Optimization (GEO) & Local Authority
+*   **1,000–1,500 Word Content Density:** The homepage, service templates, and location templates are structured into content-rich sections to satisfy word-count requirements without creating unreadable walls of text.
+*   **Dedicated Service Template (`[slug].astro`):** 11 sections covering "What is [Service]?", sub-service grids, common problems, benefits, process, and localized FAQs.
+*   **Dedicated Location Template (`[location].astro`):** 12 sections covering local landmarks/knowledge, services available in that city, interactive Google Maps embeds, and internal linking grids.
 *   **Contextual Internal Linking:** Automatically links related services, locations, and sub-services in grids and footers.
 *   **AI Crawler Friendly:** Includes `public/llms.txt` and `public/llms-full.txt` to provide context-rich, structured feeds for AI search crawlers.
 
@@ -120,23 +122,20 @@ Every page automatically injects precise structured data to establish topical au
 │   └── pages/
 │       ├── index.astro            # Root redirect to default locale
 │       └── [lang]/
-│           ├── index.astro        # 12-section high-density homepage
-│           ├── [slug].astro       # Service & Location landing page template
+│           ├── index.astro        # 15-section high-density homepage (~1,050 words)
+│           ├── [slug].astro       # 11-section service page template (~1,100 words)
+│           ├── [location].astro   # 12-section location page template with Maps embed (~1,200 words)
 │           ├── [parent]/[child].astro # Sub-service landing page template
 │           ├── about.astro        # About page with stats & area pills
 │           ├── contact.astro      # Contact page with interactive form
 │           └── blog/
-│               └── index.astro    # Blog hub with category filters & search
+│               ├── index.astro    # Blog hub with category filters & search
+│               └── [post].astro   # Blog post with sticky TOC, sidebar CTA, and related services
 ├── public/
 │   ├── llms.txt                   # AI Crawler discovery index
 │   └── llms-full.txt              # Detailed AI Crawler context file
 ├── PROMPT.md                      # 👈 MASTER AI PROMPT (Copy-paste into Cursor/Claude)
-├── DESIGN-home-services.md        # Niche design brief: Plumbing, HVAC, Electric, etc.
-├── DESIGN-transportation.md       # Niche design brief: Towing, Logistics, Rental, etc.
-├── DESIGN-construction.md         # Niche design brief: Roofing, Renovation, Masonry, etc.
-├── DESIGN-legal.md                # Niche design brief: Law firms, Professional Services, etc.
-├── DESIGN-medical.md              # Niche design brief: Dental, Chiropractic, Clinics, etc.
-└── DESIGN-beauty.md               # Niche design brief: Salons, Wellness, Spa, etc.
+├── DESIGN-[niche].md              # 21 Niche design briefs (Home Services, Prefab Homes, Waterproofing, etc.)
 ```
 
 ---
@@ -167,38 +166,6 @@ These tokens are mapped to custom Tailwind utility classes:
 
 ---
 
-## 📈 Form Webhook & Lead Capture
-
-The estimate form and popup modal submit leads via a `fetch POST` request. To connect your CRM, email responder, or automation platform (Zapier, Make, GoHighLevel, HubSpot), simply add your webhook URL in `site.config.ts`:
-
-```typescript
-// src/site.config.ts
-integrations: {
-  crmWebhookUrl: "https://your-crm-or-zapier-webhook-url.com",
-  // ...
-}
-```
-
-### Captured Lead Payload
-```json
-{
-  "firstName": "John",
-  "lastName": "Doe",
-  "phone": "+1 (512) 555-0199",
-  "email": "john.doe@example.com",
-  "address": "123 Main St, Austin, TX 78701",
-  "service": "drain-cleaning",
-  "details": "Kitchen sink is completely backed up and draining very slowly.",
-  "source": "estimate-form",
-  "pageUrl": "https://yourdomain.com/en/drain-cleaning/",
-  "referrer": "https://google.com",
-  "timestamp": "04/06/2026, 21:58:12",
-  "gdprConsent": true
-}
-```
-
----
-
 ## 🌍 i18n & Translation Workflow
 
 The boilerplate features a dual-language translation architecture. All UI strings are stored in flat, easy-to-read files under `src/i18n/`:
@@ -217,19 +184,6 @@ import { ui } from "@/i18n";
 <h1>{t(siteConfig.business.primaryService, locale)}</h1>
 <p>{ui("form.submit", locale)}</p>
 ```
-
----
-
-## 🚀 Deployment Checklist
-
-Before launching, ensure you have completed the following steps:
-
-1.  [ ] **Update `siteUrl`:** Set your production domain in `src/site.config.ts`.
-2.  [ ] **Add Analytics IDs:** Add Google Analytics 4 (`ga4MeasurementId`) and Microsoft Clarity (`clarityProjectId`) in `site.config.ts`.
-3.  [ ] **Set Webhook:** Input your GoHighLevel/Zapier webhook URL in `crmWebhookUrl`.
-4.  [ ] **Google Maps Embed:** Add a real Google Maps embed URL for your target location.
-5.  [ ] **Run Build Check:** Run `npm run build` to confirm `0 errors` and `0 warnings`.
-6.  [ ] **Deploy to Cloudflare:** Connect your repository to Cloudflare Pages (Build command: `npm run build`, Publish directory: `dist`).
 
 ---
 

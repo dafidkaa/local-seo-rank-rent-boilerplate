@@ -8,7 +8,7 @@ Astro 4 static site generator with route-based i18n. Zero client-side JS framewo
 
 | File | Purpose |
 |---|---|
-| `src/site.config.ts` | Active site config — all business data, services, locations, integrations |
+| `src/site.config.ts` | Active site config — all business data, services, locations (LocationItem), integrations |
 | `configs/*.config.ts` | Example configs (dualmark, isitagentready) — switch via `scripts/switch-config.mjs` |
 | `astro.config.mjs` | Astro config — `site` URL read from `process.env.SITE_URL` with fallback |
 | `src/lib/routes.ts` | Route helpers: `t()`, `localizedPath()`, `locationSlug()`, `servicePath()` |
@@ -24,7 +24,7 @@ Astro 4 static site generator with route-based i18n. Zero client-side JS framewo
 ## Config System
 
 - `src/site.config.ts` is the active config imported by 16+ files via `@/site.config`
-- Each config must export: `siteConfig`, `allServices`, and types (`Locale`, `ServiceItem`, `HeroSlide`, `BlogCategory`)
+- Each config must export: `siteConfig`, `allServices`, and types (`Locale`, `ServiceItem`, `LocationItem`, `HeroSlide`, `BlogCategory`)
 - Switch configs: `node scripts/switch-config.mjs dualmark`
 - The switch script validates that source files contain required exports before copying
 
@@ -35,6 +35,8 @@ Critical fields that must be present in every config:
 ```typescript
 siteUrl, defaultLocale, legalLastUpdated, locales, business, brand, integrations, locations,
 mainServices, secondaryCategories, heroSlides, blogCategories
+
+LocationItem fields: `id`, `name`, `region`, `image`, `detail`, `knowledge`, `attractions`, `mapEmbedQuery`
 ```
 
 Integrations fields: `gtmId`, `ga4MeasurementId`, `clarityProjectId`, `googleAdsConversionId`, `metaPixelId`, `calendlyUrl`, `crmWebhookUrl`, `reviewWidgetEmbedHtml`, `googleMapEmbedUrl`, `requireCookieConsent`
@@ -60,6 +62,16 @@ Deploy workflow: `.github/workflows/deploy.yml` — disabled by default in the t
 - Images: URL strings in config. For local images use `src/assets/` + `<Image />` from `astro:assets`
 - CSS: custom properties in `global.css`, no framework, no CSS modules
 - Forms: webhook POST via `fetch` when `crmWebhookUrl` is set, standard submission as fallback
+
+## Page Templates
+
+| Template | URL Pattern | Purpose |
+|---|---|---|
+| `[lang]/index.astro` | `/en/` | Homepage (15 sections, ~1,050 words) |
+| `[lang]/[slug].astro` | `/en/drain-cleaning/` | Service page (11 sections, ~1,100 words) |
+| `[lang]/[location].astro` | `/en/plumbing-in-austin/` | Location page (12 sections, ~1,200 words, Maps embed) |
+| `[lang]/[parent]/[child].astro` | `/en/drain-cleaning/kitchen-drain-cleaning/` | Sub-service page |
+| `[lang]/blog/[post].astro` | `/en/blog/post-slug/` | Blog post with TOC sidebar |
 
 ## What NOT to Do
 
