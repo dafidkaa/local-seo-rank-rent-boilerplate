@@ -18,15 +18,23 @@ import FaqSection from "../../components/FaqSection.astro";
 import FinalCta from "../../components/FinalCta.astro";
 import ServiceCard from "../../components/ServiceCard.astro";
 import { siteConfig, allServices } from "../../site.config";
-import { t } from "../../lib/routes";
-import { seo, serviceSchema, breadcrumbSchema, faqSchema, howToSchema } from "../../lib/seo";
+import { t, servicePath, subservicePath, locationPath, serviceSlug, localePathsFor } from "../../lib/routes";
+import { seo, serviceSchema, breadcrumbSchema } from "../../lib/seo";
+import { blocks, ui } from "../../i18n";
+import ShortAnswer from "../../components/ShortAnswer.astro";
+import ProsCons from "../../components/ProsCons.astro";
+import ComparisonTable from "../../components/ComparisonTable.astro";
+import StatsBar from "../../components/StatsBar.astro";
+import Gallery from "../../components/Gallery.astro";
+import BeforeAfter from "../../components/BeforeAfter.astro";
+import Icon from "../../components/Icon.astro";
 
 export async function getStaticPaths() {
   const paths: { params: { lang: string; slug: string }; props: any }[] = [];
   for (const locale of siteConfig.locales) {
     for (const service of allServices) {
       paths.push({
-        params: { lang: locale.code, slug: service.id },
+        params: { lang: locale.code, slug: serviceSlug(locale.code, service) },
         props: { locale: locale.code, service },
       });
     }
@@ -49,56 +57,47 @@ const serviceNameLower = serviceName.toLowerCase();
 const serviceShort     = t(service.short, locale);
 const children         = service.children ?? [];
 
+// All body copy comes from the locale files (blocks.servicePage.*) so a new
+// niche or language never requires edits to this template.
+const vars = { business: businessName, service: serviceName, serviceLower: serviceNameLower, city, area, founded, phone, short: serviceShort };
+const B = (key: string) => blocks(`blocks.servicePage.${key}`, locale, vars);
+type Item = { icon?: string; title: string; desc: string };
+const signItems: Item[] = B("signs.items");
+const prosConsData: { title: string; lead: string; prosTitle: string; consTitle: string; pros: string[]; cons: string[] } = B("prosCons");
+const comparisonData: { title: string; lead: string; columns: string[]; rows: string[][] } = B("comparison");
+const statsBarItems = [
+  { value: siteConfig.stats.yearsInBusiness, label: ui("blocks.statsBar.years", locale) },
+  { value: siteConfig.stats.jobsCompleted,   label: ui("blocks.statsBar.jobs", locale) },
+  { value: siteConfig.stats.averageRating,   label: ui("blocks.statsBar.rating", locale) },
+  { value: siteConfig.stats.satisfactionRate, label: ui("blocks.statsBar.satisfaction", locale) },
+];
+const whyItems: Item[] = B("why.items");
+const problemItems: Item[] = B("problems.items");
+
 // Breadcrumbs
 const crumbs = [
   { name: "Home",     url: `/${locale}/` },
   { name: "Services", url: `/${locale}/#services` },
-  { name: serviceName, url: `/${locale}/${service.id}/` },
+  { name: serviceName, url: servicePath(locale, service) },
 ];
 
-// FAQs — 5 keyword-rich questions
-const faqs = [
-  {
-    question: `How much does ${serviceNameLower} cost in ${city}?`,
-    answer: `The cost of ${serviceNameLower} in ${city} depends on the scope and complexity of the work. ${businessName} provides free, written estimates with no obligation. Contact us to schedule your assessment and receive a clear upfront price.`
-  },
-  {
-    question: `How quickly can you respond for ${serviceNameLower} in ${city}?`,
-    answer: `We offer same-day service for most ${serviceNameLower} requests in ${city}. Emergency service is available around the clock. Call us now to confirm availability and book your appointment.`
-  },
-  {
-    question: `Is ${businessName} licensed for ${serviceNameLower} in ${city}?`,
-    answer: `Yes. ${businessName} is fully licensed, bonded, and insured for all ${serviceNameLower} work in ${city} and the surrounding ${area}. We are happy to provide documentation on request.`
-  },
-  {
-    question: `Do you offer a warranty on ${serviceNameLower} work?`,
-    answer: `Yes. All our ${serviceNameLower} work in ${city} is backed by a written satisfaction guarantee. If you are not satisfied with the result, we return and make it right at no additional cost.`
-  },
-  {
-    question: `What areas do you serve for ${serviceNameLower}?`,
-    answer: `We serve ${city} and the surrounding ${area} including ${siteConfig.locations.slice(0, 4).map((l: any) => l.name).join(", ")}, and more. Contact us to confirm coverage in your area.`
-  },
-];
+// FAQs — keyword-rich Q&As from the locale content blocks
+const faqs: Array<{ q: string; a: string }> = B("faqs");
 
 // Schema
+// FAQPage and HowTo schema are emitted by FaqSection / ProcessSection from
+// their visible items, so structured data always matches on-page content.
 const schemas = [
-  serviceSchema(locale, serviceName, `${siteConfig.siteUrl}/${locale}/${service.id}/`),
+  serviceSchema(locale, serviceName, servicePath(locale, service)),
   breadcrumbSchema(crumbs),
-  faqSchema(faqs.map((f) => ({ question: f.question, answer: f.answer }))),
-  howToSchema([
-    { name: "Contact us for a free estimate",        text: "Call or fill out our online form to request a free, no-obligation estimate for your job." },
-    { name: "Schedule your appointment",             text: "We confirm your appointment and provide a written quote before any work begins — no surprises." },
-    { name: "Our licensed team arrives on time",     text: "Our qualified technicians arrive at the scheduled time, fully equipped for the job." },
-    { name: "Work is completed to your satisfaction",text: "We complete the job to the highest professional standard and walk you through the results." },
-    { name: "Final walkthrough and written warranty",text: "We do not consider the job done until you are fully satisfied. All work is backed by a written guarantee." },
-  ]),
 ];
 
 const meta = seo({
   title:       `${serviceName} in ${city} | ${businessName}`,
   description: `Need ${serviceNameLower} in ${city}? ${businessName} provides professional, licensed ${serviceNameLower} with free estimates and same-day service. Call now.`,
   locale,
-  path:        `/${locale}/${service.id}/`,
+  path:        servicePath(locale, service),
+  localePaths: localePathsFor((l) => servicePath(l, service)),
   schema:      schemas,
 });
 
@@ -119,12 +118,15 @@ const aboutImg   = (siteConfig.brand as any).images?.about ?? "https://images.un
   ═══════════════════════════════════════════════════════════════════════════ -->
   <Hero
     title={`${serviceName} in ${city}`}
-    text={`Professional, licensed ${serviceNameLower} for ${city} homeowners and businesses. Free estimates · Same-day service · 100% satisfaction guaranteed.`}
+    text={B("heroText")}
     image={heroImage}
     imageAlt={`${serviceName} professionals in ${city} — ${businessName}`}
     locale={locale}
     breadcrumbs={crumbs}
   />
+
+  <!-- AEO: direct-answer block targeting featured snippets / AI answers -->
+  <ShortAnswer label={B("shortAnswer.label")} text={B("shortAnswer.text")} />
 
   <!-- ═══════════════════════════════════════════════════════════════════════
        2. INTRODUCTION — What is [Service]? (~200 words)
@@ -134,32 +136,18 @@ const aboutImg   = (siteConfig.brand as any).images?.about ?? "https://images.un
     <div class="container service-intro">
       <div class="service-intro-copy">
         <p class="eyebrow">{serviceName} in {city}</p>
-        <h2 id="intro-heading">Professional {serviceName} You Can Trust in {city}</h2>
-        <p>
-          When you need {serviceNameLower} in {city}, you deserve a team that shows up on time,
-          communicates clearly, and gets the job done right the first time. {businessName} has been
-          serving {city} and the surrounding {area} since {founded}. We are licensed, bonded, and
-          insured — and every job we complete is backed by our 100% satisfaction guarantee.
-        </p>
-        <p>
-          Our {serviceNameLower} service is designed for homeowners and businesses who want professional
-          results without the stress. We provide free, no-obligation estimates, upfront pricing with
-          no hidden fees, and same-day service for most requests in {city}.
-        </p>
-        <p>
-          {serviceShort} Whether you are dealing with a minor issue or a major problem, our experienced
-          team has the tools, training, and local knowledge to handle it efficiently and professionally.
-          We have completed thousands of {serviceNameLower} jobs throughout {city} and the {area},
-          earning a reputation for reliability, quality, and honest communication.
-        </p>
+        <h2 id="intro-heading">{B("intro.heading")}</h2>
+        <p>{B("intro.p1")}</p>
+        <p>{B("intro.p2")}</p>
+        <p>{B("intro.p3")}</p>
         <div class="intro-actions">
-          <button class="btn btn-primary" data-open-form-popup aria-haspopup="dialog">
-            Get a Free Estimate
+          <button class="btn btn-primary" data-open-form-popup data-service={service.id} aria-haspopup="dialog">
+            {ui("blocks.common.getEstimate", locale)}
           </button>
-          <a href={`tel:${phone}`} class="btn btn-outline">Call {phone}</a>
+          <a href={`tel:${phone}`} class="btn btn-outline">{ui("blocks.common.callPhone", locale, { phone })}</a>
         </div>
       </div>
-      <div class="service-intro-image">
+      <div class="service-intro-image img-premium">
         <img
           src={heroImage}
           alt={`${serviceName} service in ${city} — ${businessName}`}
@@ -171,6 +159,9 @@ const aboutImg   = (siteConfig.brand as any).images?.about ?? "https://images.un
     </div>
   </section>
 
+  <!-- Animated trust stats (values from siteConfig.stats) -->
+  <StatsBar stats={statsBarItems} />
+
   <!-- ═══════════════════════════════════════════════════════════════════════
        3. SUB-SERVICES GRID — [Service] Types We Offer (~200 words)
        H2 with service keyword, H3 per sub-service = long-tail keyword coverage
@@ -178,21 +169,17 @@ const aboutImg   = (siteConfig.brand as any).images?.about ?? "https://images.un
   {children.length > 0 && (
     <section class="section" aria-labelledby="subservices-heading">
       <div class="container">
-        <p class="eyebrow">What We Cover</p>
-        <h2 id="subservices-heading">{serviceName} Services We Offer in {city}</h2>
-        <p class="section-lead">
-          {businessName} provides a full range of {serviceNameLower} solutions for {city} homes and
-          businesses. From routine maintenance to emergency repairs, our licensed team handles every
-          aspect of {serviceNameLower} with the same high standard of care.
-        </p>
+        <p class="eyebrow">{B("sub.eyebrow")}</p>
+        <h2 id="subservices-heading">{B("sub.heading")}</h2>
+        <p class="section-lead">{B("sub.lead")}</p>
         <div class="subservices-grid">
           {children.map((child: any) => (
-            <a href={`/${locale}/${service.id}/${child.id}/`} class="subservice-card">
+            <a href={subservicePath(locale, service, child)} class="subservice-card">
               <div class="subservice-card-inner">
                 <h3 class="subservice-title">{t(child.title, locale)}</h3>
                 <p class="subservice-desc">{t(child.short, locale)}</p>
                 <span class="subservice-link" aria-hidden="true">
-                  Learn more →
+                  {ui("blocks.common.learnMore", locale)}
                 </span>
               </div>
             </a>
@@ -208,24 +195,13 @@ const aboutImg   = (siteConfig.brand as any).images?.about ?? "https://images.un
   ═══════════════════════════════════════════════════════════════════════════ -->
   <section class="section section-light" aria-labelledby="signs-heading">
     <div class="container">
-      <p class="eyebrow">Warning Signs</p>
-      <h2 id="signs-heading">Signs You Need {serviceName} in {city}</h2>
-      <p class="section-lead">
-        Many {city} homeowners and businesses delay calling a professional until a small problem
-        becomes a costly emergency. Here are the most common warning signs that you need
-        {serviceNameLower} right away.
-      </p>
+      <p class="eyebrow">{B("signs.eyebrow")}</p>
+      <h2 id="signs-heading">{B("signs.heading")}</h2>
+      <p class="section-lead">{B("signs.lead")}</p>
       <div class="signs-grid">
-        {[
-          { icon: "⚠️", title: "Visible damage or deterioration",   desc: `If you can see signs of wear, damage, or failure, do not wait. Early intervention for ${serviceNameLower} in ${city} almost always costs less than emergency repairs.` },
-          { icon: "📉", title: "Reduced performance or efficiency", desc: `A noticeable drop in performance is often the first sign that ${serviceNameLower} is needed. Address it early to avoid more serious problems.` },
-          { icon: "💧", title: "Leaks, spills, or unexpected moisture", desc: `Any unexplained moisture, leaks, or water damage around your property in ${city} should be assessed by a licensed professional immediately.` },
-          { icon: "🔊", title: "Unusual sounds or smells",          desc: `Strange noises or odors are often early warning signs of a problem that requires professional ${serviceNameLower} attention.` },
-          { icon: "📅", title: "It has been more than a year",      desc: `Regular maintenance is the best way to prevent costly repairs. If you have not had a professional ${serviceNameLower} inspection in over a year, now is the time.` },
-          { icon: "🏚️", title: "Older property or aging systems",   desc: `Properties in ${city} built before the 1990s often have systems that are approaching the end of their service life. A professional assessment can prevent unexpected failures.` },
-        ].map((sign) => (
+        {signItems.map((sign) => (
           <div class="sign-card">
-            <div class="sign-icon" aria-hidden="true">{sign.icon}</div>
+            <div class="sign-icon" aria-hidden="true"><Icon name={sign.icon ?? "check"} size={19} /></div>
             <div>
               <h3 class="sign-title">{sign.title}</h3>
               <p class="sign-desc">{sign.desc}</p>
@@ -236,67 +212,38 @@ const aboutImg   = (siteConfig.brand as any).images?.about ?? "https://images.un
     </div>
   </section>
 
+  <!-- Decision support: balanced pros/cons + comparison table (AEO) -->
+  <ProsCons
+    title={prosConsData.title}
+    lead={prosConsData.lead}
+    prosTitle={prosConsData.prosTitle}
+    consTitle={prosConsData.consTitle}
+    pros={prosConsData.pros}
+    cons={prosConsData.cons}
+  />
+  <ComparisonTable
+    title={comparisonData.title}
+    lead={comparisonData.lead}
+    columns={comparisonData.columns}
+    rows={comparisonData.rows}
+  />
+
   <!-- ═══════════════════════════════════════════════════════════════════════
        5. WHY CHOOSE US — Benefits deep-dive (~250 words)
        H2 with brand + city keyword, H3 per benefit
   ═══════════════════════════════════════════════════════════════════════════ -->
   <section class="section section-charcoal" aria-labelledby="why-heading">
     <div class="container">
-      <p class="eyebrow" style="color:var(--brand-accent)">Why Choose Us</p>
-      <h2 id="why-heading" style="color:#fff">Why {city} Chooses {businessName} for {serviceName}</h2>
-      <p class="section-lead" style="color:rgba(255,255,255,.75)">
-        Choosing the right {serviceNameLower} provider in {city} matters. Here is what sets
-        {businessName} apart from other companies in the {area}.
-      </p>
+      <p class="eyebrow" style="color:var(--brand-accent)">{B("why.eyebrow")}</p>
+      <h2 id="why-heading" style="color:#fff">{B("why.heading")}</h2>
+      <p class="section-lead" style="color:rgba(255,255,255,.75)">{B("why.lead")}</p>
       <div class="benefits-grid">
-        <div class="benefit-item">
-          <h3>Licensed, Bonded &amp; Insured</h3>
-          <p>
-            Every technician on our team is fully licensed and insured for {serviceNameLower} work in
-            {city}. You are protected from the moment we arrive on site. We carry full liability
-            insurance and are happy to provide documentation on request.
-          </p>
-        </div>
-        <div class="benefit-item">
-          <h3>Transparent Upfront Pricing</h3>
-          <p>
-            We provide a clear, written estimate before any {serviceNameLower} work begins in {city}.
-            The price we quote is the price you pay — no hidden fees, no surprise charges, no
-            pressure. Our goal is to earn your trust, not maximize your invoice.
-          </p>
-        </div>
-        <div class="benefit-item">
-          <h3>Same-Day Service Available</h3>
-          <p>
-            We understand that {serviceNameLower} issues in {city} often cannot wait. We offer
-            same-day appointments for most requests and emergency service around the clock. Call
-            us now and we will do our best to be there today.
-          </p>
-        </div>
-        <div class="benefit-item">
-          <h3>100% Satisfaction Guarantee</h3>
-          <p>
-            We do not consider any {serviceNameLower} job in {city} complete until you are fully
-            satisfied with the result. If anything is not right, we return and fix it at no
-            additional cost. That is our written commitment on every job.
-          </p>
-        </div>
-        <div class="benefit-item">
-          <h3>Local {city} Expertise</h3>
-          <p>
-            Our team has completed thousands of {serviceNameLower} jobs throughout {city} and the
-            {area}. We know the local infrastructure, building codes, and common challenges
-            specific to this area — which means faster diagnosis and better results for you.
-          </p>
-        </div>
-        <div class="benefit-item">
-          <h3>Clean, Respectful Work</h3>
-          <p>
-            We treat every home and business in {city} with the same care and respect we would
-            give our own. We use protective coverings, keep the work area clean throughout the
-            job, and leave your property in better condition than we found it.
-          </p>
-        </div>
+        {whyItems.map((item) => (
+          <div class="benefit-item">
+            <h3>{item.title}</h3>
+            <p>{item.desc}</p>
+          </div>
+        ))}
       </div>
     </div>
   </section>
@@ -305,14 +252,9 @@ const aboutImg   = (siteConfig.brand as any).images?.about ?? "https://images.un
        6. PROCESS SECTION — How it works
   ═══════════════════════════════════════════════════════════════════════════ -->
   <ProcessSection
-    title={`How Our ${serviceName} Process Works in ${city}`}
-    subtitle={`Professional ${serviceNameLower} service in ${city}. Here is what to expect when you contact ${businessName}.`}
-    steps={[
-      { title: "Contact Us",          text: `Call ${phone} or submit our quick online form. We respond within the hour and confirm your appointment.` },
-      { title: "Free Written Estimate", text: `We assess the ${serviceNameLower} job and provide a clear, written price — no hidden fees, no surprises, no pressure.` },
-      { title: "We Get to Work",      text: `Our licensed ${city} team arrives on time, fully equipped, and completes the job to the highest professional standard.` },
-      { title: "Satisfaction Guaranteed", text: `We do not consider the ${serviceNameLower} job done until you are completely satisfied. All work is backed by a written guarantee.` },
-    ]}
+    title={B("process.title")}
+    subtitle={B("process.subtitle")}
+    steps={B("process.steps")}
   />
 
   <!-- ═══════════════════════════════════════════════════════════════════════
@@ -321,23 +263,13 @@ const aboutImg   = (siteConfig.brand as any).images?.about ?? "https://images.un
   ═══════════════════════════════════════════════════════════════════════════ -->
   <section class="section section-light" aria-labelledby="problems-heading">
     <div class="container">
-      <p class="eyebrow">Common Challenges</p>
-      <h2 id="problems-heading">Common {serviceName} Problems in {city}</h2>
-      <p class="section-lead">
-        Many {city} homeowners and businesses face similar challenges. Here are the most common
-        situations our customers contact us about — and how we resolve them.
-      </p>
+      <p class="eyebrow">{B("problems.eyebrow")}</p>
+      <h2 id="problems-heading">{B("problems.heading")}</h2>
+      <p class="section-lead">{B("problems.lead")}</p>
       <div class="problems-grid">
-        {[
-          { icon: "⚡", title: "Unexpected emergencies",       desc: `Problems can arise without warning. Our team is available for same-day and emergency ${serviceNameLower} service throughout ${city}.` },
-          { icon: "💰", title: "Uncertainty about costs",      desc: `Many customers are unsure what a fair price looks like. We provide free estimates and transparent pricing so you can make an informed decision.` },
-          { icon: "🔍", title: "Finding a reliable provider",  desc: `Not all ${serviceNameLower} providers are equal. ${businessName} is licensed, insured, and has a proven track record in ${city}.` },
-          { icon: "✅", title: "Concerns about quality",       desc: `Our work is backed by a satisfaction guarantee. We do not consider a job complete until you are satisfied with the result.` },
-          { icon: "🕐", title: "Tight schedules",              desc: `We offer flexible appointment times and same-day service to work around your schedule in ${city}.` },
-          { icon: "📋", title: "Hidden fees and surprises",    desc: `We provide written estimates before work begins. The price we quote is the price you pay — always.` },
-        ].map((item) => (
+        {problemItems.map((item) => (
           <div class="problem-card">
-            <div class="problem-icon" aria-hidden="true">{item.icon}</div>
+            <div class="problem-icon" aria-hidden="true"><Icon name={item.icon ?? "check"} size={19} /></div>
             <div>
               <h3 class="problem-title">{item.title}</h3>
               <p class="problem-desc">{item.desc}</p>
@@ -355,26 +287,13 @@ const aboutImg   = (siteConfig.brand as any).images?.about ?? "https://images.un
   <section class="section" aria-labelledby="about-heading">
     <div class="container about-split">
       <div class="about-copy">
-        <p class="eyebrow">About {businessName}</p>
-        <h2 id="about-heading">Trusted {serviceName} Professionals in {city} Since {founded}</h2>
-        <p>
-          {businessName} was founded in {founded} with a simple mission: to provide honest,
-          professional {serviceNameLower} services to homeowners and businesses in {city} and the
-          surrounding {area}. Since then, we have completed thousands of jobs throughout the metro,
-          earning a reputation for reliability, quality, and honest communication.
-        </p>
-        <p>
-          We believe that every customer deserves to know exactly what they are paying for before
-          work begins. That is why we provide free, written estimates with no obligation. Our
-          pricing is transparent, our work is guaranteed, and our team is always on time.
-        </p>
-        <p>
-          When you choose {businessName} for {serviceNameLower} in {city}, you are choosing a
-          locally owned company that is invested in this community. We live and work here — and
-          our reputation depends on every single job we complete.
-        </p>
+        <p class="eyebrow">{B("about.eyebrow")}</p>
+        <h2 id="about-heading">{B("about.heading")}</h2>
+        <p>{B("about.p1")}</p>
+        <p>{B("about.p2")}</p>
+        <p>{B("about.p3")}</p>
       </div>
-      <div class="about-image-wrap">
+      <div class="about-image-wrap img-premium">
         <img
           src={aboutImg}
           alt={`${businessName} — trusted ${serviceNameLower} professionals in ${city}`}
@@ -386,20 +305,35 @@ const aboutImg   = (siteConfig.brand as any).images?.about ?? "https://images.un
     </div>
   </section>
 
+  <!-- Image-rich proof: gallery + before/after (render when config provides data) -->
+  {service.gallery && service.gallery.length > 0 && (
+    <Gallery
+      images={service.gallery}
+      eyebrow={B("gallery.eyebrow")}
+      title={B("gallery.title")}
+      lead={B("gallery.lead")}
+    />
+  )}
+  {service.beforeAfter && (
+    <BeforeAfter
+      before={service.beforeAfter.before}
+      after={service.beforeAfter.after}
+      eyebrow={B("gallery.eyebrow")}
+      title={B("gallery.title")}
+    />
+  )}
+
   <!-- ═══════════════════════════════════════════════════════════════════════
        9. SERVICE AREA — Other locations we serve
   ═══════════════════════════════════════════════════════════════════════════ -->
   <section class="section section-light" aria-labelledby="area-heading">
     <div class="container">
-      <p class="eyebrow">Service Area</p>
-      <h2 id="area-heading">{serviceName} Across {area}</h2>
-      <p class="section-lead">
-        {businessName} provides {serviceNameLower} throughout {area}. Whether you are in {city} or
-        a surrounding community, our licensed team is nearby and ready to help.
-      </p>
+      <p class="eyebrow">{B("area.eyebrow")}</p>
+      <h2 id="area-heading">{B("area.heading")}</h2>
+      <p class="section-lead">{B("area.lead")}</p>
       <div class="area-tags">
         {siteConfig.locations.map((loc: any) => (
-          <a href={`/${locale}/${loc.id}/`} class="area-tag">
+          <a href={locationPath(locale, loc.id)} class="area-tag">
             {serviceName} in {loc.name}
           </a>
         ))}
@@ -413,15 +347,16 @@ const aboutImg   = (siteConfig.brand as any).images?.about ?? "https://images.un
   {relatedServices.length > 0 && (
     <section class="section" aria-labelledby="related-heading">
       <div class="container">
-        <p class="eyebrow">Our Services</p>
-        <h2 id="related-heading">Other {t(siteConfig.business.primaryService, locale)} Services in {city}</h2>
+        <p class="eyebrow">{B("related.eyebrow")}</p>
+        <h2 id="related-heading">{blocks("blocks.servicePage.related.heading", locale, { ...vars, service: t(siteConfig.business.primaryService, locale) })}</h2>
         <div class="services-grid">
           {relatedServices.map((s: any) => (
             <ServiceCard
+              locale={locale}
               title={t(s.title, locale)}
               description={t(s.short, locale)}
               image={s.image ?? (siteConfig.brand as any).images?.hero1 ?? 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=600&q=80'}
-              href={`/${locale}/${s.id}/`}
+              href={servicePath(locale, s)}
               alt={`${t(s.title, locale)} in ${city}`}
             />
           ))}
@@ -439,8 +374,8 @@ const aboutImg   = (siteConfig.brand as any).images?.about ?? "https://images.un
        12. FAQ — AEO/GEO optimised
   ═══════════════════════════════════════════════════════════════════════════ -->
   <FaqSection
-    title={`Frequently Asked Questions About ${serviceName} in ${city}`}
-    items={faqs.map((f) => ({ q: f.question, a: f.answer }))}
+    title={B("faqTitle")}
+    items={faqs}
   />
 
   <!-- ═══════════════════════════════════════════════════════════════════════
@@ -449,12 +384,12 @@ const aboutImg   = (siteConfig.brand as any).images?.about ?? "https://images.un
   <section class="cta-strip">
     <div class="container cta-strip-inner">
       <div class="cta-strip-text">
-        <h2>Ready to Book {serviceName} in {city}?</h2>
-        <p>Free estimates · Same-day service · 100% satisfaction guaranteed</p>
+        <h2>{B("ctaStrip.heading")}</h2>
+        <p>{B("ctaStrip.sub")}</p>
       </div>
       <div class="cta-strip-actions">
-        <button class="btn btn-primary" data-open-form-popup aria-haspopup="dialog" aria-label="Request a free estimate">
-          Request a Free Estimate
+        <button class="btn btn-primary" data-open-form-popup data-service={service.id} aria-haspopup="dialog" aria-label={ui("blocks.common.requestEstimate", locale)}>
+          {ui("blocks.common.requestEstimate", locale)}
         </button>
         <a href={`tel:${phone}`} class="btn btn-outline-light">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.5 19.79 19.79 0 0 1 1.61 4.93 2 2 0 0 1 3.6 2.73h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 10.09a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 17.5z"/></svg>
@@ -469,8 +404,8 @@ const aboutImg   = (siteConfig.brand as any).images?.about ?? "https://images.un
   ═══════════════════════════════════════════════════════════════════════════ -->
   <FinalCta
     locale={locale}
-    title={`Get A Free ${serviceName} Estimate in ${city}`}
-    text={`Fill out the quick form to schedule a no-pressure, no-obligation quote for ${serviceNameLower} in ${city} and nearby areas. We respond within one business hour.`}
+    title={B("finalCta.title")}
+    text={B("finalCta.text")}
   />
 
 </BaseLayout>
@@ -564,14 +499,15 @@ const aboutImg   = (siteConfig.brand as any).images?.about ?? "https://images.un
   }
   .sign-icon {
     flex-shrink: 0;
-    width: 36px;
-    height: 36px;
-    background: var(--brand-accent-light, #fef3c7);
-    border-radius: 50%;
+    width: 42px;
+    height: 42px;
+    background: linear-gradient(135deg, var(--brand-accent-light, #fef3c7), color-mix(in srgb, var(--brand-accent-light, #fef3c7) 35%, white));
+    border: 1px solid color-mix(in srgb, var(--brand-accent) 22%, transparent);
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1rem;
+    color: var(--brand-accent-dark, #d97706);
     margin-top: 2px;
   }
   .sign-title {
@@ -634,14 +570,15 @@ const aboutImg   = (siteConfig.brand as any).images?.about ?? "https://images.un
   }
   .problem-icon {
     flex-shrink: 0;
-    width: 36px;
-    height: 36px;
-    background: var(--brand-accent-light, #fef3c7);
-    border-radius: 50%;
+    width: 42px;
+    height: 42px;
+    background: linear-gradient(135deg, var(--brand-accent-light, #fef3c7), color-mix(in srgb, var(--brand-accent-light, #fef3c7) 35%, white));
+    border: 1px solid color-mix(in srgb, var(--brand-accent) 22%, transparent);
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1rem;
+    color: var(--brand-accent-dark, #d97706);
     margin-top: 2px;
   }
   .problem-title {
@@ -719,7 +656,14 @@ const aboutImg   = (siteConfig.brand as any).images?.about ?? "https://images.un
   }
 
   /* ── CTA strip ───────────────────────────────────────────────────────────── */
-  .cta-strip { background: var(--brand-primary); padding: 3rem 0; }
+  .cta-strip {
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(700px 320px at 8% 120%, var(--accent-glow), transparent 60%),
+      var(--gradient-primary);
+    padding: 3.5rem 0;
+  }
   .cta-strip-inner { display: flex; align-items: center; justify-content: space-between; gap: 2rem; flex-wrap: wrap; }
   .cta-strip-text h2 { font-size: clamp(1.25rem, 2.5vw, 1.5rem); font-weight: 800; color: white; margin: 0 0 0.5rem; }
   .cta-strip-text p { color: rgba(255,255,255,0.75); margin: 0; font-size: 0.9375rem; }

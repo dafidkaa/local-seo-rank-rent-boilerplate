@@ -6,28 +6,54 @@ type SeoInput = {
   title: string;
   description: string;
   path?: string;
+  /**
+   * Per-locale path map for pages whose slug differs by locale
+   * (location pages, translated service slugs). Keys are locale codes,
+   * values are the path *within* that locale (no /{locale}/ prefix) OR a
+   * full localized path starting with "/". When omitted, the same `path`
+   * is assumed to exist in every locale.
+   */
+  localePaths?: Record<string, string>;
   image?: string;
   noindex?: boolean;
+  /** Open Graph type — "website" (default) or "article" for blog posts */
+  ogType?: "website" | "article";
+  /** Extra article meta (published/modified ISO dates) when ogType is "article" */
+  article?: { publishedTime?: string; modifiedTime?: string; author?: string };
   schema?: unknown[];
 };
 
-export const buildCanonical = (locale: string, path = "") => new URL(localizedPath(locale, path), siteConfig.siteUrl).toString();
+export const buildCanonical = (locale: string, path = "") =>
+  new URL(path.startsWith("/") ? path : localizedPath(locale, path), siteConfig.siteUrl).toString();
 
-export const buildAlternates = (path = "") =>
+export const buildAlternates = (path = "", localePaths?: Record<string, string>) =>
   siteConfig.locales.map((locale) => ({
     lang: locale.code,
     label: locale.label,
-    url: buildCanonical(locale.code, path)
+    url: buildCanonical(locale.code, localePaths?.[locale.code] ?? path)
   }));
 
-export const seo = ({ locale, title, description, path = "", image = (siteConfig.brand.images as any)?.og ?? `${siteConfig.siteUrl}/og-default.jpg`, noindex = false, schema = [] }: SeoInput) => ({
+export const seo = ({
+  locale,
+  title,
+  description,
+  path = "",
+  localePaths,
+  image = (siteConfig.brand.images as any)?.og ?? `${siteConfig.siteUrl}/og-default.jpg`,
+  noindex = false,
+  ogType = "website",
+  article,
+  schema = []
+}: SeoInput) => ({
   title,
   description,
   path,
-  canonical: buildCanonical(locale, path),
+  canonical: buildCanonical(locale, localePaths?.[locale] ?? path),
   image,
   noindex,
-  alternates: buildAlternates(path),
+  ogType,
+  article,
+  alternates: buildAlternates(path, localePaths),
   schema
 });
 

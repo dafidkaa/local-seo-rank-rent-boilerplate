@@ -82,3 +82,92 @@ Deploy workflow: `.github/workflows/deploy.yml` — disabled by default in the t
 - Do not modify `astro.config.mjs` `site` property directly — it reads from `process.env.SITE_URL`
 - Do not use `!important` in CSS — refactor specificity instead
 - Do not add comments to code unless explicitly requested
+
+
+## v2 Systems (read before editing templates)
+
+### Content blocks — ALL body copy lives in i18n
+`src/i18n/en.ts` / `hr.ts` contain a `blocks:` section holding every paragraph,
+card, FAQ, and process step rendered by `[slug].astro`, `[location].astro`, and
+`[parent]/[child].astro`. Templates call `blocks("blocks.servicePage.signs", locale, vars)`
+(see `src/i18n/index.ts`) and interpolate `{service}`, `{city}`, `{business}`, etc.
+**Never hardcode visible copy in those three templates** — add a key to the
+locale files instead, so every locale and niche stays consistent.
+
+### Theme presets
+`src/lib/themes.ts` exports 17 niche presets (colors + fonts + hero overlay).
+`siteConfig.brand` spreads one (`...themePreset("home-services")`) and overrides
+as needed. Fonts are loaded from `brand.fontDisplay`/`fontBody` at build time —
+families must carry weights 400–800 or provide `brand.fontsHref`.
+
+### i18n routing
+- Location slugs are localized via `locationSlug()` (`src/lib/routes.ts`).
+- Service slugs can be translated per locale via the optional `slug` field on
+  services/children; `servicePath()`/`subservicePath()` resolve them.
+- Pages whose URL differs by locale pass `localePaths: localePathsFor(...)` to
+  `seo()` so hreflang alternates and the header language switcher point at the
+  real translated URL. The switcher receives `alternates` from BaseLayout.
+
+### Components added in v2
+| Component | Purpose |
+|---|---|
+| `ShortAnswer.astro` | AEO direct-answer card under the hero |
+| `ProsCons.astro` | balanced two-column decision section |
+| `ComparisonTable.astro` | crawlable comparison `<table>` |
+| `StatsBar.astro` | count-up trust stats (values from `siteConfig.stats`) |
+| `Gallery.astro` | image grid + native `<dialog>` lightbox (`service.gallery`) |
+| `BeforeAfter.astro` | draggable before/after slider (`service.beforeAfter`) |
+| `BlogHub.astro` | shared blog archive (page 1 + `/blog/page/N/`) |
+
+`FaqSection.astro` and `ProcessSection.astro` emit FAQPage / HowTo JSON-LD from
+their visible items — do NOT also add `faqSchema()` / `howToSchema()` to the
+page head for the same content (duplicate structured data).
+
+### Forms & leads
+`window.submitLead(data, locale)` (defined in BaseLayout) delivers leads:
+`integrations.crmWebhookUrl` → `integrations.formsubmitEmail` (formsubmit.co
+AJAX) → no-backend fallback. Google Ads conversions fire only when
+`integrations.googleAdsConversionId` is set. Popup triggers may carry
+`data-service="<service-id>"` to pre-select the service.
+
+### Motion
+A scroll-reveal observer in BaseLayout staggers `[data-reveal]` elements and
+children of known grid classes; `StatsBar` counts up on scroll. Both respect
+`prefers-reduced-motion`. Add `data-reveal` to new sections to opt in.
+
+### Blog pagination
+`/[lang]/blog/` is page 1; pages 2+ are static at `/[lang]/blog/page/N/`
+(9 posts per page, newest post featured on page 1). Search/filter/sort run
+client-side over a JSON index of all posts and never hide the static grid from
+crawlers.
+
+
+## Design System v2 (visual layer)
+
+- **Brand-derived everything**: surfaces, borders, shadows, hero/image overlays, and dark
+  sections are computed from `--brand-primary/secondary/accent` via `color-mix` — no
+  hardcoded navy anywhere. Changing the theme preset restyles the entire site, including
+  photo overlays and the dark gradient bands (`--gradient-dark`, `--accent-glow`).
+- **Theme personality**: each preset in `src/lib/themes.ts` carries
+  `personality: { radius, button }`. BaseLayout maps it to `--radius-*`, `--btn-radius`,
+  and `--btn-bg` so legal sites read sharp/serif, beauty sites read round/airy, etc.
+- **Icons**: use `Icon.astro` (curated SVG stroke set) — NEVER emoji. Content blocks
+  reference icons by name (`icon: "alert-triangle"`).
+- **Eyebrows** (`.eyebrow`) render with an accent rule; section headers with
+  `.section-header.center` get rules on both sides.
+- **Premium image frames**: add `.img-premium` to a split-section image wrapper for the
+  offset accent frame.
+- **Utilities**: `.orb` (blurred accent orb for dark/CTA sections), `.link-underline`.
+- A/B variant pages (home-page-2, service-area-hub-2) were removed; the legal/[page]
+  route now serves only /legal/disclaimer/ (privacy + terms have standalone pages).
+
+- **Nav treatment**: `personality.nav` — `"solid"` (utility bar + glass header) or
+  `"overlay"` (transparent header embedded in the hero, glass on scroll; premium
+  niches). Overlay requires every page to open with a dark hero (all templates do).
+- **Brand vars cascade fix**: brand/personality CSS variables are emitted on the
+  `<html>` style attribute (NOT a `<style>` tag) because Astro hoists bundled
+  stylesheets below inline styles — a `:root` rule in global.css would otherwise
+  override the injected theme. Do not move them back into a style tag.
+- **DESIGN-SYSTEM.md** is the global visual playbook; `DESIGN-[niche].md` files are
+  standardized briefs (preset wiring, hero/nav choice, signature sections, imagery
+  queries, CTA language, do/don't). Keep them in this format.

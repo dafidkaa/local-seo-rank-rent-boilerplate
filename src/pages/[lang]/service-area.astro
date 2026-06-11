@@ -11,7 +11,7 @@ import FinalCta from "@/components/FinalCta.astro";
 import FaqSection from "@/components/FaqSection.astro";
 import { siteConfig, type Locale } from "@/site.config";
 import { locationPath, t } from "@/lib/routes";
-import { localBusinessSchema, breadcrumbSchema, faqSchema, seo } from "@/lib/seo";
+import { localBusinessSchema, breadcrumbSchema, seo } from "@/lib/seo";
 
 export function getStaticPaths() {
   return siteConfig.locales.map((locale) => ({ params: { lang: locale.code } }));
@@ -45,7 +45,6 @@ const pageSeo = seo({
   schema: [
     localBusinessSchema(locale),
     breadcrumbSchema(crumbs),
-    faqSchema(faqs.map(f => ({ question: f.q, answer: f.a }))),
   ],
 });
 

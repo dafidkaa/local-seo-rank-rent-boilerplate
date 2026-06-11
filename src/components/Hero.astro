@@ -56,6 +56,27 @@ const ctaLabel = primaryText ?? t(siteConfig.business.cta, locale);
   <div class="inner-hero-overlay" aria-hidden="true"></div>
   <div class="inner-hero-body">
     <div class="container inner-hero-content">
+      {breadcrumbs && breadcrumbs.length > 0 && (
+        <nav class="inner-hero-breadcrumbs" aria-label="Breadcrumb">
+          <ol class="inner-hero-crumb-list" itemscope itemtype="https://schema.org/BreadcrumbList">
+            {breadcrumbs.map((crumb, i) => (
+              <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                {i < breadcrumbs.length - 1 && crumb.url ? (
+                  <a href={crumb.url} itemprop="item" class="inner-hero-crumb-link">
+                    <span itemprop="name">{crumb.name}</span>
+                  </a>
+                ) : (
+                  <span itemprop="name" aria-current="page" class="inner-hero-crumb-current">{crumb.name}</span>
+                )}
+                <meta itemprop="position" content={String(i + 1)} />
+                {i < breadcrumbs.length - 1 && (
+                  <span class="inner-hero-crumb-sep" aria-hidden="true">›</span>
+                )}
+              </li>
+            ))}
+          </ol>
+        </nav>
+      )}
       {eyebrow && (
         <p class="inner-hero-eyebrow">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
@@ -90,29 +111,6 @@ const ctaLabel = primaryText ?? t(siteConfig.business.cta, locale);
         )}
       </div>
     </div>
-    {breadcrumbs && breadcrumbs.length > 0 && (
-      <nav class="inner-hero-breadcrumbs" aria-label="Breadcrumb">
-        <div class="container">
-          <ol class="inner-hero-crumb-list" itemscope itemtype="https://schema.org/BreadcrumbList">
-            {breadcrumbs.map((crumb, i) => (
-              <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-                {i < breadcrumbs.length - 1 && crumb.url ? (
-                  <a href={crumb.url} itemprop="item" class="inner-hero-crumb-link">
-                    <span itemprop="name">{crumb.name}</span>
-                  </a>
-                ) : (
-                  <span itemprop="name" aria-current="page" class="inner-hero-crumb-current">{crumb.name}</span>
-                )}
-                <meta itemprop="position" content={String(i + 1)} />
-                {i < breadcrumbs.length - 1 && (
-                  <span class="inner-hero-crumb-sep" aria-hidden="true">›</span>
-                )}
-              </li>
-            ))}
-          </ol>
-        </div>
-      </nav>
-    )}
   </div>
 </section>
 <style>
@@ -142,8 +140,12 @@ const ctaLabel = primaryText ?? t(siteConfig.business.cta, locale);
     position: absolute;
     inset: 0;
     background:
-      linear-gradient(to right, rgba(8,14,35,.72) 45%, rgba(8,14,35,.35) 100%),
-      linear-gradient(to top, rgba(0,0,0,.55) 0%, transparent 55%);
+      linear-gradient(to right,
+        color-mix(in srgb, var(--brand-secondary) 84%, black) 0%,
+        color-mix(in srgb, var(--brand-secondary) 62%, transparent) 45%,
+        color-mix(in srgb, var(--brand-secondary) 26%, transparent) 100%),
+      linear-gradient(to top, rgba(0,0,0,.5) 0%, transparent 55%),
+      radial-gradient(700px 360px at 95% 115%, var(--accent-glow), transparent 60%);
     z-index: -1;
   }
   .inner-hero-body {
@@ -203,30 +205,29 @@ const ctaLabel = primaryText ?? t(siteConfig.business.cta, locale);
     border-color: rgba(255,255,255,.6);
     color: white;
   }
-  /* ── Breadcrumbs inside hero ─────────────────────────────────────────── */
-  .inner-hero-breadcrumbs {
-    background: rgba(0,0,0,.28);
-    border-top: 1px solid rgba(255,255,255,.12);
-    padding: 0.5rem 0;
-  }
+  /* ── Breadcrumbs — subtle inline trail at the top of the hero content ──── */
+  .inner-hero-breadcrumbs { margin: 0 0 14px; }
   .inner-hero-crumb-list {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 0.25rem 0.5rem;
+    gap: 0.2rem 0.45rem;
     list-style: none;
     margin: 0;
     padding: 0;
-    font-size: 0.8rem;
+    font-family: var(--font-display);
+    font-size: 0.78rem;
+    letter-spacing: 0.01em;
   }
+  .inner-hero-crumb-list li { display: inline-flex; align-items: center; gap: 0.45rem; }
   .inner-hero-crumb-link {
-    color: rgba(255,255,255,.7);
+    color: rgba(255,255,255,.6);
     text-decoration: none;
     transition: color 0.15s;
   }
-  .inner-hero-crumb-link:hover { color: var(--brand-accent); }
-  .inner-hero-crumb-current { color: rgba(255,255,255,.5); }
-  .inner-hero-crumb-sep { color: rgba(255,255,255,.3); font-size: 0.75rem; }
+  .inner-hero-crumb-link:hover { color: white; }
+  .inner-hero-crumb-current { color: rgba(255,255,255,.92); font-weight: 600; }
+  .inner-hero-crumb-sep { color: rgba(255,255,255,.32); }
   @media (max-width: 640px) {
     .inner-hero-actions { flex-direction: column; align-items: flex-start; }
     .inner-hero-actions .btn { width: 100%; justify-content: center; }

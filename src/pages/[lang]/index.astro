@@ -264,6 +264,7 @@ const homeFaqs = [
       <div class="grid grid-3" style="margin-top:clamp(32px,5vw,48px)">
         {allServices.map((service) => (
           <ServiceCard
+              locale={locale}
             title={t(service.title, locale)}
             description={t(service.short, locale)}
             image={service.image}

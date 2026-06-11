@@ -1,36 +1,57 @@
-# Niche Design Brief: Construction & Renovation
+# DESIGN BRIEF — Construction (Builders / Renovation / Excavation)
 
-This document defines the visual guidelines, typography, color palette, and asset map for the **Construction, Renovation, and Remodeling** niche (e.g., kitchen remodeling, roofing, home extensions, commercial build-outs).
+> **Wired in code:** `themePreset("construction")` -> warm gray #292524 / safety orange #ea580c | Outfit + Inter | sharp corners, gradient CTAs, solid nav.
+> Read **DESIGN-SYSTEM.md** first — it carries the global rules (type, nav variants,
+> buttons, motion, imagery, anti-slop checklist). This brief adds the niche layer.
 
-## 1. Brand Identity & Visual Strategy
-- **Tone & Mood:** Craftsmanship, durability, architectural precision, high-end quality.
-- **Color Palette:**
-  - **Primary (Dominant):** Deep Charcoal / Slate (`#1e293b` or `#0f172a`) — represents structure, foundation, and materials.
-  - **Secondary (Accent):** Warm Gold / Brass (`#c5a880` or `#b45309`) — represents premium finish, hardware, and craftsmanship.
-  - **Light Neutral (Background):** Soft Off-White / Cream (`#f8fafc` or `#fafaf9`) — clean, spacious.
-- **Typography:**
-  - **Display (Headings):** *Cinzel* or *Playfair Display* (for ultra-premium/luxury) or *Plus Jakarta Sans* (for modern architectural precision).
-  - **Body (Text):** *Inter* or *Cabinet Grotesk* — clean, legible, technical.
+## Positioning & feel
+Robust, organized, proud of the dirt. Strong grids, safety-orange punctuation, golden-hour steel.
 
-## 2. Image Asset Map (Unsplash References)
-When generating or sourcing images, use real photography representing structural materials, finished spaces, and professional craftsmen at work.
+## Palette & accent discipline
+Preset palette: warm gray #292524 / safety orange #ea580c. Safety orange for CTAs, progress numerals, and the hard-hat moments of the UI. Warm gray does the heavy lifting.
 
-| Image Key | Description | Recommended Search Query |
-| :--- | :--- | :--- |
-| `hero` | Finished high-end luxury space (kitchen/living room) | `luxury kitchen remodel finished` |
-| `team` | Professional architect or general contractor reviewing blueprints | `architect contractor blueprints site` |
-| `process` | Carpenter or builder working with precision tools | `carpenter working wood workshop` |
-| `service1` | Modern bathroom remodeling with gold fixtures | `luxury bathroom remodel gold` |
-| `service2` | Finished roof or high-end roofing work | `modern house roof exterior` |
-| `service3` | Finished kitchen remodel with custom cabinetry | `custom kitchen cabinets luxury` |
+## Typography
+Preset pairing: **Outfit + Inter** (weights wired automatically).
 
-## 3. Section Architecture & Word Count Distribution
-To hit the **1,500-word density target**, organize sections with alternating light/dark layouts:
-1. **Hero Slider:** Architectural finished project with dark overlay and gold CTAs (150 words).
-2. **Trust Bar:** Key credentials (Licensed, Bonded, 10-Year Warranty) (50 words).
-3. **Welcome / Story Section:** The history of craftsmanship and commitment to quality (250 words).
-4. **Service Grid:** Detailed cards for Remodeling, Roofing, Custom Builds (200 words).
-5. **Why Choose Us:** Deep-dive into materials, warranties, and licensed builders (200 words).
-6. **Our Process:** Architectural design, estimation, structural build, final finish (200 words).
-7. **Interactive Estimate Form:** Wide form with project type dropdown (150 words).
-8. **Faq Section:** Permits, insurance, warranties, and timeline FAQs (300 words).
+## Navigation & hero
+Static hero + embedded bid-request form — construction buyers are high-intent. Solid nav.
+- Primary CTA: **"Request a Bid"** | Secondary: **"View Our Projects"**
+- Form strategy: **standard — embedded hero/contact forms plus popup CTAs on inner pages**
+
+## Section rhythm
+Follow the standard service/location templates (hero -> quick answer -> stats ->
+sub-services -> signs -> pros/cons -> comparison -> why-us -> process -> gallery ->
+area -> FAQ -> CTA) with the cadence rules from DESIGN-SYSTEM.md s6. Emphasize the
+signature sections below; cut anything that would be filler for this niche.
+
+## Signature sections (build these well)
+1. Project portfolio grid with category filter chips (residential/commercial/civil)
+2. Capabilities & equipment list — flat icon rows, not cards
+3. Milestone timeline on about: founded to landmark projects (real ones)
+4. Safety/compliance trust panel — certifications only if real
+
+## Imagery direction
+Golden-hour sites, steel and concrete texture, drone topdowns, crews in PPE mid-task.
+
+**Unsplash starting queries** (verify every result actually shows the subject):
+- "construction site golden hour crane"
+- "concrete pouring closeup"
+- "steel structure beams sky"
+- "excavator earthworks aerial"
+- "construction worker welding sparks"
+- "architectural framing timber site"
+
+**Never:** hard-hat boardroom stock, pristine gloves that never worked.
+
+## Copy tone
+Foreman-direct. Scope, timeline, budget — in that order.
+
+## Do
+- Gallery section is the proof engine — 6+ images on service pages
+- Use the cost-factors block; bids start with honest variables
+- Bold stats: projects delivered, m2 built, years
+
+## Don't
+- Yellow-and-black hazard stripes as decoration
+- Vague quality-is-our-priority filler — show, do not claim
+- Light, airy styling — this brand has weight

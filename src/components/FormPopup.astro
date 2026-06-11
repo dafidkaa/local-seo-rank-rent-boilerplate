@@ -14,7 +14,6 @@ import { localizedPath, t } from "@/lib/routes";
 import { ui } from "@/i18n";
 interface Props { locale: string; }
 const { locale } = Astro.props;
-const webhookUrl  = siteConfig.integrations.crmWebhookUrl;
 const privacyUrl  = localizedPath(locale, "privacy-policy");
 const termsUrl    = localizedPath(locale, "terms-and-conditions");
 const serviceName = t(siteConfig.business.primaryService, locale);
@@ -52,8 +51,9 @@ const serviceName = t(siteConfig.business.primaryService, locale);
     <form
       class="fp-form"
       id="fp-form"
+      data-sending={ui("form.sending", locale)}
+      data-error={ui("form.errorGeneric", locale)}
       data-popup-form
-      data-webhook={webhookUrl}
       data-locale={locale}
       novalidate
       aria-label="Free estimate request form"
@@ -475,6 +475,7 @@ const serviceName = t(siteConfig.business.primaryService, locale);
       e.preventDefault();
       window.__fpLastTrigger = trigger;
       openPopup();
+      preselectService(trigger);
     }
   });
 
@@ -524,33 +525,25 @@ const serviceName = t(siteConfig.business.primaryService, locale);
       if (field.type === "checkbox") { data[field.name] = field.checked; }
       else if (field.name)           { data[field.name] = field.value; }
     });
-    // Analytics
-    window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push({ event: "lead_form_submit", form_type: "popup", page: data.pagePath });
-    if (window.fbq)  window.fbq("track", "Lead");
-    if (window.gtag) window.gtag("event", "conversion", { send_to: "AW-CONVERSION_ID/LABEL" });
-    var webhook = form.getAttribute("data-webhook") || "";
-    var locale  = form.getAttribute("data-locale") || "en";
-    if (!webhook) {
+    var locale = form.getAttribute("data-locale") || "en";
+
+    // Honeypot: pretend success so bots learn nothing
+    var honeypot = form.querySelector(".fp-honeypot input");
+    if (honeypot && honeypot.value) {
       window.location.href = "/" + locale + "/thank-you/";
       return;
     }
-    // Loading state
-    if (btn) { btn.disabled = true; if (btnText) btnText.textContent = "Sending…"; }
-    fetch(webhook, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-      mode: "cors"
-    })
-    .then(function(res) {
-      if (res.ok) { window.location.href = "/" + locale + "/thank-you/"; }
-      else { throw new Error("Server error " + res.status); }
-    })
-    .catch(function() {
-      if (errorEl) errorEl.textContent = "Something went wrong. Please try again or call us directly.";
-      if (btn) { btn.disabled = false; if (btnText) btnText.textContent = "Get My Free Estimate"; }
-    });
+
+    var idleText = btnText ? btnText.textContent : "";
+    if (btn) { btn.disabled = true; if (btnText) btnText.textContent = form.getAttribute("data-sending") || "Sending…"; }
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ event: "lead_form_submit", form_type: "popup", page: data.pagePath });
+    window.submitLead(data, locale)
+      .then(function() { window.location.href = "/" + locale + "/thank-you/"; })
+      .catch(function() {
+        if (errorEl) errorEl.textContent = form.getAttribute("data-error") || "Something went wrong. Please try again or call us directly.";
+        if (btn) { btn.disabled = false; if (btnText) btnText.textContent = idleText; }
+      });
   });
 })();
 </script>

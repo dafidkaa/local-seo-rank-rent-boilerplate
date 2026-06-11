@@ -14,8 +14,17 @@ import { ui } from "@/i18n";
 interface Props {
   locale: string;
   currentPath?: string;
+  /** hreflang alternates from seo() — lets the language switcher keep page context */
+  alternates?: Array<{ lang: string; label: string; url: string }>;
+  /**
+   * "solid"   — utility bar + glass header that sits above the page (default)
+   * "overlay" — transparent header embedded inside the hero; becomes a glass
+   *             bar once the visitor scrolls. Used by premium/visual themes.
+   */
+  navStyle?: "solid" | "overlay";
 }
-const { locale, currentPath = "" } = Astro.props;
+const { locale, currentPath = "", alternates = [], navStyle = "solid" } = Astro.props;
+const isOverlay = navStyle === "overlay";
 
 const navLinks = [
   { label: ui("nav.home", locale),       href: localizedPath(locale) },
@@ -27,11 +36,20 @@ const navLinks = [
 ];
 
 const otherLocale = siteConfig.locales.find(l => l.code !== locale);
+// Language switch keeps the visitor on the same page (translated URL when
+// slugs differ per locale); falls back to the other locale's homepage.
+const otherLocaleAlternate = otherLocale ? alternates.find((a) => a.lang === otherLocale.code) : undefined;
+const otherLocaleHref = otherLocaleAlternate
+  ? new URL(otherLocaleAlternate.url).pathname
+  : otherLocale
+    ? otherLocale.path + "/"
+    : "/";
 const logoWords = siteConfig.brand.logoText.split(" ");
 const accentWord = siteConfig.brand.logoAccent;
 ---
 
-<!-- Utility Bar -->
+<!-- Utility Bar (hidden in overlay mode for a cleaner premium hero) -->
+{!isOverlay && (
 <div class="util-bar" role="banner" aria-label="Contact information">
   <div class="container util-bar-inner">
     <div class="util-bar-badges">
@@ -54,9 +72,10 @@ const accentWord = siteConfig.brand.logoAccent;
     </a>
   </div>
 </div>
+)}
 
 <!-- Main Header -->
-<header class="site-header" id="site-header" role="banner">
+<header class={`site-header${isOverlay ? " site-header--overlay" : ""}`} id="site-header" role="banner">
   <div class="container header-inner">
     <!-- Logo -->
     <a href={localizedPath(locale)} class="header-logo" aria-label={`${siteConfig.brand.logoText} — Home`}>
@@ -108,7 +127,7 @@ const accentWord = siteConfig.brand.logoAccent;
     <div class="header-actions">
       {otherLocale && (
         <a
-          href={otherLocale.path + "/"}
+          href={otherLocaleHref}
           class="lang-toggle"
           aria-label={ui("a11y.changeLanguage", locale)}
           hreflang={otherLocale.code}
@@ -229,12 +248,53 @@ const accentWord = siteConfig.brand.logoAccent;
     position: sticky;
     top: 0;
     z-index: 100;
-    background: white;
-    border-bottom: 1px solid var(--color-border);
-    transition: box-shadow var(--transition-base);
+    background: rgba(255, 255, 255, 0.86);
+    -webkit-backdrop-filter: blur(14px) saturate(1.4);
+    backdrop-filter: blur(14px) saturate(1.4);
+    border-bottom: 1px solid color-mix(in srgb, var(--brand-primary) 8%, var(--color-border));
+    transition: box-shadow var(--transition-base), background var(--transition-base);
   }
   .site-header.scrolled {
-    box-shadow: 0 2px 20px rgba(0,0,0,.10);
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 2px 24px color-mix(in srgb, var(--primary-shadow) 12%, transparent);
+  }
+
+  /* ── Overlay variant: header embedded inside the hero ──────────────────────
+     Transparent and light-on-dark while at the top of the page, then turns
+     into the regular glass bar once the visitor scrolls. Requires every page
+     to open with a dark hero — all boilerplate templates do. */
+  .site-header--overlay {
+    position: fixed;
+    left: 0;
+    right: 0;
+    background: transparent;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+  }
+  .site-header--overlay:not(.scrolled) .logo-text,
+  .site-header--overlay:not(.scrolled) .logo-text span,
+  .site-header--overlay:not(.scrolled) .nav-link {
+    color: white;
+  }
+  .site-header--overlay:not(.scrolled) .logo-accent { color: var(--brand-accent); }
+  .site-header--overlay:not(.scrolled) .nav-link:hover { color: var(--brand-accent); }
+  .site-header--overlay:not(.scrolled) .lang-toggle {
+    color: white;
+    border-color: rgba(255, 255, 255, 0.4);
+  }
+  .site-header--overlay:not(.scrolled) .logo-icon {
+    background: rgba(255, 255, 255, 0.14);
+    color: white;
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+  }
+  .site-header--overlay:not(.scrolled) .hamburger-line { background: white; }
+  .site-header--overlay.scrolled {
+    background: rgba(255, 255, 255, 0.92);
+    -webkit-backdrop-filter: blur(14px) saturate(1.4);
+    backdrop-filter: blur(14px) saturate(1.4);
+    border-bottom: 1px solid color-mix(in srgb, var(--brand-primary) 8%, var(--color-border));
   }
 
   .header-inner {

@@ -1,34 +1,57 @@
-# Niche Design Brief: Medical & Dental Services
+# DESIGN BRIEF — Medical & Clinics (Dental / Physio / GP / Medical Aesthetics)
 
-This document defines the visual guidelines, typography, color palette, and asset map for the **Medical, Dental, and Healthcare** niche (e.g., family dental, orthodontics, chiropractic, physical therapy, medical spa).
+> **Wired in code:** `themePreset("medical")` -> deep teal #0f766e / mint #14b8a6 | Plus Jakarta Sans + Inter | soft corners, solid CTAs, solid nav.
+> Read **DESIGN-SYSTEM.md** first — it carries the global rules (type, nav variants,
+> buttons, motion, imagery, anti-slop checklist). This brief adds the niche layer.
 
-## 1. Brand Identity & Visual Strategy
-- **Tone & Mood:** Cleanliness, hygiene, professional care, clinical precision, wellness.
-- **Color Palette:**
-  - **Primary (Dominant):** Deep Teal / Medical Blue (`#0f766e` or `#0891b2`) — represents hygiene, health, and calm.
-  - **Secondary (Accent):** Soft Mint / Coral (`#10b981` or `#f43f5e`) — represents freshness, vitality, and care.
-  - **Light Neutral (Background):** Clinical White / Soft Mint (`#f0fdf4` or `#f8fafc`) — sterile, calming.
-- **Typography:**
-  - **Display (Headings):** *Plus Jakarta Sans* or *Outfit* — modern, clean, friendly but clinical.
-  - **Body (Text):** *Inter* — clean, legible.
+## Positioning & feel
+Calm, clinical-but-warm, trustworthy. The visual equivalent of a quiet waiting room with good light.
 
-## 2. Image Asset Map (Unsplash References)
-Use photography representing modern medical equipment, smiling patients, and professional practitioners.
+## Palette & accent discipline
+Preset palette: deep teal #0f766e / mint #14b8a6. Mint for CTAs and micro-highlights only. Teal everywhere structural. Extra-generous whitespace is part of the brand.
 
-| Image Key | Description | Recommended Search Query |
-| :--- | :--- | :--- |
-| `hero` | Smiling family or patient in a bright, modern clinic | `happy family dentist clinic` |
-| `team` | Friendly medical team or practitioner smiling | `friendly medical doctor smiling` |
-| `process` | Patient receiving professional, comfortable care | `patient dentist treatment comfortable` |
-| `service1` | Modern dental or medical checkup | `dental checkup modern equipment` |
-| `service2` | Orthodontic treatment or braces | `orthodontics smile braces` |
+## Typography
+Preset pairing: **Plus Jakarta Sans + Inter** (weights wired automatically).
 
-## 3. Section Architecture & Word Count Distribution
-1. **Hero Slider:** Bright, welcoming clinic background with soft accent CTAs (150 words).
-2. **Trust Bar:** Key credentials (Licensed, ADA Certified, 5-Star Rated) (50 words).
-3. **Welcome Section:** Commitment to patient comfort, technology, and care (250 words).
-4. **Service Grid:** Detailed cards for treatments and procedures (200 words).
-5. **Why Choose Us:** Advanced technology, painless procedures, insurance coverage (200 words).
-6. **Our Process:** Booking, Consultation, Diagnostic Scan, Treatment, Follow-up (200 words).
-7. **Interactive Estimate Form:** Wide form with booking type dropdown (150 words).
-8. **Faq Section:** Insurance, payment plans, first-visit procedures, and pain FAQs (300 words).
+## Navigation & hero
+Static hero — one calm clinic photo, H1, reassurance line, Book CTA. No sliders; calm beats motion in healthcare.
+- Primary CTA: **"Book an Appointment"** | Secondary: **"Call the Clinic"**
+- Form strategy: **standard — embedded hero/contact forms plus popup CTAs on inner pages**
+
+## Section rhythm
+Follow the standard service/location templates (hero -> quick answer -> stats ->
+sub-services -> signs -> pros/cons -> comparison -> why-us -> process -> gallery ->
+area -> FAQ -> CTA) with the cadence rules from DESIGN-SYSTEM.md s6. Emphasize the
+signature sections below; cut anything that would be filler for this niche.
+
+## Signature sections (build these well)
+1. Trust bar under hero: credentials, insurance accepted, years serving the area (real data only)
+2. Practitioner cards — photo, credentials, one human sentence; no stocky lab coats
+3. What-to-expect appointment timeline (ProcessSection) — anxiety reduction is conversion
+4. Clinic gallery — 4-6 interior photos, light and tidy
+
+## Imagery direction
+Bright clinic interiors, equipment detail, gentle consultation moments (hands, profiles). Natural light. Nothing graphic: no needles-in-skin, no open mouths macro.
+
+**Unsplash starting queries** (verify every result actually shows the subject):
+- "modern dental clinic interior"
+- "doctor patient consultation calm"
+- "medical reception bright"
+- "physiotherapy session professional"
+- "clean treatment room minimal"
+- "healthcare professional portrait natural"
+
+**Never:** surgical gore, stock doctors with crossed arms, fake lab settings.
+
+## Copy tone
+Plain-language, reassuring, never alarmist. Explain procedures like a good practitioner would.
+
+## Do
+- State privacy handling near forms — it lifts submissions in this niche
+- Use soft section tints; this niche earns the lightest palette of all
+- FAQ should answer cost/insurance/pain questions directly
+
+## Don't
+- Fear-based what-happens-if-you-wait framing — keep that section gentle here
+- Sliders, parallax, or anything kinetic in the hero
+- Inventing certifications or treatment outcomes

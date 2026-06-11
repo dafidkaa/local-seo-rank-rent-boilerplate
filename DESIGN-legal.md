@@ -1,34 +1,59 @@
-# Niche Design Brief: Legal & Professional Services
+# DESIGN BRIEF — Legal (Law Firms / Notaries / Accountants)
 
-This document defines the visual guidelines, typography, color palette, and asset map for the **Legal, Financial, and Professional Services** niche (e.g., personal injury law, criminal defense, family law, CPA, consulting).
+> **Wired in code:** `themePreset("legal")` -> charcoal #1f2937 / bronze #b45309 | Playfair Display + Inter | sharp corners, solid CTAs, overlay nav.
+> Read **DESIGN-SYSTEM.md** first — it carries the global rules (type, nav variants,
+> buttons, motion, imagery, anti-slop checklist). This brief adds the niche layer.
 
-## 1. Brand Identity & Visual Strategy
-- **Tone & Mood:** Authority, absolute trust, confidentiality, intellectual prestige.
-- **Color Palette:**
-  - **Primary (Dominant):** Deep Navy / Midnight Blue (`#0f172a` or `#1e3a8a`) — represents trust, law, and stability.
-  - **Secondary (Accent):** Rich Gold / Bronze (`#d97706` or `#b45309`) — represents prestige, success, and value.
-  - **Light Neutral (Background):** Pure White / Light Slate (`#f8fafc`) — clean, formal.
-- **Typography:**
-  - **Display (Headings):** *Lora* or *Fraunces* (high-contrast editorial serif) — represents intellectual authority.
-  - **Body (Text):** *Inter* or *Merriweather* — formal, highly readable.
+## Positioning & feel
+Measured authority. Old-money typography, hairline rules, zero flash. The site equivalent of a firm handshake.
 
-## 2. Image Asset Map (Unsplash References)
-Use photography representing professional consultations, law offices, and corporate environments.
+## Palette & accent discipline
+Preset palette: charcoal #1f2937 / bronze #b45309. Bronze as hairline rules, serif numerals, and the single CTA. Never large bronze areas.
 
-| Image Key | Description | Recommended Search Query |
-| :--- | :--- | :--- |
-| `hero` | Elegant law office or professional boardroom with natural light | `modern law office boardroom` |
-| `team` | Professional consultants or attorneys in formal attire | `professional lawyers consulting` |
-| `process` | Close-up of signing a contract or professional consultation | `signing contract handshake business` |
-| `service1` | Courtroom gavel or legal scale with warm lighting | `legal gavel scales justice` |
-| `service2` | Professional financial consultation or planning | `financial advisor consulting client` |
+## Typography
+Preset pairing: **Playfair Display + Inter** (weights wired automatically).
+Optional premium upgrade: **Luxury Serif — Cormorant + Montserrat** — set `fontDisplay`/`fontBody` AND
+`fontsHref: "https://fonts.googleapis.com/css2?family=Cormorant:wght@500;600;700&family=Montserrat:wght@400;500;600;700&display=swap"` (this family set needs an explicit URL).
 
-## 3. Section Architecture & Word Count Distribution
-1. **Hero Slider:** Authoritative office background with gold CTAs (150 words).
-2. **Trust Bar:** Key credentials (Licensed, 99% Success Rate, Board Certified) (50 words).
-3. **Welcome Section:** Firm's history, track record, and philosophy (250 words).
-4. **Service Grid:** Detailed cards for Practice Areas (Personal Injury, Corporate, etc.) (200 words).
-5. **Why Choose Us:** Deep-dive into case studies, success rates, and attorney experience (200 words).
-6. **Our Process:** Consultation, Case Strategy, Negotiation, Litigation (200 words).
-7. **Interactive Estimate Form:** Wide form with consultation type dropdown (150 words).
-8. **Faq Section:** Retainer fees, timelines, success rates, and consultation FAQs (300 words).
+## Navigation & hero
+Static hero, overlay nav — one architectural photo, serif H1, single consultation CTA. Quietest hero in the catalog.
+- Primary CTA: **"Schedule a Consultation"** | Secondary: **"Speak With Our Team"**
+- Form strategy: **premium — popup inquiry modal from CTAs; embedded form only on the contact page**
+
+## Section rhythm
+Follow the standard service/location templates (hero -> quick answer -> stats ->
+sub-services -> signs -> pros/cons -> comparison -> why-us -> process -> gallery ->
+area -> FAQ -> CTA) with the cadence rules from DESIGN-SYSTEM.md s6. Emphasize the
+signature sections below; cut anything that would be filler for this niche.
+
+## Signature sections (build these well)
+1. Practice-area cards with oversized serif numerals (01, 02...) instead of icons
+2. Attorney/partner profiles — formal portraits, credentials, bar admissions (real only)
+3. Process section reframed as how-an-engagement-works — fee clarity builds trust
+4. Results/recognition strip ONLY with verifiable facts; otherwise omit entirely
+
+## Imagery direction
+Architecture, courthouse columns, wood-and-books office detail, city at dusk. People sparingly and formally.
+
+**Unsplash starting queries** (verify every result actually shows the subject):
+- "law office interior wood"
+- "courthouse columns architecture"
+- "professional meeting documents"
+- "city skyline dusk"
+- "fountain pen signing document"
+- "library bookshelves classic"
+
+**Never:** gavels, scales of justice, handshake stock — the three deadly cliches.
+
+## Copy tone
+Precise, unhurried, no superlatives. Write like counsel, not like marketing.
+
+## Do
+- Sharp corners + serif display — let the personality preset breathe
+- Use dark sections for credibility statements, kept to one per page
+- Popup inquiry modal (premium form strategy) — no forms mid-page
+
+## Don't
+- Exclamation marks. Anywhere.
+- Stock justice iconography
+- Gradient CTAs — solid bronze only (preset already enforces)

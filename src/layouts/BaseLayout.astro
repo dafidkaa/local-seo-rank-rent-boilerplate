@@ -6,24 +6,57 @@ import CookieConsent from "@/components/CookieConsent.astro";
 import FormPopup from "@/components/FormPopup.astro";
 import "@/styles/global.css";
 import { siteConfig } from "@/site.config";
+import { radiusScales, type ThemePersonality } from "@/lib/themes";
 
 const { seo } = Astro.props;
 const ga4Id = siteConfig.integrations.ga4MeasurementId;
 const clarityId = siteConfig.integrations.clarityProjectId;
 const requireConsent = siteConfig.integrations.requireCookieConsent;
+const leadWebhook = siteConfig.integrations.crmWebhookUrl;
+const leadFormsubmit = (siteConfig.integrations as any).formsubmitEmail ?? "";
+const leadGadsId = siteConfig.integrations.googleAdsConversionId;
+const leadBusinessName = siteConfig.business.name;
+
+// Google Fonts URL built from the configured brand fonts so the fonts the
+// CSS variables reference are actually loaded. Provide brand.fontsHref for
+// families that don't carry the default weight set (400/500/600/700/800).
+// Visual personality from the niche theme (radius language + button shape).
+// Drives site-wide corner radii and CTA treatment so each niche feels distinct.
+const personality: ThemePersonality = (siteConfig.brand as any).personality ?? { radius: "soft", button: "gradient", nav: "solid" };
+const r = radiusScales[personality.radius] ?? radiusScales.soft;
+const personalityVars =
+  `--radius-sm:${r.sm};--radius-md:${r.md};--radius-lg:${r.lg};--radius-xl:${r.xl};--radius-2xl:${r["2xl"]};--btn-radius:${r.btn};` +
+  `--btn-bg:${personality.button === "solid" ? "var(--brand-accent)" : "var(--gradient-accent)"};`;
+
+// Brand variables go on the <html> style attribute (not a <style> tag) because
+// Astro hoists bundled stylesheets BELOW inline styles — a :root rule in
+// global.css would override an inline <style> of equal specificity. The style
+// attribute always wins the cascade.
+const brandVars =
+  `--brand-primary:${siteConfig.brand.primary};--brand-primary-700:${siteConfig.brand.secondary};` +
+  `--brand-secondary:${siteConfig.brand.secondary};--brand-accent:${siteConfig.brand.accent};` +
+  `--brand-accent-dark:${siteConfig.brand.accentDark};--brand-accent-light:${siteConfig.brand.accentLight ?? "#fef3c7"};` +
+  `--brand-hero-overlay:${siteConfig.brand.heroOverlay};--brand-font-display:"${siteConfig.brand.fontDisplay}";` +
+  `--brand-font-body:"${siteConfig.brand.fontBody}";${personalityVars}`;
+
+const fontFamilies = [...new Set([siteConfig.brand.fontDisplay, siteConfig.brand.fontBody])];
+const fontsHref =
+  (siteConfig.brand as any).fontsHref ??
+  `https://fonts.googleapis.com/css2?${fontFamilies
+    .map((f) => `family=${encodeURIComponent(f).replace(/%20/g, "+")}:wght@400;500;600;700;800`)
+    .join("&")}&display=swap`;
 ---
 
 <!doctype html>
-<html lang={Astro.params.lang ?? "en"}>
+<html lang={Astro.params.lang ?? "en"} style={brandVars}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <!-- Fonts: Plus Jakarta Sans (display) + DM Sans (body) -->
+    <!-- Fonts: loaded from siteConfig.brand.fontDisplay / fontBody -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
-    <!-- Brand CSS variables — driven by site.config.ts brand section -->
-    <style set:html={`:root{--brand-primary:${siteConfig.brand.primary};--brand-primary-700:${siteConfig.brand.secondary};--brand-secondary:${siteConfig.brand.secondary};--brand-accent:${siteConfig.brand.accent};--brand-accent-dark:${siteConfig.brand.accentDark};--brand-accent-light:${siteConfig.brand.accentLight ?? "#fef3c7"};--brand-hero-overlay:${siteConfig.brand.heroOverlay};--brand-font-display:"${siteConfig.brand.fontDisplay}";--brand-font-body:"${siteConfig.brand.fontBody}";}`} />
+    <link href={fontsHref} rel="stylesheet" />
+    <!-- Brand CSS variables live on the <html> style attribute (see brandVars above) -->
     <title>{seo.title}</title>
     <meta name="description" content={seo.description} />
     <link rel="canonical" href={seo.canonical} />
@@ -34,10 +67,48 @@ const requireConsent = siteConfig.integrations.requireCookieConsent;
     <meta property="og:description" content={seo.description} />
     <meta property="og:image" content={seo.image} />
     <meta property="og:url" content={seo.canonical} />
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={seo.ogType ?? "website"} />
+    <meta property="og:site_name" content={siteConfig.business.name} />
+    {seo.article?.publishedTime && <meta property="article:published_time" content={seo.article.publishedTime} />}
+    {seo.article?.modifiedTime && <meta property="article:modified_time" content={seo.article.modifiedTime} />}
+    {seo.article?.author && <meta property="article:author" content={seo.article.author} />}
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={seo.title} />
+    <meta name="twitter:description" content={seo.description} />
+    <meta name="twitter:image" content={seo.image} />
     {seo.schema?.map((item: unknown) => <script is:inline type="application/ld+json" set:html={JSON.stringify(item)} />)}
     <script is:inline>if('scrollRestoration' in history){history.scrollRestoration='manual';}window.scrollTo(0,0);</script>
+    <!-- Shared lead submission: webhook → formsubmit.co → no-backend fallback.
+         Conversion pings only fire for IDs that are actually configured. -->
+    <script define:vars={{ leadWebhook, leadFormsubmit, leadGadsId, leadBusinessName }} is:inline>
+      window.submitLead = function(data, locale) {
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({ event: "lead_form_submit", form_locale: locale || "en", page: location.pathname });
+        if (window.fbq) window.fbq("track", "Lead");
+        if (window.gtag && leadGadsId) window.gtag("event", "conversion", { send_to: leadGadsId });
+
+        var endpoint = leadWebhook || (leadFormsubmit ? "https://formsubmit.co/ajax/" + leadFormsubmit : "");
+        if (!endpoint) return Promise.resolve({ delivered: false });
+
+        var body = data;
+        if (!leadWebhook && leadFormsubmit) {
+          body = Object.assign({}, data, {
+            _subject: "New lead — " + leadBusinessName,
+            _template: "table",
+            _captcha: "false"
+          });
+        }
+        return fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Accept": "application/json" },
+          body: JSON.stringify(body),
+          mode: "cors"
+        }).then(function(res) {
+          if (!res.ok) throw new Error("Lead delivery failed: " + res.status);
+          return { delivered: true };
+        });
+      };
+    </script>
     <script define:vars={{ ga4Id, clarityId, requireConsent }} is:inline>
       (function(){
         function loadAnalytics(){
@@ -79,13 +150,65 @@ const requireConsent = siteConfig.integrations.requireCookieConsent;
   <body>
     <a href="#main-content" class="skip-link">Skip to content</a>
     <CookieConsent locale={Astro.params.lang ?? "en"} />
-    <Header locale={Astro.params.lang ?? "en"} currentPath={seo.path ?? ""} />
+    <Header locale={Astro.params.lang ?? "en"} currentPath={seo.path ?? ""} alternates={seo.alternates} navStyle={personality.nav ?? "solid"} />
     <main id="main-content">
       <slot />
     </main>
     <Footer locale={Astro.params.lang ?? "en"} />
     <MobileCta locale={Astro.params.lang ?? "en"} />
     <FormPopup locale={Astro.params.lang ?? "en"} />
+    <!-- Scroll-reveal: staggered entrance for sections and card grids.
+         Content is fully visible without JS; classes are added at runtime. -->
+    <script is:inline>
+      (function () {
+        if (!("IntersectionObserver" in window)) return;
+        if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+        var GRID_SELECTORS = [
+          ".signs-grid", ".benefits-grid", ".problems-grid", ".subservices-grid",
+          ".services-grid", ".why-grid", ".loc-services-grid", ".blog-grid",
+          ".child-benefit-cards", ".process-steps", ".statsbar-grid",
+          ".gallery-grid", ".proscons-grid", ".area-tags"
+        ].join(",");
+
+        var targets = [];
+        document.querySelectorAll("[data-reveal]").forEach(function (el) { targets.push({ el: el, delay: 0 }); });
+        document.querySelectorAll(GRID_SELECTORS).forEach(function (grid) {
+          Array.prototype.forEach.call(grid.children, function (child, i) {
+            targets.push({ el: child, delay: Math.min(i, 7) * 70 });
+          });
+        });
+
+        var observer = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (!entry.isIntersecting) return;
+            entry.target.style.transitionDelay = (entry.target.__revealDelay || 0) + "ms";
+            entry.target.classList.add("reveal-in");
+            observer.unobserve(entry.target);
+            entry.target.addEventListener("transitionend", function () {
+              entry.target.style.transitionDelay = "";
+            }, { once: true });
+          });
+        }, { threshold: 0.12, rootMargin: "0px 0px -8% 0px" });
+
+        targets.forEach(function (t) {
+          t.el.__revealDelay = t.delay;
+          t.el.classList.add("reveal-init");
+          observer.observe(t.el);
+        });
+
+        // Mark already-revealed (above-the-fold) elements immediately
+        requestAnimationFrame(function () {
+          targets.forEach(function (t) {
+            var rect = t.el.getBoundingClientRect();
+            if (rect.top < window.innerHeight && rect.bottom > 0) {
+              t.el.classList.add("reveal-in");
+              observer.unobserve(t.el);
+            }
+          });
+        });
+      })();
+    </script>
     <!-- Mobile toggle handled in Header.astro -->
     <script is:inline>
       (function(){

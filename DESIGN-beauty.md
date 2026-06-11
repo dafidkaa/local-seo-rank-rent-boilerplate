@@ -1,34 +1,59 @@
-# Niche Design Brief: Beauty & Wellness
+# DESIGN BRIEF — Beauty (Salons / Spas / Aesthetics)
 
-This document defines the visual guidelines, typography, color palette, and asset map for the **Beauty, Wellness, and Aesthetics** niche (e.g., hair salon, day spa, massage therapy, skincare clinic, lash bar).
+> **Wired in code:** `themePreset("beauty")` -> plum #9d174d / rose #db2777 | Playfair Display + Jost | round corners, solid pill CTAs, overlay nav.
+> Read **DESIGN-SYSTEM.md** first — it carries the global rules (type, nav variants,
+> buttons, motion, imagery, anti-slop checklist). This brief adds the niche layer.
 
-## 1. Brand Identity & Visual Strategy
-- **Tone & Mood:** Relaxation, luxury, sensory indulgence, elegance, rejuvenation.
-- **Color Palette:**
-  - **Primary (Dominant):** Deep Rose / Espresso (`#4c1d95` or `#881337` or `#451a03`) — represents luxury, indulgence, and depth.
-  - **Secondary (Accent):** Soft Rose Gold / Champagne (`#fda4af` or `#fbcfe8` or `#fde047`) — represents elegance, glow, and premium finish.
-  - **Light Neutral (Background):** Warm Alabaster / Blush (`#fff1f2` or `#fafaf9`) — soft, warm, relaxing.
-- **Typography:**
-  - **Display (Headings):** *Playfair Display* or *Cormorant Garamond* (high-contrast editorial serif) — represents luxury and elegance.
-  - **Body (Text):** *Montserrat* or *Inter* — modern, clean.
+## Positioning & feel
+Sensorial, airy, editorial. Soft light, texture close-ups, unhurried pacing — a magazine spread that books appointments.
 
-## 2. Image Asset Map (Unsplash References)
-Use photography representing sensory details, finished aesthetic work, and professional practitioners.
+## Palette & accent discipline
+Preset palette: plum #9d174d / rose #db2777. Rose for pill CTAs and small highlights. Let photography carry the color; UI stays quiet around it.
 
-| Image Key | Description | Recommended Search Query |
-| :--- | :--- | :--- |
-| `hero` | Relaxing luxury spa environment with candles or flowers | `luxury spa massage candles` |
-| `team` | Friendly esthetician or stylist smiling | `esthetician salon professional smiling` |
-| `process` | Close-up of a premium facial or hair treatment | `facial treatment skincare spa` |
-| `service1` | Professional hair styling or blowout | `hair salon styling blowout` |
-| `service2` | Premium skincare or facial treatment | `skincare facial mask luxury` |
+## Typography
+Preset pairing: **Playfair Display + Jost** (weights wired automatically).
+Optional premium upgrade: **Luxury Serif — Cormorant + Montserrat** — set `fontDisplay`/`fontBody` AND
+`fontsHref: "https://fonts.googleapis.com/css2?family=Cormorant:wght@500;600;700&family=Montserrat:wght@400;500;600;700&display=swap"` (this family set needs an explicit URL).
 
-## 3. Section Architecture & Word Count Distribution
-1. **Hero Slider:** Luxury spa background with soft champagne CTAs (150 words).
-2. **Trust Bar:** Key credentials (Licensed, Organic Products, 5-Star Rated) (50 words).
-3. **Welcome Section:** Philosophy of beauty, wellness, and sensory relaxation (250 words).
-4. **Service Grid:** Detailed cards for treatments and packages (200 words).
-5. **Why Choose Us:** Organic products, certified therapists, private luxury rooms (200 words).
-6. **Our Process:** Consultation, Sensory Selection, Treatment, Aftercare Plan (200 words).
-7. **Interactive Estimate Form:** Wide form with booking type dropdown (150 words).
-8. **Faq Section:** Booking, cancellations, product ingredients, and preparation FAQs (300 words).
+## Navigation & hero
+Slider hero with overlay nav — 3 editorial slides (signature treatment, ambience, results). Dots only, slow Ken Burns.
+- Primary CTA: **"Book an Appointment"** | Secondary: **"View Treatments"**
+- Form strategy: **premium — popup inquiry modal from CTAs; embedded form only on the contact page**
+
+## Section rhythm
+Follow the standard service/location templates (hero -> quick answer -> stats ->
+sub-services -> signs -> pros/cons -> comparison -> why-us -> process -> gallery ->
+area -> FAQ -> CTA) with the cadence rules from DESIGN-SYSTEM.md s6. Emphasize the
+signature sections below; cut anything that would be filler for this niche.
+
+## Signature sections (build these well)
+1. Treatment menu — elegant list layout (name, duration, from-price) over cards
+2. Results gallery with lightbox (service.gallery) — skin/hair/nails close-ups
+3. Ambience section — full-bleed interior photo with one floating quote
+4. Gift card / package CTA band in the accent-light tint
+
+## Imagery direction
+Soft natural light, treatment close-ups, botanical/towel/stone textures, serene interiors. Editorial portraits welcome here (the exception to the faces rule).
+
+**Unsplash starting queries** (verify every result actually shows the subject):
+- "spa treatment ambience candles"
+- "salon interior soft light"
+- "facial treatment closeup serene"
+- "botanical skincare flatlay"
+- "massage stones towels texture"
+- "elegant manicure detail"
+
+**Never:** clinical white boxes, duck-face selfies, harsh flash photography.
+
+## Copy tone
+Second person, sensory verbs, short lines. Sell the feeling, list the facts.
+
+## Do
+- Round everything — the pill buttons and 26px cards are the brand
+- Extra line-height and letter-space on eyebrows; airiness is the aesthetic
+- Overlay nav + slider is mandatory; this is the flagship premium treatment
+
+## Don't
+- Dense grids — max 3 columns, ever
+- Discount-shouting (50% OFF!!) — premium pricing language only
+- More than one dark section per page

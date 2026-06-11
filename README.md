@@ -2,7 +2,7 @@
 
 A production-grade, highly optimized, **config-driven static site generator** built with **Astro 4** and **Tailwind CSS v4**. This boilerplate is designed specifically for Rank-and-Rent workflows: clone, configure a single `site.config.ts` file, and deploy to create beautiful, $10k-quality local business websites for any niche + location combination.
 
-With built-in support for dual-language setups (EN + HR), full JSON-LD schema coverage, dynamic sitemaps, dynamic robots.txt, and zero client-side JS runtime (for perfect Core Web Vitals), this boilerplate is fully prepared to be used by AI coding assistants (like Cursor, Claude, or Copilot) with the included `PROMPT.md` master brief.
+With built-in support for dual-language setups (EN + HR), full JSON-LD schema coverage (FAQPage/HowTo emitted from visible content), hreflang with translated slugs, dynamic sitemaps with per-URL alternates, dynamic robots.txt + llms.txt, niche theme presets, an i18n content-block system (all page copy lives in locale files — no template edits per niche), zero-backend lead delivery via formsubmit.co, scroll-reveal animations, and AEO components (short-answer blocks, pros/cons, comparison tables, count-up stats, galleries, before/after sliders), this boilerplate is fully prepared to be used by AI coding assistants (like Cursor, Claude, or Copilot) with the included `PROMPT.md` master brief. Minimal client-side JS (vanilla, no framework runtime) keeps Core Web Vitals green.
 
 ---
 
@@ -33,7 +33,7 @@ graph TD
 
 3. **AI Generation:**
    - The AI will read the corresponding niche design brief (e.g., `DESIGN-construction.md` for roofing, `DESIGN-beauty.md` for dental).
-   - It will automatically rewrite `src/site.config.ts` and `src/i18n/en.ts` (and `hr.ts` if dual-language) with highly relevant, 1,500-word density, localized copywriting, and Unsplash photography URLs.
+   - It will automatically rewrite `src/site.config.ts` and `src/i18n/en.ts` (and `hr.ts` if dual-language) — including the `blocks:` content sections that hold ALL page body copy — with highly relevant, 1,500-word density, localized copywriting, and Unsplash photography URLs.
 
 4. **Verify & Build:**
    ```bash
@@ -59,20 +59,26 @@ graph TD
 
 ---
 
-## 🎨 Premium Component Suite ($10k Agency Quality)
+## 🎨 Design System & Theme Engine
 
-Every component in this boilerplate has been meticulously redesigned to match the aesthetics of high-end custom web design firms:
+The visual layer is **driven entirely by the niche theme preset** — change one line and the whole site (colors, fonts, corner language, button shape, navigation treatment, photo overlays, shadows) re-skins itself. Nothing is hardcoded in templates; every surface, border, shadow, and overlay is derived from the brand colors at build time via `color-mix`.
 
-*   **`HeroSlider.astro` (Homepage Hero):** A full-bleed, full-viewport slideshow with dark high-contrast overlays, bold display typography (Plus Jakarta Sans), trust badge pills, dual CTAs, and a sleek dot navigation system.
-*   **`Hero.astro` (Inner Page Hero):** A compact, high-impact banner with a dark background photo overlay, integrated breadcrumbs inside a dark bottom bar, and a quick estimate form popup trigger.
-*   **`ServiceCard.astro`:** Photo-rich cards featuring subtle hover zoom effects, card lifts, and bold amber "LEARN MORE" call-to-actions.
-*   **`ProcessSection.astro`:** A dark charcoal-styled section displaying large amber numbered badges (`01`–`04`) connected by a continuous visual path to guide user reading.
-*   **`FinalCta.astro`:** A split-layout section with a dark photo background on one side and a clean, high-converting 2-column white form card on the other.
-*   **`EstimateForm.astro`:** A wide, modern 2-column lead form (never tall/narrow) that captures rich metadata (Page URL, Referrer URL, Timestamp) and supports webhook submission.
-*   **`FormPopup.astro`:** A global modal popup triggered by any CTA button on the site. Includes GDPR consent checkboxes, links to privacy policies, and a hidden honeypot spam filter.
-*   **`ReviewsSection.astro`:** A Google-style review widget rendering star ratings horizontally in rows, user avatars with initials, and localized Google "G" logos.
-*   **`FaqSection.astro`:** Semantic `<details>` accordion designed for maximum GEO/AEO optimization, accepting both modern `{q, a}` and legacy `{question, answer}` formats.
-*   **`Header.astro` & `Footer.astro`:** A sticky navigation header with an amber utility bar, active state indicators, and a clean 4-column footer containing barely-visible but fully crawlable links to `sitemap.xml`, `robots.txt`, and `llms.txt`.
+*   **17 niche theme presets** (`src/lib/themes.ts`) — `home-services`, `medical`, `legal`, `beauty`, `real-estate`, `automotive`, `construction`, `cleaning`, `landscaping`, `pet-care`, `fitness`, `education`, `transportation`, `security`, `events`, `funeral`, `luxury`. Spread one into `brand` and override what you need.
+*   **Theme personality** — each preset carries `personality: { radius, button, nav }` that drives site-wide corner radii (`sharp`/`soft`/`round`), CTA fill (`solid`/`gradient`), and navigation treatment.
+*   **Two navigation treatments** — `solid` (utility bar + glass sticky header) for trades, or `overlay` (transparent header embedded **inside the hero**, turning glass on scroll) for premium/visual niches.
+*   **Clean dark surfaces vs. image overlays** — the accent-glow overlay is reserved for sections that sit over a real photo (hero, final CTA); plain dark sections use a clean even `--surface-dark` so they never look like a broken overlay.
+*   **`DESIGN-SYSTEM.md`** — the global visual playbook (typography, nav/hero patterns, motion rules, imagery, anti-slop checklist). Each `DESIGN-[niche].md` layers niche specifics on top.
+
+### Premium Component Suite
+
+*   **`HeroSlider.astro` / `Hero.astro`:** Full-bleed photo heroes with brand-derived gradient overlays, glass trust badges, dual CTAs, slider dots with an auto-advance progress fill, and **breadcrumbs integrated cleanly into the hero content** (subtle inline trail above the H1 — no clunky shelf bar).
+*   **AEO section components:** `ShortAnswer` (featured-snippet block), `ProsCons`, `ComparisonTable`, `StatsBar` (scroll-triggered count-up), `Gallery` (lightbox), and `BeforeAfter` (draggable slider) — all reusable and theme-aware.
+*   **`Icon.astro`:** A curated SVG stroke-icon set in tinted squircle chips. **No emoji icons anywhere** (a known UX anti-pattern).
+*   **`ServiceCard.astro`:** Photo-rich cards with hover zoom, lift, an accent reveal line, and localized "Learn more" CTAs.
+*   **`ProcessSection.astro` & `FaqSection.astro`:** Numbered process timeline and `<details>` FAQ accordion — both **emit their own HowTo / FAQPage JSON-LD** from the visible items, so structured data can never drift from on-page content.
+*   **`EstimateForm.astro` / `FormPopup.astro`:** A wide 2-column lead form and a global inquiry modal. Native validation, honeypot spam filter, GDPR consent, and a shared `window.submitLead()` pipeline: custom webhook → **formsubmit.co** (zero-backend) → graceful fallback. Conversion pings fire only for configured IDs.
+*   **`BlogHub.astro`:** Shared blog archive with **static, crawlable pagination** (`/blog/`, `/blog/page/2/`…) plus client-side search/filter/sort over the full corpus.
+*   **Scroll-reveal system:** Staggered entrance animations on sections and card grids, all respecting `prefers-reduced-motion`.
 
 ---
 
@@ -89,6 +95,7 @@ Every page automatically injects precise structured data to establish topical au
 *   **`BreadcrumbList`**: Injected on all inner pages to establish clean hierarchical crawling.
 
 ### 2. Generative Engine Optimization (GEO) & Local Authority
+*   **Content-block system:** ALL body copy for service / location / sub-service pages lives in `src/i18n/[locale].ts` under `blocks` (with `{placeholder}` interpolation), so a new niche or language is rewritten in **one file** — never in templates. This keeps every locale consistent and avoids the duplicate-template footprint that gets rank-and-rent portfolios fingerprinted.
 *   **1,000–1,500 Word Content Density:** The homepage, service templates, and location templates are structured into content-rich sections to satisfy word-count requirements without creating unreadable walls of text.
 *   **Dedicated Service Template (`[slug].astro`):** 11 sections covering "What is [Service]?", sub-service grids, common problems, benefits, process, and localized FAQs.
 *   **Dedicated Location Template (`[location].astro`):** 12 sections covering local landmarks/knowledge, services available in that city, interactive Google Maps embeds, and internal linking grids.
@@ -96,9 +103,10 @@ Every page automatically injects precise structured data to establish topical au
 *   **AI Crawler Friendly:** Includes `public/llms.txt` and `public/llms-full.txt` to provide context-rich, structured feeds for AI search crawlers.
 
 ### 3. Technical SEO
-*   **Self-Referencing Canonicals:** Injected dynamically on every route.
-*   **Hreflang Alternates:** Auto-generated `<link rel="alternate">` tags for EN and HR locales, including `x-default`.
-*   **Dynamic Sitemap & Robots.txt:** Injected via Astro endpoints (`/sitemap.xml`, `/robots.txt`) to ensure instant search console indexing.
+*   **Self-Referencing Canonicals:** Injected dynamically on every route (correct per-locale URL).
+*   **Hreflang Alternates:** In the `<head>` *and* as `xhtml:link` alternates inside `sitemap.xml` — using the real **translated slug** per locale (location/service URLs differ by language), including `x-default`. The language switcher keeps page context.
+*   **Static, crawlable blog pagination:** `/blog/page/N/` pages are statically rendered (search/filter/sort layer on top), so every post is reachable without JavaScript.
+*   **Dynamic Sitemap, Robots.txt & llms.txt:** Injected via Astro endpoints (`/sitemap.xml`, `/robots.txt`, `/llms.txt`) with `lastmod` on posts.
 
 ---
 
@@ -106,63 +114,70 @@ Every page automatically injects precise structured data to establish topical au
 
 ```
 ├── src/
-│   ├── site.config.ts             # 👈 SINGLE SOURCE OF TRUTH (Niche, stats, brand, locations, services)
+│   ├── site.config.ts             # 👈 SINGLE SOURCE OF TRUTH (niche, stats, brand, locations, services)
 │   ├── i18n/
-│   │   ├── en.ts                  # Flat English UI strings (AI-populated)
-│   │   ├── hr.ts                  # Flat Croatian UI strings (AI-populated)
-│   │   └── index.ts               # Translation helper & ui() loader
+│   │   ├── en.ts                  # English UI strings + `blocks` page copy (AI-populated)
+│   │   ├── hr.ts                  # Croatian UI strings + `blocks` page copy
+│   │   └── index.ts               # ui() / t() / blocks() helpers with {placeholder} interpolation
 │   ├── lib/
-│   │   ├── routes.ts              # Route generators & t() helper
-│   │   └── seo.ts                 # JSON-LD Schema generators & seo() meta builder
+│   │   ├── routes.ts              # Route generators, translated slugs, t() helper
+│   │   ├── seo.ts                 # JSON-LD schema generators & seo() meta builder (hreflang, og)
+│   │   └── themes.ts              # 👈 17 niche theme presets + personality/radius scales
 │   ├── styles/
-│   │   └── global.css             # Tailwind v4 imports + CSS custom properties (Design Tokens)
-│   ├── components/                # Reusable Astro components (Hero, Cards, Forms, Accordions)
+│   │   └── global.css             # Tailwind v4 + design tokens, brand-derived surfaces/overlays
+│   ├── components/                # Hero(Slider), ServiceCard, Icon, AEO blocks (ShortAnswer,
+│   │                              #   ProsCons, ComparisonTable, StatsBar, Gallery, BeforeAfter),
+│   │                              #   BlogHub, FaqSection, ProcessSection, EstimateForm, FormPopup…
 │   ├── layouts/
-│   │   └── BaseLayout.astro       # Root layout injecting design tokens, analytics, and FormPopup
+│   │   └── BaseLayout.astro       # Injects brand+personality vars, analytics, lead pipeline, scroll-reveal
 │   └── pages/
 │       ├── index.astro            # Root redirect to default locale
+│       ├── sitemap.xml.ts         # Dynamic sitemap with xhtml:link hreflang alternates + lastmod
 │       └── [lang]/
-│           ├── index.astro        # 15-section high-density homepage (~1,050 words)
-│           ├── [slug].astro       # 11-section service page template (~1,100 words)
-│           ├── [location].astro   # 12-section location page template with Maps embed (~1,200 words)
+│           ├── index.astro        # High-density homepage (~1,050 words)
+│           ├── [slug].astro       # Service page template — all copy from i18n `blocks`
+│           ├── [location].astro   # Location page template with Maps embed + local content blocks
 │           ├── [parent]/[child].astro # Sub-service landing page template
 │           ├── about.astro        # About page with stats & area pills
 │           ├── contact.astro      # Contact page with interactive form
+│           ├── faq.astro          # Standalone FAQ hub
+│           ├── legal/[page].astro # Disclaimer (privacy/terms have their own routes)
 │           └── blog/
-│               ├── index.astro    # Blog hub with category filters & search
-│               └── [post].astro   # Blog post with sticky TOC, sidebar CTA, and related services
+│               ├── index.astro    # Blog hub (page 1) — search/filter/sort
+│               ├── page/[page].astro # Static crawlable pagination (/blog/page/2/ …)
+│               └── [post].astro   # Blog post with sticky TOC, sidebar CTA, related services
 ├── public/
-│   ├── llms.txt                   # AI Crawler discovery index
-│   └── llms-full.txt              # Detailed AI Crawler context file
-├── PROMPT.md                      # 👈 MASTER AI PROMPT (Copy-paste into Cursor/Claude)
-├── DESIGN-[niche].md              # 21 Niche design briefs (Home Services, Prefab Homes, Waterproofing, etc.)
+│   ├── llms.txt / llms-full.txt   # AI crawler discovery + detailed context feeds
+├── PROMPT.md                      # 👈 MASTER AI PROMPT (copy-paste into Cursor/Claude)
+├── DESIGN-SYSTEM.md               # 👈 Global visual playbook (read first)
+├── DESIGN-[niche].md              # 21 niche design briefs (preset wiring, hero/nav, imagery, CTAs)
 ```
 
 ---
 
-## 🎨 Design Tokens & Brand Customization
+## 🎨 Brand Customization
 
-Tailwind CSS v4 is configured via CSS custom properties in `src/styles/global.css`. When you update `site.config.ts`, Astro injects these brand colors directly into the root HTML element:
+The fastest path is to spread a **niche theme preset** and override only what the brand needs. Astro injects the resolved brand + personality variables onto the root `<html>` `style` attribute at build time (this wins the cascade over the bundled stylesheet, so themes always apply):
 
 ```typescript
 // src/site.config.ts
+import { themePreset } from "./lib/themes";
+
 brand: {
-  primary:      "#0f172a", // Slate 900 (Main BG & Dark text)
-  secondary:    "#1e293b", // Slate 800 (Secondary sections)
-  accent:       "#f59e0b", // Amber 500 (Primary CTAs, numbers, highlights)
-  accentDark:   "#d97706", // Amber 600 (CTA hovers)
-  accentLight:  "#fef3c7", // Amber 100 (Soft background highlights)
-  heroOverlay:  "rgba(15, 23, 42, 0.75)", // Dark overlay for readability
-  fontDisplay:  "Plus Jakarta Sans, sans-serif",
-  fontBody:     "DM Sans, sans-serif",
+  ...themePreset("home-services"),   // colors + fonts + radius/button/nav personality
+  // Override any preset value if the brand calls for it:
+  // accent: "#0ea5e9",
+  // fontDisplay: "Sora",
+  // personality: { radius: "sharp", button: "solid", nav: "overlay" },
+  logoText:   "Austin Pro Plumbing",
+  logoAccent: "Pro",                 // this word gets the accent color
+  images: { /* hero1..3, about, process, cta, og */ },
 }
 ```
 
-These tokens are mapped to custom Tailwind utility classes:
-*   `bg-brand-primary` / `text-brand-primary`
-*   `bg-brand-accent` / `text-brand-accent`
-*   `hover:bg-brand-accent-dark`
-*   `font-display` / `font-body`
+Or set the raw tokens manually (`primary`, `secondary`, `accent`, `accentDark`, `accentLight`, `heroOverlay`, `fontDisplay`, `fontBody`). **Font safety:** any Google Font you set must carry weights 400–800, or provide an explicit `fontsHref` URL — otherwise the request fails and the site falls back to system fonts. (The premium font-pairing upgrades in each `DESIGN-[niche].md` include their exact `fontsHref`.)
+
+Brand colors flow into CSS custom properties (`--brand-primary`, `--brand-accent`, …) and brand-derived tints/shadows/overlays/gradients used throughout `global.css`.
 
 ---
 

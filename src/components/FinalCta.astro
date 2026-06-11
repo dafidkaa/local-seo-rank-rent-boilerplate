@@ -124,12 +124,15 @@ const trustPoints = [
   .fcta-overlay-base {
     position: absolute;
     inset: 0;
-    background: rgba(8, 14, 35, 0.82);
+    background: color-mix(in srgb, var(--brand-secondary) 86%, black);
+    opacity: 0.92;
   }
   .fcta-overlay-brand {
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, rgba(15,23,42,.6) 0%, transparent 70%);
+    background:
+      radial-gradient(820px 420px at 12% -10%, var(--accent-glow), transparent 55%),
+      linear-gradient(135deg, color-mix(in srgb, var(--brand-primary) 55%, transparent) 0%, transparent 70%);
   }
 
   /* Grid */

@@ -12,10 +12,28 @@ interface Props {
   title: string;
   subtitle?: string;
   steps: Step[];
+  /** Set false when the page already emits its own HowTo schema */
+  emitSchema?: boolean;
 }
 
-const { title, subtitle, steps } = Astro.props;
+const { title, subtitle, steps, emitSchema = true } = Astro.props;
+
+// HowTo schema generated from the exact visible steps
+const howToJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  name: title,
+  step: steps.map((step, index) => ({
+    "@type": "HowToStep",
+    position: index + 1,
+    name: step.title,
+    text: step.text
+  }))
+};
 ---
+{emitSchema && steps.length > 0 && (
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(howToJsonLd)} />
+)}
 
 <section class="process-section section-charcoal section">
   <div class="container">

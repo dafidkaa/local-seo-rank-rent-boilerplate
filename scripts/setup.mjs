@@ -119,7 +119,7 @@ ${indent}}`;
 
   const legalDate = legalLastUpdated || new Date().toISOString().split("T")[0];
 
-  return `export type Locale = ${locales.map((l) => `"${l.code}"`).join(" | ")};
+  return `${brand.theme ? `import { themePreset } from "./lib/themes";\n\n` : ""}export type Locale = ${locales.map((l) => `"${l.code}"`).join(" | ")};
 
 export type LocaleConfig = {
   code: Locale;
@@ -132,11 +132,18 @@ export type LocalizedText = Record<Locale, string>;
 
 export type ServiceItem = {
   id: string;
+  slug?: Partial<LocalizedText>;
   title: LocalizedText;
   short: LocalizedText;
   image: string;
+  gallery?: Array<{ src: string; alt: string }>;
+  beforeAfter?: {
+    before: { src: string; alt: string };
+    after: { src: string; alt: string };
+  };
   children: Array<{
     id: string;
+    slug?: Partial<LocalizedText>;
     title: LocalizedText;
     short: LocalizedText;
     faq: Array<{ question: LocalizedText; answer: LocalizedText }>;
@@ -206,7 +213,7 @@ ${localeEntries}
     cta: ${JSON.stringify(business.cta)}
   },
   brand: {
-    primary: "${brand.primary}",
+${brand.theme ? `    ...themePreset("${brand.theme}"),` : `    primary: "${brand.primary}",
     secondary: "${brand.secondary}",
     accent: "${brand.accent}",
     accentDark: "${brand.accentDark}",
@@ -215,7 +222,7 @@ ${localeEntries}
     light: "${brand.light}",
     heroOverlay: "${brand.heroOverlay}",
     fontDisplay: "${brand.fontDisplay}",
-    fontBody: "${brand.fontBody}",
+    fontBody: "${brand.fontBody}",`}
     logoText: "${brand.logoText}",
     logoAccent: "${brand.logoAccent}",
     images: {
@@ -236,6 +243,7 @@ ${localeEntries}
     googleAdsConversionId: "${integrations.googleAdsConversionId}",
     metaPixelId: "${integrations.metaPixelId}",
     calendlyUrl: "${integrations.calendlyUrl}",
+    formsubmitEmail: "${integrations.formsubmitEmail}",
     crmWebhookUrl: "${integrations.crmWebhookUrl}",
     reviewWidgetEmbedHtml: "${integrations.reviewWidgetEmbedHtml}",
     googleMapEmbedUrl: "${integrations.googleMapEmbedUrl}",
@@ -340,8 +348,32 @@ async function collectBusiness(rl, locales) {
   return { name, legalName, foundedYear, primaryService: primaryServiceByLocale, primaryGbpCategory, secondaryGbpCategories, city, region, country, serviceArea, phone, email, address, ctaMode, hours, stats, description: descriptionByLocale, customerProblem: problemByLocale, customerOutcome: outcomeByLocale, cta: ctaByLocale };
 }
 
+const THEME_NAMES = [
+  "home-services", "medical", "legal", "beauty", "real-estate", "automotive",
+  "construction", "cleaning", "landscaping", "pet-care", "fitness", "education",
+  "transportation", "security", "events", "funeral", "luxury"
+];
+
 async function collectBrand(rl, businessName) {
   heading("Brand & Colors");
+  console.log(`  Niche theme presets (colors + fonts in one step):\n  ${dim(THEME_NAMES.join(", "))}\n`);
+  const theme = await ask(rl, "Theme preset (leave empty for custom colors)", "");
+  if (theme && THEME_NAMES.includes(theme)) {
+    const logoText = await ask(rl, "Logo text", businessName);
+    const logoAccent = await ask(rl, "Logo accent word (gets accent color)", "");
+    const heroImg = "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1920&q=80";
+    return {
+      theme, logoText, logoAccent,
+      images: {
+        hero1: heroImg, hero2: heroImg, hero3: heroImg,
+        about: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=1200&q=80",
+        team: "https://images.unsplash.com/photo-1521791055366-0d553872125f?auto=format&fit=crop&w=1200&q=80",
+        process: heroImg, cta: heroImg,
+        og: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1200&q=80"
+      }
+    };
+  }
+  if (theme) console.log(`    Unknown theme "${theme}" — falling back to custom colors.`);
   const primary = await ask(rl, "Primary color (hex)", "#1e3a5f");
   const secondary = await ask(rl, "Secondary color (hex)", "#0f2a47");
   const accent = await ask(rl, "Accent color (hex)", "#f59e0b");
@@ -444,6 +476,7 @@ async function collectIntegrations(rl) {
     metaPixelId: await ask(rl, "Meta Pixel ID", ""),
     calendlyUrl: await ask(rl, "Calendly / booking URL", ""),
     crmWebhookUrl: await ask(rl, "CRM webhook URL", ""),
+    formsubmitEmail: await ask(rl, "formsubmit.co lead inbox email (zero-backend lead delivery)", ""),
     reviewWidgetEmbedHtml: await ask(rl, "Review widget HTML", ""),
     googleMapEmbedUrl: await ask(rl, "Google Maps embed URL", ""),
     requireCookieConsent: await askYesNo(rl, "Require cookie consent banner?", false)

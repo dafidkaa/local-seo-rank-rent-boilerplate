@@ -12,13 +12,30 @@ interface Props {
   title?: string;
   eyebrow?: string;
   locale?: string;
+  /** Set false when the page already emits its own FAQPage schema */
+  emitSchema?: boolean;
 }
-const { items: itemsProp, faqs: faqsProp, title = "Frequently Asked Questions", eyebrow = "FAQ", locale = "en" } = Astro.props;
+const { items: itemsProp, faqs: faqsProp, title = "Frequently Asked Questions", eyebrow = "FAQ", locale = "en", emitSchema = true } = Astro.props;
 // Support both {q,a} and {question,answer} formats
 const items: FaqItem[] = itemsProp
   ? itemsProp
   : (faqsProp ?? []).map((f: any) => f.q ? f : { q: f.question, a: f.answer });
+
+// FAQPage schema generated from the exact visible items so markup and
+// structured data can never drift apart.
+const faqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: items.map((item) => ({
+    "@type": "Question",
+    name: item.q,
+    acceptedAnswer: { "@type": "Answer", text: item.a }
+  }))
+};
 ---
+{emitSchema && items.length > 0 && (
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(faqJsonLd)} />
+)}
 <section class="faq-section section" aria-labelledby="faq-heading">
   <div class="container">
     <div class="section-header center">

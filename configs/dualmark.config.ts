@@ -65,6 +65,7 @@ export const siteConfig = {
     serviceArea: "Austin Metro",
     phone: "+1 555 010 2020",
     email: "hello@dualmark.dev",
+    ctaMode: "form_phone" as "form_phone" | "form_email" | "form_phone_email" | "phone_only" | "email_only",
     address: "Serving Austin Metro",
     hours: {
       Monday: "9:00AM-6:00PM",
@@ -96,6 +97,9 @@ export const siteConfig = {
     accentLight: "#fef3c7",
     dark: "#111827",
     light: "#f8fafc",
+    heroOverlay: "rgba(8, 38, 36, 0.68)",
+    fontDisplay: "Sora",
+    fontBody: "Inter",
     images: {
       hero1: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1920&q=80",
       hero2: "https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?auto=format&fit=crop&w=1920&q=80",
@@ -106,7 +110,8 @@ export const siteConfig = {
       cta:   "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1920&q=80",
       og:    "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80",
     },
-    logoText: "DualMark"
+    logoText: "DualMark",
+    logoAccent: "Mark"
   },
   integrations: {
     gtmId: "GTM-XXXXXXX",
@@ -115,6 +120,7 @@ export const siteConfig = {
     googleAdsConversionId: "",
     metaPixelId: "",
     calendlyUrl: "",
+    formsubmitEmail: "",
     crmWebhookUrl: "",
     reviewWidgetEmbedHtml: "",
     googleMapEmbedUrl: "",

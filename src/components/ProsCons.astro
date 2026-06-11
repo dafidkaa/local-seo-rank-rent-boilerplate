@@ -1,0 +1,116 @@
+---
+/**
+ * ProsCons — balanced two-column decision section
+ * ===============================================
+ * Builds trust by being honest (master prompt §12.10) and captures
+ * comparison-intent searches. Use for: DIY vs professional, early action vs
+ * waiting, repair vs replacement, standard vs premium service.
+ */
+interface Props {
+  title?: string;
+  lead?: string;
+  prosTitle: string;
+  consTitle: string;
+  pros: string[];
+  cons: string[];
+}
+const { title, lead, prosTitle, consTitle, pros, cons } = Astro.props;
+---
+<section class="proscons-section section" aria-label={title ?? prosTitle}>
+  <div class="container">
+    {title && (
+      <div class="section-header center">
+        <h2>{title}</h2>
+        {lead && <p class="proscons-lead">{lead}</p>}
+      </div>
+    )}
+    <div class="proscons-grid" data-reveal>
+      <div class="proscons-col proscons-col--pros">
+        <h3 class="proscons-heading">
+          <span class="proscons-badge proscons-badge--pro" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </span>
+          {prosTitle}
+        </h3>
+        <ul class="proscons-list">
+          {pros.map((item) => (
+            <li>
+              <svg class="proscons-icon proscons-icon--pro" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>{item}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div class="proscons-col proscons-col--cons">
+        <h3 class="proscons-heading">
+          <span class="proscons-badge proscons-badge--con" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </span>
+          {consTitle}
+        </h3>
+        <ul class="proscons-list">
+          {cons.map((item) => (
+            <li>
+              <svg class="proscons-icon proscons-icon--con" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <span>{item}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .proscons-lead {
+    font-size: clamp(1rem, 1.5vw, 1.125rem);
+    color: var(--color-text-muted, #475569);
+    max-width: 680px;
+    margin: 12px auto 0;
+    line-height: 1.7;
+  }
+  .proscons-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(20px, 3vw, 32px);
+    margin-top: clamp(28px, 4vw, 44px);
+  }
+  .proscons-col {
+    background: white;
+    border: 1px solid var(--color-border, #e2e8f0);
+    border-radius: var(--radius-xl, 16px);
+    padding: clamp(24px, 3.5vw, 36px);
+    box-shadow: var(--shadow-card);
+  }
+  .proscons-col--pros { border-top: 4px solid #16a34a; }
+  .proscons-col--cons { border-top: 4px solid #94a3b8; }
+  .proscons-heading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-display);
+    font-size: 1.0625rem;
+    font-weight: 800;
+    color: var(--color-heading, #0f172a);
+    margin: 0 0 18px;
+  }
+  .proscons-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .proscons-badge--pro { background: #dcfce7; color: #16a34a; }
+  .proscons-badge--con { background: #f1f5f9; color: #64748b; }
+  .proscons-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+  .proscons-list li { display: flex; gap: 10px; align-items: flex-start; font-size: 0.9375rem; line-height: 1.65; color: var(--color-text, #334155); }
+  .proscons-icon { flex-shrink: 0; margin-top: 4px; }
+  .proscons-icon--pro { color: #16a34a; }
+  .proscons-icon--con { color: #94a3b8; }
+  @media (max-width: 768px) {
+    .proscons-grid { grid-template-columns: 1fr; }
+  }
+</style>

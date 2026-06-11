@@ -1,0 +1,151 @@
+---
+/**
+ * BeforeAfter — draggable before/after comparison slider
+ * ======================================================
+ * Pure CSS clip + a range input (keyboard accessible, no dependencies).
+ * Killer proof element for home services, cleaning, detailing, landscaping,
+ * renovation — any niche with visible transformations.
+ */
+interface Props {
+  before: { src: string; alt: string };
+  after: { src: string; alt: string };
+  beforeLabel?: string;
+  afterLabel?: string;
+  title?: string;
+  eyebrow?: string;
+}
+const { before, after, beforeLabel = "Before", afterLabel = "After", title, eyebrow } = Astro.props;
+---
+<section class="ba-section section" aria-label={title ?? `${beforeLabel} / ${afterLabel}`}>
+  <div class="container">
+    {(title || eyebrow) && (
+      <div class="section-header center">
+        {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+        {title && <h2>{title}</h2>}
+      </div>
+    )}
+    <div class="ba-wrap" data-ba data-reveal>
+      <img class="ba-img ba-img--after" src={after.src} alt={after.alt} width="1200" height="675" loading="lazy" decoding="async" />
+      <div class="ba-before-clip" data-ba-clip>
+        <img class="ba-img ba-img--before" src={before.src} alt={before.alt} width="1200" height="675" loading="lazy" decoding="async" />
+      </div>
+      <div class="ba-handle" data-ba-handle aria-hidden="true">
+        <span class="ba-handle-circle">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6" transform="translate(-4 0)"/><polyline points="9 18 15 12 9 6" transform="translate(4 0)"/></svg>
+        </span>
+      </div>
+      <span class="ba-label ba-label--before">{beforeLabel}</span>
+      <span class="ba-label ba-label--after">{afterLabel}</span>
+      <input
+        class="ba-range"
+        type="range"
+        min="0"
+        max="100"
+        value="50"
+        aria-label={`Compare ${beforeLabel} and ${afterLabel}`}
+        data-ba-range
+      />
+    </div>
+  </div>
+</section>
+
+<style>
+  .ba-wrap {
+    position: relative;
+    margin-top: clamp(28px, 4vw, 44px);
+    border-radius: var(--radius-xl, 16px);
+    overflow: hidden;
+    aspect-ratio: 16/9;
+    box-shadow: var(--shadow-hover);
+    user-select: none;
+  }
+  .ba-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+  .ba-before-clip {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    width: 50%;
+    z-index: 1;
+  }
+  .ba-before-clip .ba-img--before { width: 100vw; max-width: none; }
+  .ba-handle {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 3px;
+    background: white;
+    z-index: 2;
+    transform: translateX(-50%);
+    box-shadow: 0 0 12px rgba(0,0,0,.4);
+  }
+  .ba-handle-circle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: white;
+    color: var(--brand-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-lg, 0 8px 24px rgba(0,0,0,.25));
+  }
+  .ba-label {
+    position: absolute;
+    top: 14px;
+    z-index: 2;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: var(--radius-full, 999px);
+    background: rgba(10, 14, 28, 0.65);
+    color: white;
+    backdrop-filter: blur(4px);
+  }
+  .ba-label--before { left: 14px; }
+  .ba-label--after { right: 14px; }
+  .ba-range {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: ew-resize;
+    z-index: 3;
+    margin: 0;
+  }
+</style>
+
+<script is:inline>
+(function () {
+  document.querySelectorAll("[data-ba]").forEach(function (wrap) {
+    if (wrap.__baBound) return;
+    wrap.__baBound = true;
+    var clip = wrap.querySelector("[data-ba-clip]");
+    var handle = wrap.querySelector("[data-ba-handle]");
+    var range = wrap.querySelector("[data-ba-range]");
+    var beforeImg = clip ? clip.querySelector("img") : null;
+
+    function setImageWidth() {
+      if (beforeImg) beforeImg.style.width = wrap.offsetWidth + "px";
+    }
+    setImageWidth();
+    window.addEventListener("resize", setImageWidth);
+
+    function update(value) {
+      var pct = Math.max(0, Math.min(100, Number(value)));
+      if (clip) clip.style.width = pct + "%";
+      if (handle) handle.style.left = pct + "%";
+    }
+    if (range) range.addEventListener("input", function () { update(range.value); });
+    update(50);
+  });
+})();
+</script>

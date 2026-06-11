@@ -168,8 +168,12 @@ const email   = siteConfig.business.email;
     position: absolute;
     inset: 0;
     background:
-      linear-gradient(to right, rgba(15,23,42,.88) 55%, rgba(15,23,42,.4) 100%),
-      linear-gradient(to top, rgba(0,0,0,.5) 0%, transparent 55%);
+      linear-gradient(to right,
+        color-mix(in srgb, var(--brand-secondary) 88%, black) 0%,
+        color-mix(in srgb, var(--brand-secondary) 72%, transparent) 55%,
+        color-mix(in srgb, var(--brand-secondary) 30%, transparent) 100%),
+      linear-gradient(to top, rgba(0,0,0,.45) 0%, transparent 50%),
+      radial-gradient(900px 420px at 90% 110%, var(--accent-glow), transparent 60%);
     z-index: 1;
   }
   /* ── Content ───────────────────────────────────────────────────────────── */
@@ -263,7 +267,28 @@ const email   = siteConfig.business.email;
     transition: background 0.2s, width 0.2s;
     padding: 0;
   }
-  .hs-dot.is-active { background: var(--brand-accent); width: 28px; }
+  .hs-dot.is-active {
+    background: rgba(255,255,255,.3);
+    width: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  /* Auto-advance progress fill (duration matches the slider interval) */
+  .hs-dot.is-active::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--brand-accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    animation: hsProgress 5.5s linear forwards;
+  }
+  @keyframes hsProgress { to { transform: scaleX(1); } }
+  @media (prefers-reduced-motion: reduce) {
+    .hs-dot.is-active { background: var(--brand-accent); }
+    .hs-dot.is-active::after { animation: none; transform: none; }
+  }
   .hs-dot:focus-visible { outline: 2px solid var(--brand-accent); outline-offset: 3px; }
   /* ── Responsive ────────────────────────────────────────────────────────── */
   @media (max-width: 768px) {

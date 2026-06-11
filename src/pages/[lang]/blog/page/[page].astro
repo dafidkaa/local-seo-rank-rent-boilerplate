@@ -1,0 +1,58 @@
+---
+/**
+ * Blog hub — pages 2+ (/en/blog/page/2/ …)
+ * Page 1 lives at /en/blog/ (see ../index.astro). Each page is statically
+ * rendered with its own posts and numbered pagination so every post is
+ * reachable by crawlers without JavaScript.
+ */
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import BlogHub from "@/components/BlogHub.astro";
+import { siteConfig, type Locale } from "@/site.config";
+import { t } from "@/lib/routes";
+import { seo } from "@/lib/seo";
+import { getCollection } from "astro:content";
+
+const POSTS_PER_PAGE = 9;
+
+export async function getStaticPaths() {
+  const posts = (await getCollection("blog"))
+    .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
+  // The newest post is the featured card on page 1; the rest paginate.
+  const rest = posts.slice(1);
+  const totalPages = Math.max(1, Math.ceil(rest.length / 9));
+
+  const paths = [];
+  for (const locale of siteConfig.locales) {
+    for (let page = 2; page <= totalPages; page++) {
+      paths.push({ params: { lang: locale.code, page: String(page) } });
+    }
+  }
+  return paths;
+}
+
+const locale = Astro.params.lang as Locale;
+const currentPage = Number(Astro.params.page);
+
+const allPosts = (await getCollection("blog"))
+  .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
+const rest = allPosts.slice(1);
+const totalPages = Math.max(1, Math.ceil(rest.length / POSTS_PER_PAGE));
+const pagePosts = rest.slice((currentPage - 1) * POSTS_PER_PAGE, currentPage * POSTS_PER_PAGE);
+
+const pageSeo = seo({
+  locale,
+  path: `blog/page/${currentPage}`,
+  title: `${siteConfig.business.name} Blog — Page ${currentPage} | ${t(siteConfig.business.primaryService, locale)} Tips`,
+  description: `Page ${currentPage} of the ${siteConfig.business.name} blog: tips, guides, and updates about ${t(siteConfig.business.primaryService, locale)} in ${siteConfig.business.serviceArea}.`
+});
+---
+<BaseLayout seo={pageSeo}>
+  <BlogHub
+    locale={locale}
+    pagePosts={pagePosts}
+    featured={null}
+    allPosts={allPosts}
+    currentPage={currentPage}
+    totalPages={totalPages}
+  />
+</BaseLayout>

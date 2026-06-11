@@ -7,7 +7,7 @@ import Hero from "../../components/Hero.astro";
 import FaqSection from "../../components/FaqSection.astro";
 import FinalCta from "../../components/FinalCta.astro";
 import { siteConfig } from "../../site.config";
-import { seo, localBusinessSchema, breadcrumbSchema, faqSchema } from "../../lib/seo";
+import { seo, localBusinessSchema, breadcrumbSchema } from "../../lib/seo";
 import { t } from "../../lib/routes";
 
 export async function getStaticPaths() {
@@ -42,7 +42,6 @@ const faqs = faqsRaw.map(f => ({ question: f.q, answer: f.a }));
 const schema = [
   localBusinessSchema(locale),
   breadcrumbSchema(crumbs),
-  faqSchema(faqs),
 ];
 
 const meta = seo({

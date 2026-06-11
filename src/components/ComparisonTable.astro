@@ -1,0 +1,104 @@
+---
+/**
+ * ComparisonTable — decision-support table for comparison intent
+ * ==============================================================
+ * Renders a real <table> (crawlable, snippet-friendly) with premium styling.
+ * Use for: DIY vs professional, repair vs replacement, standard vs emergency,
+ * cheapest option vs professional (master prompt §12.11).
+ */
+interface Props {
+  title?: string;
+  lead?: string;
+  /** Column headers — first column is the criteria label */
+  columns: string[];
+  /** Each row: [criteria, value1, value2, ...] */
+  rows: string[][];
+  /** Index of the column (1-based among value columns) to highlight as recommended */
+  highlightColumn?: number;
+}
+const { title, lead, columns, rows, highlightColumn = columns.length - 1 } = Astro.props;
+---
+<section class="cmp-section section section-light" aria-label={title ?? "Comparison"}>
+  <div class="container">
+    {title && (
+      <div class="section-header center">
+        <h2>{title}</h2>
+        {lead && <p class="cmp-lead">{lead}</p>}
+      </div>
+    )}
+    <div class="cmp-table-wrap" data-reveal>
+      <table class="cmp-table">
+        <thead>
+          <tr>
+            {columns.map((col, i) => (
+              <th scope="col" class={i === highlightColumn ? "cmp-highlight" : ""}>{col}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr>
+              {row.map((cell, i) =>
+                i === 0
+                  ? <th scope="row">{cell}</th>
+                  : <td class={i === highlightColumn ? "cmp-highlight" : ""}>{cell}</td>
+              )}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cmp-lead {
+    font-size: clamp(1rem, 1.5vw, 1.125rem);
+    color: var(--color-text-muted, #475569);
+    max-width: 680px;
+    margin: 12px auto 0;
+    line-height: 1.7;
+  }
+  .cmp-table-wrap {
+    margin-top: clamp(28px, 4vw, 44px);
+    overflow-x: auto;
+    border-radius: var(--radius-xl, 16px);
+    border: 1px solid var(--color-border, #e2e8f0);
+    box-shadow: var(--shadow-card);
+    background: white;
+    -webkit-overflow-scrolling: touch;
+  }
+  .cmp-table { width: 100%; border-collapse: collapse; min-width: 560px; }
+  .cmp-table th, .cmp-table td {
+    padding: 14px 18px;
+    text-align: left;
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    border-bottom: 1px solid var(--color-border, #e2e8f0);
+  }
+  .cmp-table thead th {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 0.875rem;
+    color: white;
+    background: var(--brand-primary);
+    border-bottom: none;
+    white-space: nowrap;
+  }
+  .cmp-table thead th.cmp-highlight { background: var(--brand-accent-dark, #d97706); }
+  .cmp-table tbody th[scope="row"] {
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--color-heading, #0f172a);
+    background: var(--color-surface, #f8fafc);
+    width: 220px;
+  }
+  .cmp-table tbody td { color: var(--color-text-muted, #475569); }
+  .cmp-table tbody td.cmp-highlight { background: var(--brand-accent-light, #fef3c7); color: var(--color-heading, #0f172a); font-weight: 500; }
+  .cmp-table tbody tr:last-child th, .cmp-table tbody tr:last-child td { border-bottom: none; }
+  @media (max-width: 640px) {
+    .cmp-table { min-width: 480px; }
+    .cmp-table th, .cmp-table td { padding: 11px 12px; font-size: 0.875rem; }
+    .cmp-table tbody th[scope="row"] { width: 110px; }
+  }
+</style>

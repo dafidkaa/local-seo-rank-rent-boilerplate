@@ -4,15 +4,19 @@
  * - Image zoom on hover, card lift, arrow reveal
  * - Proper alt text, cursor-pointer, focus-visible ring
  */
+import { ui } from "@/i18n";
+
 interface Props {
   title: string;
   description: string;
   image: string;
   href: string;
   alt: string;
+  locale?: string;
 }
 
-const { title, description, image, href, alt } = Astro.props;
+const { title, description, image, href, alt, locale = "en" } = Astro.props;
+const ctaLabel = ui("services.learnMore", locale);
 ---
 
 <article class="svc-card">
@@ -36,7 +40,7 @@ const { title, description, image, href, alt } = Astro.props;
       <h3 class="svc-card-title">{title}</h3>
       <p class="svc-card-desc">{description}</p>
       <span class="svc-card-cta" aria-hidden="true">
-        Learn More
+        {ctaLabel}
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
       </span>
     </div>
@@ -45,20 +49,36 @@ const { title, description, image, href, alt } = Astro.props;
 
 <style>
   .svc-card {
+    position: relative;
     border-radius: var(--radius-lg);
     overflow: hidden;
     background: white;
-    border: 1px solid var(--color-border);
+    border: 1px solid var(--tint-border);
     box-shadow: var(--shadow-card);
     transition: box-shadow var(--transition-slow),
                 transform var(--transition-slow),
                 border-color var(--transition-slow);
   }
   .svc-card:hover {
-    box-shadow: var(--shadow-hover);
-    transform: translateY(-4px);
-    border-color: var(--color-border-dark);
+    box-shadow: var(--shadow-xl);
+    transform: translateY(-5px);
+    border-color: color-mix(in srgb, var(--brand-accent) 35%, var(--color-border));
   }
+  /* Accent reveal line along the top edge */
+  .svc-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--gradient-accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--transition-slow);
+    z-index: 2;
+  }
+  .svc-card:hover::before { transform: scaleX(1); }
 
   .svc-card-link {
     display: block;
@@ -91,7 +111,7 @@ const { title, description, image, href, alt } = Astro.props;
   .svc-card-img-overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(to top, rgba(10,15,40,.55) 0%, transparent 60%);
+    background: linear-gradient(to top, color-mix(in srgb, var(--brand-secondary) 60%, black) 0%, transparent 60%);
     transition: opacity var(--transition-slow);
   }
   .svc-card:hover .svc-card-img-overlay { opacity: 0.7; }

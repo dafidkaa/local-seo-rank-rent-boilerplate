@@ -116,3 +116,30 @@ This document tracks known improvement areas, technical debt, and feature ideas 
 | Dynamic files (llms.txt) | 1 | 0 | 1 |
 | Setup wizard outdated | 1 | 0 | 1 |
 | Example configs outdated | 1 | 0 | 1 |
+
+
+---
+
+## 2026-06-11 — v2 overhaul (completed)
+
+**Correctness fixes**
+- Canonical URLs were double-prefixed (`/en/en/...`) on every dynamic page — fixed in `seo.ts` (`buildCanonical` accepts absolute paths).
+- hreflang alternates now use per-locale translated URLs (`localePaths` in `seo()`); previously they pointed at 404s for location pages.
+- Language switcher keeps page context (translated URL) instead of dumping to the other locale's homepage.
+- Brand fonts are now actually loaded from `brand.fontDisplay/fontBody` (the Google Fonts link was hardcoded to different families).
+- FaqSection/ProcessSection emit FAQPage/HowTo schema from visible items; duplicate head-level schema removed; homepage finally has FAQ schema.
+- Blog posts: `og:type=article` + `article:published_time/modified_time`.
+- Broken internal links to `/{locale}/{location.id}/` on service/about pages now use `locationPath()`.
+- Sitemap: per-URL `xhtml:link` hreflang alternates, blog post `lastmod`, blog pagination pages, FAQ page added; thank-you and A/B variants removed (variants now noindexed); dead `scripts/generate-sitemap.mjs` deleted.
+- Forms: validation actually runs (was `novalidate` with no JS check), honeypot enforced, hardcoded `AW-CONVERSION_ID/LABEL` replaced with config-driven ID, duplicate listener binding fixed.
+
+**New capabilities**
+- formsubmit.co zero-backend lead delivery (`integrations.formsubmitEmail`) with shared `window.submitLead()`.
+- 17 niche theme presets in `src/lib/themes.ts` (`brand: { ...themePreset("medical") }`).
+- i18n content blocks: ALL service/location/sub-service body copy moved to `src/i18n/[locale].ts` (`blocks:`) with `{placeholder}` interpolation — Croatian pages previously rendered English body copy; new niches need zero template edits.
+- Translated service slugs (`slug: { hr: "..." }` on services/children).
+- AEO components: ShortAnswer, ProsCons, ComparisonTable (wired on service pages), StatsBar count-up (service + location pages), Gallery with lightbox + BeforeAfter slider (render from `service.gallery` / `service.beforeAfter`).
+- Static blog pagination (`/blog/page/N/`) with full-corpus client-side search/filter/sort over a JSON index.
+- Scroll-reveal animation system with stagger (respects `prefers-reduced-motion`); button micro-interactions.
+- Popup form pre-selects the service from the triggering page (`data-service`).
+- Setup wizard: theme-preset option, formsubmitEmail, current type shape; example configs fixed to build cleanly.

@@ -65,6 +65,7 @@ export const siteConfig = {
     serviceArea: "Online — Worldwide",
     phone: "+1 555 020 3030",
     email: "hello@isitagentready.com",
+    ctaMode: "form_phone" as "form_phone" | "form_email" | "form_phone_email" | "phone_only" | "email_only",
     address: "Remote-first company",
     hours: {
       Monday: "9:00AM-6:00PM",
@@ -96,6 +97,9 @@ export const siteConfig = {
     accentLight: "#fef3c7",
     dark: "#0f172a",
     light: "#f8fafc",
+    heroOverlay: "rgba(10, 24, 50, 0.68)",
+    fontDisplay: "Sora",
+    fontBody: "Inter",
     images: {
       hero1: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1920&q=80",
       hero2: "https://images.unsplash.com/photo-1675557009875-436f7a5a1536?auto=format&fit=crop&w=1920&q=80",
@@ -106,7 +110,8 @@ export const siteConfig = {
       cta:   "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1920&q=80",
       og:    "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1200&q=80",
     },
-    logoText: "IsItAgentReady"
+    logoText: "IsItAgentReady",
+    logoAccent: "Ready"
   },
   integrations: {
     gtmId: "GTM-XXXXXXX",
@@ -115,6 +120,7 @@ export const siteConfig = {
     googleAdsConversionId: "",
     metaPixelId: "",
     calendlyUrl: "",
+    formsubmitEmail: "",
     crmWebhookUrl: "",
     reviewWidgetEmbedHtml: "",
     googleMapEmbedUrl: "",

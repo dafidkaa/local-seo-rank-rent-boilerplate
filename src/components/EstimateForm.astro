@@ -18,7 +18,6 @@ interface Props {
 }
 
 const { locale, service = "", variant = "card" } = Astro.props;
-const webhookUrl = siteConfig.integrations.crmWebhookUrl;
 const privacyUrl = localizedPath(locale, "privacy-policy");
 const termsUrl   = localizedPath(locale, "terms-and-conditions");
 ---
@@ -26,8 +25,9 @@ const termsUrl   = localizedPath(locale, "terms-and-conditions");
 <form
   class={`estimate-form${variant === "card" ? " estimate-form--card" : ""}`}
   data-conversion-form
-  data-webhook={webhookUrl}
   data-locale={locale}
+  data-sending={ui("form.sending", locale)}
+  data-error={ui("form.errorGeneric", locale)}
   novalidate
   aria-label={ui("form.ariaLabel", locale)}
 >
@@ -342,16 +342,32 @@ const termsUrl   = localizedPath(locale, "terms-and-conditions");
 <script is:inline>
 (function() {
   document.querySelectorAll("[data-conversion-form]").forEach(function(form) {
+    if (form.__leadBound) return; // the inline script repeats per component instance
+    form.__leadBound = true;
+
     form.addEventListener("submit", function(e) {
       e.preventDefault();
 
-      var webhook  = form.getAttribute("data-webhook") || "";
       var locale   = form.getAttribute("data-locale") || "en";
-      var errorEl  = form.querySelector("#ef-error");
+      var errorEl  = form.querySelector(".form-error");
       var btn      = form.querySelector("[data-submit-btn]");
       var btnText  = form.querySelector("[data-btn-text]");
+      var idleText = btnText ? btnText.textContent : "";
 
       if (errorEl) errorEl.textContent = "";
+
+      // Native validation (form is novalidate so errors render consistently)
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+
+      // Honeypot: pretend success so bots learn nothing
+      var honeypot = form.querySelector(".honeypot input");
+      if (honeypot && honeypot.value) {
+        window.location.href = "/" + locale + "/thank-you/";
+        return;
+      }
 
       // Collect data
       var data = {};
@@ -363,45 +379,24 @@ const termsUrl   = localizedPath(locale, "terms-and-conditions");
           data[field.name] = field.value;
         }
       });
+      data.pagePath = window.location.href;
 
-      // Analytics
-      window.dataLayer = window.dataLayer || [];
-      window.dataLayer.push({ event: "lead_form_submit", form_locale: locale });
-      if (window.fbq)  window.fbq("track", "Lead");
-      if (window.gtag) window.gtag("event", "conversion", { send_to: "AW-CONVERSION_ID/LABEL" });
-
-      // No webhook — redirect immediately
-      if (!webhook) {
-        window.location.href = "/" + locale + "/thank-you/";
-        return;
-      }
-
-      // Loading state
       if (btn) {
         btn.disabled = true;
-        if (btnText) btnText.textContent = "Sending…";
+        if (btnText) btnText.textContent = form.getAttribute("data-sending") || "Sending…";
       }
 
-      fetch(webhook, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-        mode: "cors"
-      })
-      .then(function(res) {
-        if (res.ok) {
+      window.submitLead(data, locale)
+        .then(function() {
           window.location.href = "/" + locale + "/thank-you/";
-        } else {
-          throw new Error("Server error " + res.status);
-        }
-      })
-      .catch(function() {
-        if (errorEl) errorEl.textContent = "Something went wrong. Please try again or call us directly.";
-        if (btn) {
-          btn.disabled = false;
-          if (btnText) btnText.textContent = "Get My Free Estimate";
-        }
-      });
+        })
+        .catch(function() {
+          if (errorEl) errorEl.textContent = form.getAttribute("data-error") || "Something went wrong. Please try again or call us directly.";
+          if (btn) {
+            btn.disabled = false;
+            if (btnText) btnText.textContent = idleText;
+          }
+        });
     });
   });
 })();

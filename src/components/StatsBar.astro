@@ -1,0 +1,109 @@
+---
+/**
+ * StatsBar — animated trust-stats strip
+ * =====================================
+ * Counts numbers up when scrolled into view (respects prefers-reduced-motion).
+ * Values come straight from siteConfig.stats — never invent numbers.
+ */
+interface Stat {
+  value: string;  // e.g. "4,800+", "4.9", "12+"
+  label: string;
+}
+interface Props {
+  stats: Stat[];
+  /** "light" (default, on white) or "dark" (on brand-primary band) */
+  tone?: "light" | "dark";
+}
+const { stats, tone = "dark" } = Astro.props;
+---
+<section class={`statsbar statsbar--${tone}`} aria-label="Key facts">
+  <div class="container statsbar-grid">
+    {stats.map((stat) => (
+      <div class="statsbar-item" data-reveal>
+        <span class="statsbar-value" data-countup data-value={stat.value}>{stat.value}</span>
+        <span class="statsbar-label">{stat.label}</span>
+      </div>
+    ))}
+  </div>
+</section>
+
+<style>
+  .statsbar { padding: clamp(36px, 5vw, 56px) 0; }
+  .statsbar--dark { background: var(--brand-primary); }
+  .statsbar--light { background: var(--color-surface, #f8fafc); border-block: 1px solid var(--color-border, #e2e8f0); }
+  .statsbar-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: clamp(20px, 4vw, 40px);
+    text-align: center;
+  }
+  .statsbar-value {
+    display: block;
+    font-family: var(--font-display);
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+  .statsbar--dark .statsbar-value { color: var(--brand-accent); }
+  .statsbar--light .statsbar-value { color: var(--brand-primary); }
+  .statsbar-label {
+    display: block;
+    margin-top: 6px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .statsbar--dark .statsbar-label { color: rgba(255,255,255,.65); }
+  .statsbar--light .statsbar-label { color: var(--color-text-muted, #64748b); }
+</style>
+
+<script is:inline>
+(function () {
+  if (window.__countupBound) return;
+  window.__countupBound = true;
+
+  var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduced || !("IntersectionObserver" in window)) return;
+
+  function animate(el) {
+    var raw = el.getAttribute("data-value") || "";
+    // Split into numeric part and prefix/suffix (handles "4,800+", "4.9", "99%")
+    var match = raw.match(/^([^0-9]*)([0-9][0-9.,]*)(.*)$/);
+    if (!match) return;
+    var prefix = match[1], numStr = match[2], suffix = match[3];
+    var decimals = (numStr.split(".")[1] || "").length;
+    var hasComma = numStr.indexOf(",") !== -1;
+    var target = parseFloat(numStr.replace(/,/g, ""));
+    if (isNaN(target)) return;
+
+    var duration = 1200;
+    var start = null;
+    function frame(ts) {
+      if (!start) start = ts;
+      var p = Math.min((ts - start) / duration, 1);
+      // ease-out cubic
+      var eased = 1 - Math.pow(1 - p, 3);
+      var current = target * eased;
+      var text = decimals ? current.toFixed(decimals) : Math.round(current).toString();
+      if (hasComma) text = text.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      el.textContent = prefix + text + suffix;
+      if (p < 1) requestAnimationFrame(frame);
+      else el.textContent = raw;
+    }
+    requestAnimationFrame(frame);
+  }
+
+  var observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) {
+        animate(entry.target);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.4 });
+
+  document.querySelectorAll("[data-countup]").forEach(function (el) { observer.observe(el); });
+})();
+</script>

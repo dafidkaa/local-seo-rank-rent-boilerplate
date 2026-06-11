@@ -1,0 +1,57 @@
+---
+/**
+ * ShortAnswer — AEO "direct answer" block
+ * =======================================
+ * A styled summary card placed right under the hero. Answers the page's main
+ * search intent in 2–4 sentences — the prime target for featured snippets
+ * and AI-generated answers (master prompt §12.2 / §13.2).
+ */
+interface Props {
+  /** Small label above the answer, e.g. "Quick Answer" */
+  label?: string;
+  /** The direct answer text (2–4 sentences) */
+  text: string;
+}
+const { label = "Quick Answer", text } = Astro.props;
+---
+<section class="short-answer-section" aria-label={label}>
+  <div class="container">
+    <div class="short-answer" data-reveal>
+      <p class="short-answer-label">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+        {label}
+      </p>
+      <p class="short-answer-text">{text}</p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .short-answer-section { padding: clamp(20px, 3vw, 32px) 0 0; }
+  .short-answer {
+    background: linear-gradient(135deg, var(--brand-accent-light, #fef3c7) 0%, color-mix(in srgb, var(--brand-accent-light, #fef3c7) 40%, white) 100%);
+    border: 1px solid color-mix(in srgb, var(--brand-accent) 25%, transparent);
+    border-left: 4px solid var(--brand-accent);
+    border-radius: var(--radius-lg, 12px);
+    padding: clamp(20px, 3vw, 28px) clamp(20px, 3.5vw, 32px);
+  }
+  .short-answer-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--brand-accent-dark, #d97706);
+    margin: 0 0 8px;
+  }
+  .short-answer-text {
+    font-size: clamp(1rem, 1.4vw, 1.0625rem);
+    line-height: 1.75;
+    color: var(--color-heading, #0f172a);
+    margin: 0;
+    max-width: 75ch;
+  }
+</style>

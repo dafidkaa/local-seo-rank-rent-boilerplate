@@ -74,6 +74,12 @@ const pageSeo = seo({
   title: `${t(post.data.title, locale)} | ${siteConfig.business.name}`,
   description: t(post.data.excerpt, locale),
   image: post.data.image,
+  ogType: "article",
+  article: {
+    publishedTime: post.data.date,
+    modifiedTime: post.data.updatedAt ?? post.data.date,
+    author: post.data.author
+  },
   schema: [
     articleSchema({
       headline: t(post.data.title, locale),
@@ -119,6 +125,21 @@ const city = siteConfig.business.city;
     <div class="post-hero-overlay" aria-hidden="true"></div>
     <div class="post-hero-body">
       <div class="container post-hero-content">
+        <nav class="post-hero-breadcrumbs" aria-label="Breadcrumb">
+          <ol class="post-hero-crumb-list">
+            <li>
+              <a href={`/${locale}/`} class="post-hero-crumb-link">Home</a>
+              <span class="post-hero-crumb-sep" aria-hidden="true">›</span>
+            </li>
+            <li>
+              <a href={localizedPath(locale, "blog")} class="post-hero-crumb-link">Blog</a>
+              <span class="post-hero-crumb-sep" aria-hidden="true">›</span>
+            </li>
+            <li>
+              <span aria-current="page" class="post-hero-crumb-current">{t(post.data.title, locale)}</span>
+            </li>
+          </ol>
+        </nav>
         {post.data.category && (
           <span class="post-hero-category">{post.data.category}</span>
         )}
@@ -139,24 +160,6 @@ const city = siteConfig.business.city;
         </div>
         <ShareButtons url={postUrl} title={t(post.data.title, locale)} />
       </div>
-      <!-- Breadcrumbs inside hero bottom bar -->
-      <nav class="post-hero-breadcrumbs" aria-label="Breadcrumb">
-        <div class="container">
-          <ol class="post-hero-crumb-list">
-            <li>
-              <a href={`/${locale}/`} class="post-hero-crumb-link">Home</a>
-              <span class="post-hero-crumb-sep" aria-hidden="true">›</span>
-            </li>
-            <li>
-              <a href={localizedPath(locale, "blog")} class="post-hero-crumb-link">Blog</a>
-              <span class="post-hero-crumb-sep" aria-hidden="true">›</span>
-            </li>
-            <li>
-              <span aria-current="page" class="post-hero-crumb-current">{t(post.data.title, locale)}</span>
-            </li>
-          </ol>
-        </div>
-      </nav>
     </div>
   </section>
 
@@ -418,25 +421,24 @@ const city = siteConfig.business.city;
     margin-bottom: 16px;
   }
   .post-hero-sep { color: rgba(255,255,255,.3); }
-  .post-hero-breadcrumbs {
-    background: rgba(0,0,0,.28);
-    border-top: 1px solid rgba(255,255,255,.12);
-    padding: 0.5rem 0;
-  }
+  .post-hero-breadcrumbs { margin: 0 0 14px; }
   .post-hero-crumb-list {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 0.25rem 0.5rem;
+    gap: 0.2rem 0.45rem;
     list-style: none;
     margin: 0;
     padding: 0;
-    font-size: 0.8rem;
+    font-family: var(--font-display);
+    font-size: 0.78rem;
+    letter-spacing: 0.01em;
   }
-  .post-hero-crumb-link { color: rgba(255,255,255,.7); text-decoration: none; transition: color 0.15s; }
-  .post-hero-crumb-link:hover { color: var(--brand-accent); }
-  .post-hero-crumb-current { color: rgba(255,255,255,.5); }
-  .post-hero-crumb-sep { color: rgba(255,255,255,.3); font-size: 0.75rem; }
+  .post-hero-crumb-list li { display: inline-flex; align-items: center; gap: 0.45rem; }
+  .post-hero-crumb-link { color: rgba(255,255,255,.6); text-decoration: none; transition: color 0.15s; }
+  .post-hero-crumb-link:hover { color: white; }
+  .post-hero-crumb-current { color: rgba(255,255,255,.92); font-weight: 600; }
+  .post-hero-crumb-sep { color: rgba(255,255,255,.32); }
 
   /* Layout */
   .post-section { padding-top: 3rem; }

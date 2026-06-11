@@ -17,6 +17,8 @@
  * DEMO NICHE: Residential Plumbing — Austin, TX
  */
 
+import { themePreset } from "./lib/themes";
+
 // ── Locale Types ─────────────────────────────────────────────────────────────
 
 export type Locale = "en" | "hr";
@@ -39,11 +41,25 @@ export type LocalizedText = Record<Locale, string>;
 
 export type ServiceItem = {
   id: string;
+  /**
+   * Optional translated URL slugs per locale, e.g.
+   * slug: { hr: "ciscenje-odvoda" } → /hr/ciscenje-odvoda/
+   * Locales without an entry fall back to `id`.
+   */
+  slug?: Partial<LocalizedText>;
   title: LocalizedText;
   short: LocalizedText;
   image: string;
+  /** Optional gallery images (used by the Gallery section on service pages) */
+  gallery?: Array<{ src: string; alt: string }>;
+  /** Optional before/after pair (renders a draggable comparison slider) */
+  beforeAfter?: {
+    before: { src: string; alt: string };
+    after: { src: string; alt: string };
+  };
   children: Array<{
     id: string;
+    slug?: Partial<LocalizedText>;
     title: LocalizedText;
     short: LocalizedText;
     faq: Array<{ question: LocalizedText; answer: LocalizedText }>;
@@ -150,22 +166,17 @@ export const siteConfig = {
 
   // ── Brand / Visual Identity ───────────────────────────────────────────────
   // These values are injected as CSS custom properties at build time.
-  // Change these to match the niche — see DESIGN-[niche].md for palettes.
+  // EASIEST PATH: spread a niche theme preset from src/lib/themes.ts
+  // (home-services, medical, legal, beauty, real-estate, automotive,
+  //  construction, cleaning, landscaping, pet-care, fitness, education,
+  //  transportation, security, events, funeral, luxury)
+  // then override individual values if the brand needs it.
   brand: {
-    // Primary: deep navy — authority, trust, professionalism
-    primary:       "#1e3a5f",
-    secondary:     "#0f2a47",
-    // Accent: warm amber — energy, action, approachability
-    accent:        "#f59e0b",
-    accentDark:    "#d97706",
-    accentLight:   "#fef3c7",
-    dark:          "#0f172a",
-    light:         "#f8fafc",
-    // Hero overlay — controls how dark the hero background image appears
-    heroOverlay:   "rgba(10, 24, 50, 0.68)",
-    // Typography — both available free on Google Fonts
-    fontDisplay:   "Poppins",
-    fontBody:      "Inter",
+    ...themePreset("home-services"),
+    // Override any preset value here, e.g.:
+    // accent: "#0ea5e9",
+    // fontDisplay: "Sora",
+
     // Logo text (used if no SVG logo is provided)
     logoText:      "Austin Pro Plumbing",
     logoAccent:    "Pro",  // this word gets the accent color
@@ -195,9 +206,17 @@ export const siteConfig = {
     gtmId:                   "GTM-XXXXXXX",
     ga4MeasurementId:        "",
     clarityProjectId:        "",
+    /** Google Ads conversion send_to value, e.g. "AW-123456789/AbCdEfGhIj".
+     *  Leave empty to skip the conversion ping entirely. */
     googleAdsConversionId:   "",
     metaPixelId:             "",
     calendlyUrl:             "",
+    /** Zero-backend lead delivery via formsubmit.co — set the inbox that
+     *  should receive leads. Used when crmWebhookUrl is empty. NOTE: the
+     *  first submission triggers a one-time activation email from
+     *  formsubmit.co that must be confirmed before leads flow. */
+    formsubmitEmail:         "",
+    /** Custom CRM/webhook endpoint (takes priority over formsubmitEmail) */
     crmWebhookUrl:           "",
     reviewWidgetEmbedHtml:   "",
     googleMapEmbedUrl:       "",
@@ -281,7 +300,7 @@ export const siteConfig = {
       id:     "lakeway",
       name:   "Lakeway",
       region: "Texas",
-      image:  "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80",
+      image:  "https://images.unsplash.com/photo-1439066615861-d1af74d74000?auto=format&fit=crop&w=900&q=80",
       detail: "Lake-area homes and premium service expectations.",
       knowledge: "Lakeway is an affluent community on the shores of Lake Travis, west of Austin. The area is known for its luxury homes, golf courses, and waterfront properties. Many residences are built on rocky terrain, which presents unique challenges for plumbing installations and repairs. Homeowners in Lakeway typically expect premium service and fast response times.",
       attractions: ["Lake Travis", "Lakeway Resort and Spa", "Rough Hollow Yacht Club", "Lakeway City Park"],
@@ -315,7 +334,7 @@ export const siteConfig = {
       id:    "drain-cleaning",
       title: { en: "Drain Cleaning", hr: "Čišćenje odvoda" },
       short: { en: "Fast, effective drain cleaning for clogged sinks, showers, toilets, and main sewer lines.", hr: "Brzo i učinkovito čišćenje začepljenih odvoda za sudopere, tuševe, WC-e i glavne kanalizacijske vodove." },
-      image: "https://images.unsplash.com/photo-1585771724684-38269d6639fd?auto=format&fit=crop&w=900&q=80",
+      image: "https://images.unsplash.com/photo-1542013936693-884638332954?auto=format&fit=crop&w=900&q=80",
       children: [
         {
           id:    "kitchen-drain-cleaning",
@@ -430,7 +449,7 @@ export const siteConfig = {
       id:    "sewer-services",
       title: { en: "Sewer Services", hr: "Kanalizacijske usluge" },
       short: { en: "Sewer line inspection, cleaning, repair, and replacement for residential and commercial properties.", hr: "Inspekcija, čišćenje, popravak i zamjena kanalizacijskih vodova za stambene i poslovne nekretnine." },
-      image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=900&q=80",
+      image: "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?auto=format&fit=crop&w=900&q=80",
       children: [
         { id: "sewer-camera-inspection", title: { en: "Sewer Camera Inspection", hr: "Kamera inspekcija kanalizacije" }, short: { en: "Video inspection to diagnose sewer line problems without digging.", hr: "Video inspekcija za dijagnozu problema kanalizacijskog voda bez kopanja." }, faq: [] },
         { id: "sewer-line-repair",    title: { en: "Sewer Line Repair",     hr: "Popravak kanalizacijskog voda" }, short: { en: "Trenchless and traditional sewer line repair options.", hr: "Opcije popravka kanalizacijskog voda bez rovova i tradicionalne metode." }, faq: [] },
@@ -458,7 +477,7 @@ export const siteConfig = {
       id:    "commercial-plumbing",
       title: { en: "Commercial Plumbing", hr: "Komercijalna vodoinstalacija" },
       short: { en: "Commercial plumbing services for offices, restaurants, retail, and multi-unit properties.", hr: "Komercijalne vodoinstalaterske usluge za urede, restorane, maloprodaju i višestambene nekretnine." },
-      image: "https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=900&q=80",
+      image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=900&q=80",
       children: [
         { id: "commercial-drain-cleaning", title: { en: "Commercial Drain Cleaning", hr: "Komercijalno čišćenje odvoda" }, short: { en: "High-capacity drain cleaning for restaurants, offices, and retail.", hr: "Čišćenje odvoda velikog kapaciteta za restorane, urede i maloprodaju." }, faq: [] },
         { id: "commercial-water-heater",   title: { en: "Commercial Water Heaters", hr: "Komercijalni bojleri"         }, short: { en: "Commercial water heater installation and service for businesses.", hr: "Ugradnja i servis komercijalnih bojlera za poslovne objekte." }, faq: [] },

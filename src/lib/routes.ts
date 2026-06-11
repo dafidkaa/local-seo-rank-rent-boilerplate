@@ -15,10 +15,25 @@ export const localizedPath = (locale: string, path = "") => {
   return `/${locale}${clean ? `/${clean}` : ""}/`;
 };
 
-export const servicePath = (locale: string, service: Pick<ServiceItem, "id">) => localizedPath(locale, service.id);
+/**
+ * Service slugs can be translated per locale via the optional `slug` field on
+ * ServiceItem / children (e.g. slug: { en: "drain-cleaning", hr: "ciscenje-odvoda" }).
+ * Falls back to the canonical `id` when no translation exists.
+ */
+export const serviceSlug = (locale: string, service: { id: string; slug?: Partial<Record<string, string>> }) =>
+  service.slug?.[locale] ?? service.id;
 
-export const subservicePath = (locale: string, service: Pick<ServiceItem, "id">, childId: string) =>
-  localizedPath(locale, `${service.id}/${childId}`);
+export const servicePath = (locale: string, service: Pick<ServiceItem, "id"> & { slug?: Partial<Record<string, string>> }) =>
+  localizedPath(locale, serviceSlug(locale, service));
+
+export const subservicePath = (
+  locale: string,
+  service: Pick<ServiceItem, "id"> & { slug?: Partial<Record<string, string>> },
+  child: string | { id: string; slug?: Partial<Record<string, string>> }
+) => {
+  const childSlug = typeof child === "string" ? child : serviceSlug(locale, child);
+  return localizedPath(locale, `${serviceSlug(locale, service)}/${childSlug}`);
+};
 
 export const getLocaleConfig = (locale: string) =>
   siteConfig.locales.find((l) => l.code === locale) ?? siteConfig.locales[0];
@@ -40,6 +55,15 @@ export const getParentForChildRoute = (parentId: string, childId: string) => {
 };
 
 export const blogPostPath = (locale: string, postId: string) => localizedPath(locale, `blog/${postId}`);
+
+/**
+ * Build the per-locale path map for a page whose slug differs by locale
+ * (location pages, translated service slugs). Feed the result to seo()'s
+ * `localePaths` so hreflang alternates and the header language switcher
+ * point at the real translated URL instead of a 404.
+ */
+export const localePathsFor = (build: (locale: string) => string): Record<string, string> =>
+  Object.fromEntries(siteConfig.locales.map((l) => [l.code, build(l.code)]));
 
 export const dateLocale = (locale: string): string => {
   const map: Record<string, string> = { en: "en-US", hr: "hr-HR" };

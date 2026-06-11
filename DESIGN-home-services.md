@@ -1,78 +1,57 @@
-# Visual Design & Customization Brief: Home Services Niche
-**Target Niches:** Plumbing, HVAC, Roofing, Electrical, Landscaping, Pest Control, Locksmith
+# DESIGN BRIEF — Home Services (Plumbing / HVAC / Electrical / Roofing / Handyman)
 
-This document serves as the **exact visual and structural brief** for customizing the Astro Rank & Rent Boilerplate for any home services business. It is optimized for both human designers and AI-generation tools (e.g., Claude, GPT, Cursor) to produce a high-converting, authoritative, "$10,000-firm" aesthetic.
+> **Wired in code:** `themePreset("home-services")` -> navy #1e3a5f / amber #f59e0b | Poppins + Inter | soft corners, gradient CTAs, solid nav.
+> Read **DESIGN-SYSTEM.md** first — it carries the global rules (type, nav variants,
+> buttons, motion, imagery, anti-slop checklist). This brief adds the niche layer.
 
----
+## Positioning & feel
+Dependable, fast, local, no-nonsense — the contractor your neighbor recommends.
 
-## 1. Core Brand Strategy: "The Authority Tradesman"
+## Palette & accent discipline
+Preset palette: navy #1e3a5f / amber #f59e0b. Amber only on CTAs, eyebrow rules, icon chips, and the emergency band. Navy carries authority everywhere else.
 
-Home services websites must immediately convey three things: **trust, availability, and professionalism**. The design must feel like a long-standing, highly-rated local business, not a generic lead-generation site.
+## Typography
+Preset pairing: **Poppins + Inter** (weights wired automatically).
 
-### Visual Pillars
-*   **High-Contrast Authority:** Strong, deep colors for background surfaces (Navy, Forest Green, Charcoal) combined with bright, action-oriented accents (Amber, Gold, Electric Blue).
-*   **Trust Gating:** Prominent display of badges (Licensed & Insured, Same-Day Service) immediately below or within the Hero section.
-*   **Frictionless Actions:** A phone number and a simple form must be visible within the first 3 seconds of page load.
+## Navigation & hero
+Slider hero (3-4 slides) — or static hero + embedded estimate form if leads skew urgent/high-intent.
+- Primary CTA: **"Get a Free Estimate"** | Secondary: **"Call Now"**
+- Form strategy: **standard — embedded hero/contact forms plus popup CTAs on inner pages**
 
----
+## Section rhythm
+Follow the standard service/location templates (hero -> quick answer -> stats ->
+sub-services -> signs -> pros/cons -> comparison -> why-us -> process -> gallery ->
+area -> FAQ -> CTA) with the cadence rules from DESIGN-SYSTEM.md s6. Emphasize the
+signature sections below; cut anything that would be filler for this niche.
 
-## 2. Niche-Specific Design Tokens
+## Signature sections (build these well)
+1. Emergency/same-day band — slim accent strip under the hero with phone CTA (honest hours only)
+2. Before/after slider on repair-type service pages (service.beforeAfter)
+3. Service-area section with location pills + map embed
+4. Seasonal maintenance callout (changes copy per season, drives recurring work)
 
-To apply a niche style, replace the `brand` object in `src/site.config.ts` with one of the following presets.
+## Imagery direction
+Hands-on work close-ups, completed installs, tidy branded van, tool detail shots. One human moment max per page — the work is the hero.
 
-### Palette Presets
+**Unsplash starting queries** (verify every result actually shows the subject):
+- "plumber repairing sink closeup"
+- "technician tool belt"
+- "water heater installation"
+- "electrician panel work"
+- "service van driveway"
+- "modern kitchen faucet chrome"
 
-| Niche | Primary (Navy/Charcoal) | Secondary (Dark Surface) | Accent (Action Color) | Accent Dark | Hero Overlay |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **Plumbing** | `#1e3a5f` (Deep Blue) | `#0f2a47` (Dark Navy) | `#f59e0b` (Amber Gold) | `#d97706` | `rgba(10, 24, 50, 0.68)` |
-| **HVAC / Climate** | `#1e293b` (Slate Dark) | `#0f172a` (Charcoal) | `#38bdf8` (Ice Blue) | `#0284c7` | `rgba(15, 23, 42, 0.72)` |
-| **Roofing** | `#2d3748` (Slate Grey) | `#1a202c` (Charcoal Grey) | `#e53e3e` (Safety Red) | `#9b2c2c` | `rgba(26, 32, 44, 0.75)` |
-| **Electrical** | `#18181b` (Near Black) | `#09090b` (Pure Dark) | `#eab308` (Volt Yellow) | `#ca8a04` | `rgba(9, 9, 11, 0.75)` |
-| **Landscaping** | `#14532d` (Forest Green) | `#0f2f1d` (Deep Moss) | `#f59e0b` (Warm Amber) | `#d97706` | `rgba(15, 47, 29, 0.70)` |
+**Never:** grinning posed crews, hard-hat stock cliches, watermarked tool collages.
 
-### Typography Pairings
-*   **Display Font (Headings):** `Plus Jakarta Sans` or `Cabinet Grotesk` (900 weight, tight letter-spacing `-0.03em`, line-height `1.05` for hero, `1.15` for section headings).
-*   **Body Font:** `DM Sans` or `Inter` (400 weight for copy, 600/700 for subheadings and strong text).
+## Copy tone
+Plain, confident, second person. Short sentences. Price honesty over hype.
 
----
+## Do
+- Lead every page with the outcome (fixed, dry, working) not the process
+- Use the count-up StatsBar — jobs done and response time are this niche's jewelry
+- Keep the comparison table (DIY vs pro) — it converts fence-sitters
 
-## 3. High-Converting Component Layouts
-
-When building or modifying components for Home Services, enforce these exact layout rules:
-
-### A. The Split Hero (Alternative to Slider)
-*   **Left Column (60%):** Eyebrow badge with glowing dot → Massive H1 with bold keyword → Trust badges (Licensed, Same-Day) → Dual CTAs (Accent Button + Phone Link).
-*   **Right Column (40%):** An inline **Estimate Form** nested inside a card with a subtle border and high-depth shadow (`box-shadow: var(--shadow-xl)`).
-*   **Background:** High-quality, real-life photography of the trade in action (e.g., a professional plumber inspecting a pipe), darkened by the `brand.heroOverlay` gradient.
-
-### B. Service Cards Grid
-*   Must use **aspect-ratio 3/2** for service images.
-*   **Hover Effect:** Image must scale up slightly (`scale(1.06)`), and the card must lift up (`translateY(-4px)`).
-*   The card background must be pure white, with a subtle border (`1px solid #e2e8f0`) and high shadow contrast.
-
-### C. The Process Section ("Simple as 1-2-3")
-*   Must use a **dark charcoal background** (`#0f172a`) to break up the page flow.
-*   Display exactly **4 steps** with large, glowing accent-colored numbers (e.g., `01`, `02`).
-*   Connecting lines between steps are required on desktop (hidden on mobile).
-
----
-
-## 4. AI Prompting Blueprint
-
-Copy and paste this exact prompt into your AI tool (Cursor, Claude, etc.) when customizing this boilerplate for a Home Services niche:
-
-```text
-You are an expert frontend developer and conversion rate optimizer.
-Customize the rank-and-rent Astro boilerplate for a [NICHE] business in [CITY], [STATE/REGION].
-
-Follow these steps exactly:
-1. Update `src/site.config.ts`:
-   - Change `business` fields to reflect "[BUSINESS NAME]" in [CITY].
-   - Apply the [NICHE] design tokens (colors, fonts, overlays) in the `brand` object.
-   - Replace the `images` URLs with high-quality, trade-specific Unsplash photos (avoid vector illustrations).
-   - Set up the main services and subservices specific to [NICHE].
-2. Update `src/i18n/en.ts` (and other locale files):
-   - Replace generic terms with trade-specific, action-oriented copy.
-   - Example: Instead of "Service Completed", use "System Restored" or "Leak Repaired".
-3. Verify that the build is completely static, with zero client-side JS runtime except for the hero slider and form submission handlers.
-```
+## Don't
+- Red EMERGENCY banners everywhere — one calm accent band beats panic
+- Clip-art wrenches or emoji — Icon.astro only
+- Claiming 24/7 or licenses the business doesn't have
