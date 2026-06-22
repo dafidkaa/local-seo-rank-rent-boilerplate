@@ -21,23 +21,30 @@ export async function getStaticPaths() {
 }
 
 const { locale } = Astro.props;
+const isHr = locale === "hr";
 const city = siteConfig.business.city;
 const businessName = siteConfig.business.name;
 const phone = siteConfig.business.phone;
-const founded = siteConfig.business.foundedYear ?? "2012";
+const area = siteConfig.business.serviceArea;
 const primaryService = t(siteConfig.business.primaryService, locale);
 
 const crumbs = [
-  { name: "Home", url: `/${locale}/` },
-  { name: "About Us", url: `/${locale}/about/` },
+  { name: isHr ? "Početna" : "Home", url: `/${locale}/` },
+  { name: isHr ? "O nama" : "About Us", url: `/${locale}/about/` },
 ];
 
-const faqsRaw = [
-  { q: `How long has ${businessName} been serving ${city}?`, a: `${businessName} has been serving ${city} and the surrounding metro area since ${founded}. Over the years we have built a reputation for reliable, professional service and honest communication.` },
-  { q: `Is ${businessName} licensed and insured?`, a: `Yes. ${businessName} is fully licensed, bonded, and insured for all work in ${city} and the surrounding area. Every member of our team meets the professional standards required for their trade.` },
-  { q: `What areas does ${businessName} serve?`, a: `We serve ${city} and the surrounding metro area including ${siteConfig.locations.slice(0, 5).map(l => l.name).join(", ")}, and more. Contact us to confirm coverage for your specific address.` },
-  { q: `What is your satisfaction guarantee?`, a: `We stand behind every job we complete. If you are not satisfied with our work, we will return to make it right at no additional cost. Your satisfaction is our priority.` },
-  { q: `How do I get a quote from ${businessName}?`, a: `You can request a free, no-obligation estimate by filling out our online form, calling us at ${phone}, or sending us an email. We typically respond within the same business day.` },
+const faqsRaw = isHr ? [
+  { q: `Što je ${businessName}?`, a: `${businessName} je online resurs za rezervaciju privatnih transfera iz Zračne luke Split (SPU) do odredišta diljem ${area}. Pošaljete upit, a operater potvrđuje dostupnost i fiksnu ponudu.` },
+  { q: `Do kojih odredišta vozite?`, a: `Pokrivamo više od 60 odredišta, uključujući ${siteConfig.locations.slice(0, 5).map(l => l.name).join(", ")} i druga mjesta u ${area}. Javite nam svoju rutu i potvrdit ćemo je.` },
+  { q: `Koja vozila su dostupna?`, a: `Na upit su dostupni automobili, kombiji, minibusi i autobusi — za parove, obitelji i grupe od 8 ili više osoba, s prostorom za prtljagu. Dječje sjedalice na upit.` },
+  { q: `Plaćam li unaprijed na ovoj stranici?`, a: `Ne. Ova stranica služi za upite. Dobit ćete fiksnu ponudu za potvrdu, a plaćanje dogovarate izravno s operaterom transfera.` },
+  { q: `Kako dobivam ponudu?`, a: `Ispunite obrazac, pošaljite e-poštu na ${siteConfig.business.email} ili nazovite ${phone}. Navedite rutu, broj leta, broj putnika i prtljagu kako bi ponuda bila točna.` },
+] : [
+  { q: `What is ${businessName}?`, a: `${businessName} is an online resource for booking private transfers from Split Airport (SPU) to destinations across ${area}. You send an inquiry, and the operator confirms availability and a fixed quote.` },
+  { q: `Which destinations do you cover?`, a: `We cover over 60 destinations, including ${siteConfig.locations.slice(0, 5).map(l => l.name).join(", ")} and other places across ${area}. Tell us your route and we will confirm it.` },
+  { q: `What vehicles are available?`, a: `Cars, vans, minibuses and buses are available on request — for couples, families and groups of 8 or more, with space for luggage. Child seats on request.` },
+  { q: `Do I pay upfront on this site?`, a: `No. This site is for inquiries. You receive a fixed quote to confirm, and you arrange payment directly with the transfer operator.` },
+  { q: `How do I get a quote?`, a: `Fill out the form, email ${siteConfig.business.email}, or call ${phone}. Share your route, flight number, passenger count and luggage so the quote is accurate.` },
 ];
 
 const faqs = faqsRaw.map(f => ({ question: f.q, answer: f.a }));
@@ -48,8 +55,10 @@ const schemas = [
 ].filter(Boolean);
 
 const meta = seo({
-  title: `About ${businessName} | ${primaryService} in ${city}`,
-  description: `Learn about ${businessName} — ${city}'s trusted ${primaryService.toLowerCase()} professionals since ${founded}. Licensed, insured, and committed to your satisfaction.`,
+  title: `${isHr ? "O nama" : "About"} ${businessName} | ${primaryService}`,
+  description: isHr
+    ? `Saznajte više o ${businessName} — privatni transferi iz Zračne luke Split do ${area}. Automobili, kombiji i autobusi na upit, fiksne ponude, više od 60 odredišta.`
+    : `Learn about ${businessName} — private transfers from Split Airport to ${area}. Cars, vans and buses on request, fixed quotes, and over 60 destinations covered.`,
   locale,
   path: `/${locale}/about/`,
   schema: schemas,
@@ -58,39 +67,47 @@ const meta = seo({
 <BaseLayout seo={meta}>
   <!-- HERO -->
   <Hero
-    title={`About ${businessName}`}
-    text={`${city}'s trusted ${primaryService.toLowerCase()} professionals since ${founded}. Licensed, insured, and committed to your complete satisfaction.`}
+    title={isHr ? `O nama — ${businessName}` : `About ${businessName}`}
+    text={isHr
+      ? `Privatni transferi iz Zračne luke Split do hotela, vila, marina i trajektne luke diljem ${area}. Automobili, kombiji i autobusi na upit, s fiksnom ponudom unaprijed.`
+      : `Private transfers from Split Airport to hotels, villas, marinas and the ferry port across ${area}. Cars, vans and buses on request, with a fixed quote upfront.`}
     image={(siteConfig.brand as any).images?.about ?? 'https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=900&q=80'}
-    imageAlt={`${businessName} team — professional ${primaryService.toLowerCase()} in ${city}`}
+    imageAlt={isHr ? `${businessName} — privatni transferi iz Zračne luke Split` : `${businessName} — private Split Airport transfers`}
     locale={locale as any}
     breadcrumbs={crumbs}
   />
 
   <!-- OUR STORY -->
   <ContentSection
-    eyebrow={`Since ${founded}`}
-    title={`Who We Are`}
-    text={`${businessName} was founded in ${founded} with a simple mission: to provide ${city} homeowners and businesses with professional, reliable ${primaryService.toLowerCase()} services they could trust. Since then, we have grown into one of the most respected names in the ${city} metro area, completing thousands of jobs and earning the trust of our community.\n\nWe are a locally owned and operated company. We live and work in ${city}, and we take pride in serving our neighbours with the same care and professionalism we would want for our own homes and businesses. Every member of our team is fully licensed, bonded, and insured — and every job we complete is backed by our 100% satisfaction guarantee.\n\nOur growth has been built entirely on referrals and repeat customers. We do not rely on flashy advertising or empty promises. We rely on doing excellent work, communicating honestly, and treating every customer with respect.`}
+    eyebrow={isHr ? "Tko smo" : "Who We Are"}
+    title={isHr ? "Vaš resurs za dolazak u Split" : "Your Split Arrival Resource"}
+    text={isHr
+      ? `${businessName} postoji s jednostavnim ciljem: učiniti dolazak u Zračnu luku Split jednostavnim. Umjesto traženja prijevoza nakon dugog leta, pošaljete upit s rutom i detaljima leta, a operater potvrđuje dostupnost i jasnu fiksnu ponudu.\n\nPovezujemo putnike s privatnim transferima do hotela, apartmana, vila, marina, trajektne luke i obližnjih dalmatinskih odredišta. Vozila — automobili, kombiji, minibusi i autobusi — dostupna su na upit, pa pravo vozilo odgovara vašoj grupi i prtljazi.\n\nStranice su dostupne na engleskom, hrvatskom i njemačkom, a upit možete poslati u bilo koje doba. Ova stranica služi za upite: ne plaćate unaprijed ovdje, već dogovarate izravno s operaterom transfera.`
+      : `${businessName} exists with one simple goal: to make arriving at Split Airport easy. Instead of hunting for transport after a long flight, you send an inquiry with your route and flight details, and the operator confirms availability and a clear fixed quote.\n\nWe connect travellers with private transfers to hotels, apartments, villas, marinas, the ferry port and nearby Dalmatian destinations. Vehicles — cars, vans, minibuses and buses — are available on request, so the right vehicle matches your group and luggage.\n\nPages are available in English, Croatian and German, and you can send an inquiry at any time. This site is for inquiries: you do not pay upfront here, but arrange directly with the transfer operator.`}
     image={(siteConfig.brand as any).images?.team ?? 'https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=900&q=80'}
-    imageAlt={`${businessName} team in ${city}`}
+    imageAlt={isHr ? `Privatni transfer u ${area}` : `Private transfer in ${area}`}
   />
 
-  <!-- COMPANY TIMELINE -->
+  <!-- HOW IT WORKS -->
   <section class="section section-light">
     <div class="container">
       <div class="section-header">
-        <span class="section-eyebrow">Our Journey</span>
-        <h2 class="section-title">How We Grew in {city}</h2>
-        <p class="section-lead">From a small local operation to one of {city}'s most trusted {primaryService.toLowerCase()} providers — here is our story.</p>
+        <span class="section-eyebrow">{isHr ? "Kako to funkcionira" : "How It Works"}</span>
+        <h2 class="section-title">{isHr ? "Od upita do dolaska" : "From Quote to Arrival"}</h2>
+        <p class="section-lead">{isHr ? "Četiri jednostavna koraka od upita do udobnog privatnog puta do vašeg odredišta." : "Four simple steps from inquiry to a comfortable private ride to your destination."}</p>
       </div>
       <div class="timeline">
-        {[
-          { year: founded, event: `${businessName} was founded in ${city} with a small team and a big commitment to quality and honest communication.` },
-          { year: String(parseInt(founded) + 2), event: `Expanded service area to cover the full ${city} metro, adding more licensed technicians to meet growing demand.` },
-          { year: String(parseInt(founded) + 4), event: `Reached 1,000 completed jobs milestone. Introduced same-day service guarantee across all service areas.` },
-          { year: String(parseInt(founded) + 6), event: `Launched commercial services division, serving local businesses, property managers, and multi-unit developments.` },
-          { year: "Today", event: `${siteConfig.stats?.jobsCompleted ?? "Thousands of"} jobs completed. ${siteConfig.stats?.averageRating ?? "5"}-star rated. Still locally owned, still committed to ${city}.` },
-        ].map((item, i) => (
+        {(isHr ? [
+          { year: "1", event: "Zatražite ponudu — podijelite rutu, broj leta, broj putnika i prtljagu putem obrasca ili e-pošte." },
+          { year: "2", event: "Dobijte dostupnost i fiksnu ponudu od operatera — bez plaćanja unaprijed na ovoj stranici." },
+          { year: "3", event: "Dolazak u Zračnu luku Split — pronađite svog vozača na dogovorenom mjestu preuzimanja." },
+          { year: "4", event: "Privatni put do odredišta — hotela, vile, marine ili trajektne luke. Povratni transfer na upit." },
+        ] : [
+          { year: "1", event: "Request a quote — share your route, flight number, passenger count and luggage by form or email." },
+          { year: "2", event: "Receive availability and a fixed quote from the operator — no upfront payment on this site." },
+          { year: "3", event: "Arrive at Split Airport — meet your driver at the agreed pickup point." },
+          { year: "4", event: "Travel privately to your destination — hotel, villa, marina or the ferry port. Return transfer on request." },
+        ]).map((item) => (
           <div class="timeline-item">
             <div class="timeline-year">{item.year}</div>
             <div class="timeline-connector"><div class="timeline-dot"></div></div>
@@ -101,21 +118,26 @@ const meta = seo({
     </div>
   </section>
 
-  <!-- CERTIFICATIONS & CREDENTIALS -->
+  <!-- WHAT YOU CAN REQUEST -->
   <section class="section section-dark">
     <div class="container">
       <div class="section-header">
-        <span class="section-eyebrow">Credentials</span>
-        <h2 class="section-title" style="color:var(--color-light)">Licensed, Certified &amp; Insured</h2>
-        <p class="section-lead" style="color:rgba(255,255,255,0.75)">Every technician at {businessName} meets the professional standards required to work in {city} and the surrounding area.</p>
+        <span class="section-eyebrow">{isHr ? "Što možete zatražiti" : "What You Can Request"}</span>
+        <h2 class="section-title" style="color:var(--color-light)">{isHr ? "Transferi prilagođeni vašem putovanju" : "Transfers Built Around Your Trip"}</h2>
+        <p class="section-lead" style="color:rgba(255,255,255,0.75)">{isHr ? `Privatni transferi po cijelom ${area}, planirani oko vašeg leta, grupe i odredišta.` : `Private transfers across ${area}, planned around your flight, your group and your destination.`}</p>
       </div>
       <div class="certs-grid">
-        {[
-          { label: "State Licensed", desc: `All technicians hold valid state licenses for ${primaryService.toLowerCase()} work in ${siteConfig.business.region}.` },
-          { label: "Fully Insured", desc: "We carry full liability insurance and workers' compensation on every job — protecting you and your property." },
-          { label: "Background Checked", desc: "Every team member passes a thorough background check before joining our crew. Your home is in safe hands." },
-          { label: "Ongoing Training", desc: `We invest in continuous professional development to stay current with the latest ${primaryService.toLowerCase()} codes and best practices.` },
-        ].map(cert => (
+        {(isHr ? [
+          { label: "Privatno, od vrata do vrata", desc: "Izravan transfer do hotela, vile, apartmana, marine ili trajektne luke — bez dijeljenja vozila." },
+          { label: "Pravo vozilo za grupu", desc: "Automobili, kombiji, minibusi i autobusi na upit, s prostorom za prtljagu cijele grupe." },
+          { label: "Obitelji i grupe", desc: "Dječje i booster sjedalice na upit te mjesta za grupe od 8 ili više osoba." },
+          { label: "Trajekt, marine i povratak", desc: "Vremenski osjetljivi transferi do trajektne luke i marina te povratni transferi na upit." },
+        ] : [
+          { label: "Private, Door-to-Door", desc: "A direct transfer to your hotel, villa, apartment, marina or the ferry port — no sharing the vehicle." },
+          { label: "The Right Vehicle for Your Group", desc: "Cars, vans, minibuses and buses on request, with room for the whole group's luggage." },
+          { label: "Family & Group Friendly", desc: "Child and booster seats on request, plus space for groups of 8 or more." },
+          { label: "Ferry, Marinas & Return", desc: "Time-sensitive transfers to the ferry port and marinas, and return transfers on request." },
+        ]).map(cert => (
           <div class="cert-card">
             <div class="cert-badge">✓</div>
             <div>
@@ -132,19 +154,26 @@ const meta = seo({
   <section class="section section-light">
     <div class="container">
       <div class="section-header">
-        <span class="section-eyebrow">Our Values</span>
-        <h2 class="section-title">What We Stand For</h2>
-        <p class="section-lead">The principles that guide every job we complete in {city} and the surrounding area.</p>
+        <span class="section-eyebrow">{isHr ? "Naše vrijednosti" : "Our Values"}</span>
+        <h2 class="section-title">{isHr ? "Što nam je važno" : "What We Stand For"}</h2>
+        <p class="section-lead">{isHr ? `Načela koja vode svaki transfer koji organiziramo u ${area}.` : `The principles behind every transfer we help arrange across ${area}.`}</p>
       </div>
       <div class="values-grid">
-        {[
-          { icon: "shield", title: "Integrity", desc: `We are honest about what needs to be done, what it will cost, and how long it will take. No upselling, no hidden fees, no surprises.` },
-          { icon: "clock", title: "Reliability", desc: `We show up on time, every time. When we say we will be there, we mean it. Your time is valuable and we respect that.` },
-          { icon: "star", title: "Quality", desc: `We do not cut corners. Every job is completed to the highest professional standard, using quality materials and proven techniques.` },
-          { icon: "users", title: "Community", desc: `We are a local business serving our own community. We care about ${city} and we are committed to making it a better place to live and work.` },
-          { icon: "check", title: "Accountability", desc: `We stand behind our work. If something is not right, we come back and fix it. Our satisfaction guarantee is not just a slogan — it is a promise.` },
-          { icon: "heart", title: "Respect", desc: `We treat every customer, every home, and every business with the same respect we would want for our own. Your property is in safe hands.` },
-        ].map(v => (
+        {(isHr ? [
+          { icon: "shield", title: "Jasnoća", desc: "Dobivate fiksnu ponudu unaprijed, bez skrivenih troškova i bez plaćanja unaprijed na ovoj stranici." },
+          { icon: "clock", title: "Pouzdanost", desc: "Preuzimanje se planira oko vašeg leta, pa kašnjenja ili raniji slijetanja ne znače jurnjavu za prijevozom." },
+          { icon: "star", title: "Udobnost", desc: "Privatno vozilo prilagođeno vašoj grupi i prtljazi, izravno do vrata vašeg smještaja." },
+          { icon: "users", title: "Za sve putnike", desc: `Parovi, obitelji s djecom, grupe te gosti vila, marina i trajekta — pokrivamo cijeli ${area}.` },
+          { icon: "check", title: "Točne informacije", desc: "Iskrene smjernice o rutama, pješačkim zonama starog grada te vremenu trajekta i marina." },
+          { icon: "heart", title: "Lokalno znanje", desc: "Vozači poznaju Split i Dalmaciju, od kratkih ruta do Trogira do duljih putovanja do Makarske ili Krke." },
+        ] : [
+          { icon: "shield", title: "Clarity", desc: "You get a fixed quote upfront, with no hidden charges and no upfront payment on this site." },
+          { icon: "clock", title: "Reliability", desc: "Pickup is planned around your flight, so a delay or early landing does not leave you scrambling for transport." },
+          { icon: "star", title: "Comfort", desc: "A private vehicle matched to your group and luggage, straight to the door of your accommodation." },
+          { icon: "users", title: "For Every Traveller", desc: `Couples, families with children, groups, and villa, marina and ferry guests — we cover all of ${area}.` },
+          { icon: "check", title: "Honest Information", desc: "Straight guidance on routes, old-town pedestrian zones, and ferry and marina timing." },
+          { icon: "heart", title: "Local Knowledge", desc: "Drivers know Split and Dalmatia, from short hops to Trogir to longer trips to Makarska or Krka." },
+        ]).map(v => (
           <div class="value-card">
             <div class="value-icon" aria-hidden="true">
               {v.icon === "shield" && <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>}
@@ -169,10 +198,10 @@ const meta = seo({
     <div class="container">
       <div class="stats-row">
         {[
-          { number: siteConfig.stats?.yearsInBusiness ?? `${new Date().getFullYear() - parseInt(founded)}+`, label: "Years in Business" },
-          { number: siteConfig.stats?.jobsCompleted ?? "2,500+", label: "Jobs Completed" },
-          { number: siteConfig.stats?.satisfactionRate ?? "99%", label: "Satisfaction Rate" },
-          { number: siteConfig.stats?.citiesServed ?? `${siteConfig.locations.length}+`, label: "Cities Served" },
+          { number: siteConfig.stats?.destinationsServed ?? "60+", label: isHr ? "Pokrivenih odredišta" : "Destinations Covered" },
+          { number: isHr ? "Auto·Kombi·Bus" : "Cars·Vans·Buses", label: isHr ? "Vozila na upit" : "Vehicles on Request" },
+          { number: "EN·HR·DE", label: isHr ? "Stranice na 3 jezika" : "Pages in 3 Languages" },
+          { number: isHr ? "Povratni" : "Return", label: isHr ? "Transferi dostupni" : "Transfers Available" },
         ].map(stat => (
           <div class="stat-item">
             <div class="stat-number">{stat.number}</div>
@@ -183,13 +212,15 @@ const meta = seo({
     </div>
   </section>
 
-  <!-- OUR TEAM / APPROACH -->
+  <!-- OUR APPROACH -->
   <ContentSection
-    eyebrow="Our Approach"
-    title={`How We Work`}
-    text={`Every job at ${businessName} follows the same professional process. We start with a thorough assessment to understand exactly what needs to be done. We provide a clear, written estimate before any work begins. Our team arrives on time, works efficiently, and cleans up after every job.\n\nWe communicate clearly throughout the process. If we discover anything unexpected, we let you know immediately and discuss your options before proceeding. We never start additional work without your approval.\n\nWhen the job is complete, we conduct a final walkthrough to make sure you are satisfied with the result. Our work is backed by a 100% satisfaction guarantee — if something is not right, we come back and fix it at no additional cost.\n\nThis approach has earned us the trust of thousands of ${city} homeowners and businesses, and it is the foundation of everything we do.`}
+    eyebrow={isHr ? "Naš pristup" : "Our Approach"}
+    title={isHr ? "Kako planiramo vaš transfer" : "How We Plan Your Transfer"}
+    text={isHr
+      ? `Svaki transfer kreće od vašeg upita. Podijelite rutu, broj leta, broj putnika i prtljagu, a spomenete li dječje sjedalice, jedriličarsku prtljagu ili polazak trajekta, operater predlaže pravo vozilo.\n\nDobivate jasnu fiksnu ponudu za potvrdu prije puta. Komuniciramo jasno: vrijeme preuzimanja usklađuje se s vašim letom, a za stari grad Splita vozač koristi najbližu prikladnu pristupnu točku zbog pješačke zone.\n\nNa dan dolaska vozač vas dočeka u Zračnoj luci Split i vozi izravno do odredišta. Povratni transfer do zračne luke možete zatražiti u istom upitu, s dovoljnom rezervom za vaš odlazni let.\n\nTaj jednostavan, transparentan proces čini dolazak u ${area} bezbrižnim — od kratke rute do Trogira do duljeg puta do Makarske ili Šibenika.`
+      : `Every transfer starts with your inquiry. Share your route, flight number, passenger count and luggage, and if you mention child seats, sailing bags or a ferry departure, the operator suggests the right vehicle.\n\nYou receive a clear fixed quote to confirm before you travel. We communicate clearly: pickup is timed around your flight, and for Split's old town the driver uses the nearest suitable access point because of the pedestrian zone.\n\nOn arrival day your driver meets you at Split Airport and drives you straight to your destination. You can request a return transfer to the airport in the same inquiry, with enough margin for your departure flight.\n\nThat simple, transparent process makes arriving in ${area} stress-free — from a short hop to Trogir to a longer trip to Makarska or Šibenik.`}
     image={(siteConfig as any).images?.process ?? "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=900&q=80"}
-    imageAlt={`${businessName} professional work process in ${city}`}
+    imageAlt={isHr ? `Privatni transfer u ${area}` : `Private transfer in ${area}`}
     reversed={true}
   />
 
@@ -197,9 +228,9 @@ const meta = seo({
   <section class="section section-light">
     <div class="container">
       <div class="section-header">
-        <span class="section-eyebrow">Where We Work</span>
-        <h2 class="section-title">Our Service Area</h2>
-        <p class="section-lead">We serve {city} and the surrounding metro area. Here are some of the communities we regularly serve:</p>
+        <span class="section-eyebrow">{isHr ? "Kamo vozimo" : "Where We Go"}</span>
+        <h2 class="section-title">{isHr ? "Naša odredišta" : "Our Destinations"}</h2>
+        <p class="section-lead">{isHr ? `Pokrivamo Split i središnju Dalmaciju. Evo nekih od odredišta do kojih redovito vozimo:` : `We cover Split and Central Dalmatia. Here are some of the destinations we regularly drive to:`}</p>
       </div>
       <div class="area-grid">
         {siteConfig.locations.map(loc => (

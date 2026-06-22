@@ -62,8 +62,10 @@ const trustItems: Array<{ strong: string; rest: string }> = B("trust.items");
 const signItems: string[] = B("signs.items");
 const benefitCards: Array<{ title: string; desc: string }> = B("benefits.cards");
 
-const pageTitle       = `${childName} in ${city} | ${businessName}`;
-const pageDescription = `Professional ${childName.toLowerCase()} in ${city}. ${businessName} — licensed, insured, same-day service. Free estimates. Call ${phone}.`;
+const pageTitle       = `${childName} | ${businessName}`;
+const pageDescription = locale === "hr"
+  ? `${childName} iz Zračne luke Split uz ${businessName}. Privatni transfer, vozila na upit i fiksna ponuda. Nazovite ${phone} ili zatražite ponudu.`
+  : `${childName} from Split Airport with ${businessName}. A private transfer, vehicles on request and a fixed quote. Call ${phone} or request a quote.`;
 
 const faqs: Array<{ q: string; a: string }> = [
   ...(child.faq ?? []).map((f: any) => ({ q: t(f.question, locale), a: t(f.answer, locale) })),

@@ -3,7 +3,7 @@ import mdx from "@astrojs/mdx";
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
-  site: process.env.SITE_URL || "https://example.com",
+  site: process.env.SITE_URL || "https://splitairporttransfers.com.hr",
   integrations: [mdx()],
   prefetch: true,
   output: "static",

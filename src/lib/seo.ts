@@ -66,9 +66,14 @@ export const localBusinessSchema = (locale: string) => ({
   image: (siteConfig.brand.images as any)?.og ?? `${siteConfig.siteUrl}/og-default.jpg`,
   telephone: siteConfig.business.phone,
   email: siteConfig.business.email,
+  // Service-area description string — intentionally NOT a structured
+  // PostalAddress, because there is no street address / walk-in office.
   address: siteConfig.business.address,
   areaServed: siteConfig.locations.map((location) => location.name),
-  foundingDate: siteConfig.business.foundedYear,
+  // Only emit foundingDate when a real year is configured (it is empty here).
+  ...(siteConfig.business.foundedYear
+    ? { foundingDate: siteConfig.business.foundedYear }
+    : {}),
   description: t(siteConfig.business.description, locale),
   openingHours: Object.entries(siteConfig.business.hours).map(([day, hours]) => `${day} ${hours}`)
 });
@@ -140,7 +145,10 @@ export const organizationSchema = (locale: string) => ({
   legalName: siteConfig.business.legalName,
   url: buildCanonical(locale),
   logo: (siteConfig.brand.images as any)?.og ?? `${siteConfig.siteUrl}/og-default.jpg`,
-  foundingDate: siteConfig.business.foundedYear,
+  // Only emit foundingDate when a real year is configured (it is empty here).
+  ...(siteConfig.business.foundedYear
+    ? { foundingDate: siteConfig.business.foundedYear }
+    : {}),
   contactPoint: {
     "@type": "ContactPoint",
     telephone: siteConfig.business.phone,

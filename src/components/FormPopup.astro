@@ -42,10 +42,10 @@ const serviceName = t(siteConfig.business.primaryService, locale);
     <div class="fp-header">
       <p class="fp-eyebrow">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.01 1.18 2 2 0 012 .01h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
-        Free Estimate
+        {locale === "hr" ? "Ponuda za transfer" : "Transfer Quote"}
       </p>
-      <h2 id="fp-title" class="fp-title">Get Your Free {serviceName} Estimate</h2>
-      <p class="fp-subtitle">We respond within one business hour. No obligation, no pressure.</p>
+      <h2 id="fp-title" class="fp-title">{locale === "hr" ? "Zatražite fiksnu ponudu za transfer" : "Request a Fixed Quote for Your Transfer"}</h2>
+      <p class="fp-subtitle">{locale === "hr" ? "Podijelite rutu, broj leta, broj putnika i prtljagu. Operater šalje fiksnu ponudu — bez plaćanja unaprijed." : "Share your route, flight, passengers and luggage. The operator sends back a fixed quote — no upfront payment."}</p>
     </div>
     <!-- Form -->
     <form
@@ -56,7 +56,7 @@ const serviceName = t(siteConfig.business.primaryService, locale);
       data-popup-form
       data-locale={locale}
       novalidate
-      aria-label="Free estimate request form"
+      aria-label={locale === "hr" ? "Obrazac za upit transfera" : "Transfer quote request form"}
     >
       <!-- Honeypot -->
       <div class="fp-honeypot" aria-hidden="true">
@@ -116,7 +116,7 @@ const serviceName = t(siteConfig.business.primaryService, locale);
             autocomplete="tel"
             aria-required="true"
             pattern="^[0-9+() .\-]{7,}$"
-            placeholder="(512) 555-0100"
+            placeholder="+385 91 234 5678"
           />
         </div>
         <div class="fp-field">
@@ -131,7 +131,7 @@ const serviceName = t(siteConfig.business.primaryService, locale);
             required
             autocomplete="email"
             aria-required="true"
-            placeholder="john@example.com"
+            placeholder="name@email.com"
           />
         </div>
       </div>
@@ -139,7 +139,7 @@ const serviceName = t(siteConfig.business.primaryService, locale);
       <div class="fp-row">
         <div class="fp-field">
           <label class="fp-label" for="fp-service">
-            Service Needed <span class="fp-req" aria-hidden="true">*</span>
+            {locale === "hr" ? "Vrsta transfera" : "Transfer Type"} <span class="fp-req" aria-hidden="true">*</span>
           </label>
           <div class="fp-select-wrap">
             <select
@@ -149,7 +149,7 @@ const serviceName = t(siteConfig.business.primaryService, locale);
               required
               aria-required="true"
             >
-              <option value="">Select a service…</option>
+              <option value="">{locale === "hr" ? "Odaberite uslugu…" : "Select a service…"}</option>
               {allServices.map((item) => (
                 <option value={item.id}>{t(item.title, locale)}</option>
               ))}
@@ -159,29 +159,29 @@ const serviceName = t(siteConfig.business.primaryService, locale);
         </div>
         <div class="fp-field">
           <label class="fp-label" for="fp-address">
-            Service Address
+            {locale === "hr" ? "Odredište / ruta" : "Destination / Route"}
           </label>
           <input
             id="fp-address"
             class="fp-input"
             name="serviceAddress"
             type="text"
-            autocomplete="street-address"
-            placeholder="123 Main St, Austin TX"
+            autocomplete="off"
+            placeholder={locale === "hr" ? "npr. Zračna luka Split → Trogir" : "e.g. Split Airport → Trogir"}
           />
         </div>
       </div>
       <!-- Row 4: Details (full width) -->
       <div class="fp-field fp-field--full">
         <label class="fp-label" for="fp-details">
-          Additional Details <span class="fp-optional">(optional)</span>
+          {locale === "hr" ? "Detalji (broj leta, putnici, prtljaga)" : "Details (flight no., passengers, luggage)"} <span class="fp-optional">({locale === "hr" ? "neobavezno" : "optional"})</span>
         </label>
         <textarea
           id="fp-details"
           class="fp-textarea"
           name="details"
           rows="2"
-          placeholder="Describe the issue, any urgency, or special requirements…"
+          placeholder={locale === "hr" ? "Navedite broj leta, vrijeme dolaska, broj putnika, prtljagu i dječje sjedalice…" : "Share your flight number, arrival time, passenger count, luggage and any child seats…"}
         ></textarea>
       </div>
       <!-- GDPR consent checkbox -->
@@ -207,7 +207,7 @@ const serviceName = t(siteConfig.business.primaryService, locale);
       <!-- Submit -->
       <button type="submit" class="btn btn-primary fp-submit" data-fp-submit>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.01 1.18 2 2 0 012 .01h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
-        <span data-fp-btn-text>Get My Free Estimate</span>
+        <span data-fp-btn-text>{locale === "hr" ? "Zatražite ponudu" : "Request a Quote"}</span>
       </button>
       <!-- Privacy note -->
       <p class="fp-privacy-note">

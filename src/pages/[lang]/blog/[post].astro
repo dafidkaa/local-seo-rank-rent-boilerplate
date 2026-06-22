@@ -219,15 +219,15 @@ const city = siteConfig.business.city;
 
         <!-- CTA Widget -->
         <div class="sidebar-widget sidebar-cta">
-          <p class="sidebar-cta-eyebrow">Free Estimate</p>
-          <h3 class="sidebar-cta-title">Need {primaryService} in {city}?</h3>
-          <p class="sidebar-cta-text">Get a free, no-obligation estimate from {businessName}. Same-day service available.</p>
+          <p class="sidebar-cta-eyebrow">{locale === "hr" ? "Ponuda za transfer" : "Transfer Quote"}</p>
+          <h3 class="sidebar-cta-title">{locale === "hr" ? "Trebate transfer iz Zračne luke Split?" : "Need a Split Airport transfer?"}</h3>
+          <p class="sidebar-cta-text">{locale === "hr" ? `Zatražite fiksnu ponudu od ${businessName}. Vozila na upit, bez plaćanja unaprijed.` : `Request a fixed quote from ${businessName}. Vehicles on request, no upfront payment.`}</p>
           <button
             class="btn btn-primary sidebar-cta-btn"
             data-open-form-popup
             aria-haspopup="dialog"
           >
-            Request a Free Estimate
+            {locale === "hr" ? "Zatražite ponudu" : "Request a Quote"}
           </button>
           {phone && (
             <a href={`tel:${phone}`} class="sidebar-cta-phone">
@@ -295,8 +295,8 @@ const city = siteConfig.business.city;
   <!-- FINAL CTA -->
   <FinalCta
     locale={locale}
-    title={`Ready to schedule ${primaryService}?`}
-    text={`Request a free estimate in ${city} and nearby areas.`}
+    title={locale === "hr" ? "Spremni za rezervaciju transfera?" : "Ready to book your transfer?"}
+    text={locale === "hr" ? `Zatražite fiksnu ponudu za transfer iz Zračne luke Split do ${city} i obližnjih odredišta.` : `Request a fixed quote for a transfer from Split Airport to ${city} and nearby destinations.`}
   />
 </BaseLayout>
 

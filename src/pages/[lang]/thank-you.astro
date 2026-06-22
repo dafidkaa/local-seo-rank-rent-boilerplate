@@ -5,6 +5,7 @@ import { localizedPath } from "@/lib/routes";
 import { seo } from "@/lib/seo";
 export function getStaticPaths() { return siteConfig.locales.map((locale) => ({ params: { lang: locale.code } })); }
 const locale = Astro.params.lang as Locale;
-const pageSeo = seo({ locale, path: "thank-you", title: `Thank You | ${siteConfig.business.name}`, description: "Thank you for your request.", noindex: true });
+const isHr = locale === "hr";
+const pageSeo = seo({ locale, path: "thank-you", title: isHr ? `Hvala | ${siteConfig.business.name}` : `Thank You | ${siteConfig.business.name}`, description: isHr ? "Hvala na vašem upitu za transfer." : "Thank you for your transfer inquiry.", noindex: true });
 ---
-<BaseLayout seo={pageSeo}><section class="section section-light"><div class="container" style="max-width:760px"><h1>Thank You</h1><p>Your request has been received. Replace the form action with your CRM or server endpoint when you connect lead delivery.</p><a class="button button-primary" href={localizedPath(locale)}>Back Home</a></div></section></BaseLayout>
+<BaseLayout seo={pageSeo}><section class="section section-light"><div class="container" style="max-width:760px"><h1>{isHr ? "Hvala!" : "Thank You"}</h1><p>{isHr ? `Vaš upit za transfer je zaprimljen. Operater će provjeriti dostupnost i javiti se s fiksnom ponudom. Za hitna pitanja nazovite ${siteConfig.business.phone}.` : `Your transfer inquiry has been received. The operator will check availability and reply with a fixed quote. For anything urgent, call ${siteConfig.business.phone}.`}</p><a class="button button-primary" href={localizedPath(locale)}>{isHr ? "Natrag na početnu" : "Back Home"}</a></div></section></BaseLayout>

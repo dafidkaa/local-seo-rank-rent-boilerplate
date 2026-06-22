@@ -66,10 +66,10 @@ const signItems: Item[] = B("signs.items");
 const prosConsData: { title: string; lead: string; prosTitle: string; consTitle: string; pros: string[]; cons: string[] } = B("prosCons");
 const comparisonData: { title: string; lead: string; columns: string[]; rows: string[][] } = B("comparison");
 const statsBarItems = [
-  { value: siteConfig.stats.yearsInBusiness, label: ui("blocks.statsBar.years", locale) },
-  { value: siteConfig.stats.jobsCompleted,   label: ui("blocks.statsBar.jobs", locale) },
-  { value: siteConfig.stats.averageRating,   label: ui("blocks.statsBar.rating", locale) },
-  { value: siteConfig.stats.satisfactionRate, label: ui("blocks.statsBar.satisfaction", locale) },
+  { value: siteConfig.stats.destinationsServed,                  label: locale === "hr" ? "Pokrivenih odredišta" : "Destinations Covered" },
+  { value: locale === "hr" ? "Auto·Kombi·Bus" : "Cars·Vans·Buses", label: locale === "hr" ? "Na upit" : "On Request" },
+  { value: "EN·HR·DE",                                            label: locale === "hr" ? "3 jezika" : "3 Languages" },
+  { value: locale === "hr" ? "Povratni" : "Return",              label: locale === "hr" ? "Transferi dostupni" : "Transfers Available" },
 ];
 const whyItems: Item[] = B("why.items");
 const problemItems: Item[] = B("problems.items");
@@ -93,8 +93,10 @@ const schemas = [
 ];
 
 const meta = seo({
-  title:       `${serviceName} in ${city} | ${businessName}`,
-  description: `Need ${serviceNameLower} in ${city}? ${businessName} provides professional, licensed ${serviceNameLower} with free estimates and same-day service. Call now.`,
+  title:       `${serviceName} | ${businessName}`,
+  description: locale === "hr"
+    ? `Trebate ${serviceNameLower} iz Zračne luke Split? ${businessName} nudi privatne transfere, vozila na upit i fiksnu ponudu. Zatražite ponudu.`
+    : `Need ${serviceNameLower} from Split Airport? ${businessName} offers private transfers, vehicles on request and a fixed quote. Request a quote today.`,
   locale,
   path:        servicePath(locale, service),
   localePaths: localePathsFor((l) => servicePath(l, service)),

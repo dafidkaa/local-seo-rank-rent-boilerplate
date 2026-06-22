@@ -8,52 +8,88 @@ import { localizedPath, t } from "@/lib/routes";
 import { breadcrumbSchema, faqSchema, seo } from "@/lib/seo";
 export function getStaticPaths() { return siteConfig.locales.map((locale) => ({ params: { lang: locale.code } })); }
 const locale = Astro.params.lang as Locale;
-const faqData = {
+const isHr = locale === "hr";
+const area = siteConfig.business.serviceArea;
+const faqData = isHr ? {
+  general: {
+    label: "Općenito",
+    questions: [
+      { q: `Što je ${siteConfig.business.name}?`, a: `${siteConfig.business.name} je online resurs za rezervaciju privatnih transfera iz Zračne luke Split (SPU) do odredišta diljem ${area}. Pošaljete upit, a operater potvrđuje dostupnost i fiksnu ponudu.` },
+      { q: "Plaćam li unaprijed na ovoj stranici?", a: "Ne. Ova stranica služi za upite. Dobivate fiksnu ponudu za potvrdu, a plaćanje dogovarate izravno s operaterom transfera." },
+      { q: "Do kojih odredišta vozite?", a: `Pokrivamo više od 60 odredišta, uključujući ${siteConfig.locations.slice(0, 5).map(l => l.name).join(", ")} i druga mjesta u ${area}. Javite nam svoju rutu i potvrdit ćemo je.` },
+      { q: "Vozite li i do trajektne luke i marina?", a: "Da. Vozimo do trajektne luke Split za katamarane i trajekte te do marina i charter baza oko Splita i Trogira. Te su rute vremenski osjetljive pa transfer planiramo oko vašeg polaska." }
+    ]
+  },
+  vehicles: {
+    label: "Vozila i putnici",
+    questions: [
+      { q: "Koja vozila su dostupna?", a: `Na upit su dostupni automobili, kombiji, minibusi i autobusi — za parove, obitelji i grupe od 8 ili više osoba. Navedite broj putnika i prtljagu da operater predloži pravo vozilo.` },
+      { q: "Možete li osigurati dječje sjedalice?", a: "Da, dječje i booster sjedalice mogu se osigurati na upit. Navedite broj i dob djece pri slanju upita." },
+      { q: "Ima li mjesta za prtljagu, jedriličarske torbe ili kolica?", a: "Da. Pri upitu navedite prtljagu i posebnu opremu (jedriličarske torbe, kolica, opremu za plažu) kako bi operater odabrao vozilo s dovoljno prostora." }
+    ]
+  },
+  booking: {
+    label: "Upiti i ponude",
+    questions: [
+      { q: "Kako rezerviram transfer?", a: "Ispunite obrazac, pošaljite e-poštu ili nazovite. Navedite rutu, broj leta, vrijeme dolaska, broj putnika i prtljagu. Operater šalje fiksnu ponudu za potvrdu." },
+      { q: "Mogu li rezervirati i povratni transfer?", a: "Da. Dolazni i povratni transfer možete zatražiti u jednom upitu, a operater potvrđuje vrijeme preuzimanja s dovoljnom rezervom za vaš odlazni let." },
+      { q: "Što ako mi se let kasni?", a: "Preuzimanje se planira prema vašem letu. Navedite broj leta pri upitu kako bi vozač mogao pratiti slijetanje i prilagoditi se kašnjenju ili ranijem dolasku." }
+    ]
+  },
+  arrival: {
+    label: "Dolazak",
+    questions: [
+      { q: "Gdje me vozač čeka u Zračnoj luci Split?", a: "Mjesto preuzimanja potvrđuje se uz vašu ponudu. Vozač vas dočeka na dogovorenom mjestu nakon što pokupite prtljagu." },
+      { q: "Možete li me odvesti u stari grad Splita?", a: "Velik dio starog grada je pješačka zona, pa vozač ostavlja goste na najbližoj prikladnoj pristupnoj točki. Javite naziv smještaja unaprijed kako bi vozač isplanirao iskrcaj." },
+      { q: "U koje doba mogu poslati upit?", a: "Upit putem obrasca možete poslati u bilo koje doba, a stranice su dostupne na engleskom, hrvatskom i njemačkom." }
+    ]
+  }
+} : {
   general: {
     label: "General",
     questions: [
-      { q: `What does ${siteConfig.business.name} do?`, a: `${siteConfig.business.name} provides ${t(siteConfig.business.primaryService, locale)} and related services to residential and commercial customers in ${siteConfig.business.serviceArea}. We focus on clear communication, reliable scheduling, and professional results.` },
-      { q: "How long have you been in business?", a: `We have been serving the ${siteConfig.business.serviceArea} area since ${siteConfig.business.foundedYear}. Our team brings years of hands-on experience to every project.` },
-      { q: "Are you licensed and insured?", a: "Yes. We are fully licensed and insured to operate in our service area. We carry appropriate coverage for the services we provide." },
-      { q: `What areas do you serve?`, a: `We serve ${siteConfig.business.serviceArea}, including ${siteConfig.locations.slice(0, 5).map(l => l.name).join(", ")}, and surrounding communities. Contact us to confirm service availability in your area.` }
+      { q: `What is ${siteConfig.business.name}?`, a: `${siteConfig.business.name} is an online resource for booking private transfers from Split Airport (SPU) to destinations across ${area}. You send an inquiry, and the operator confirms availability and a fixed quote.` },
+      { q: "Do I pay upfront on this site?", a: "No. This site is for inquiries. You receive a fixed quote to confirm, and you arrange payment directly with the transfer operator." },
+      { q: "Which destinations do you cover?", a: `We cover over 60 destinations, including ${siteConfig.locations.slice(0, 5).map(l => l.name).join(", ")} and other places across ${area}. Tell us your route and we will confirm it.` },
+      { q: "Do you also drive to the ferry port and marinas?", a: "Yes. We drive to Split Ferry Port for catamarans and ferries, and to the marinas and charter bases around Split and Trogir. These routes are time-sensitive, so we plan the transfer around your departure." }
     ]
   },
-  services: {
-    label: "Services",
+  vehicles: {
+    label: "Vehicles & Passengers",
     questions: [
-      { q: `What types of ${t(siteConfig.business.primaryService, locale)} do you offer?`, a: `We offer a range of ${t(siteConfig.business.primaryService, locale)} including ${siteConfig.mainServices.slice(0, 3).map(s => t(s.title, locale)).join(", ")}, and more. Visit our services page for the full list.` },
-      { q: "Do you handle both residential and commercial projects?", a: "Yes. We serve homeowners, property managers, and local businesses across our service area." },
-      { q: "Can I request a specific service that is not listed?", a: "Contact us with the details. If it falls within our scope of work, we will be happy to help or refer you to a trusted partner." }
+      { q: "What vehicles are available?", a: `Cars, vans, minibuses and buses are available on request — for couples, families and groups of 8 or more. Tell us your passenger count and luggage so the operator can suggest the right vehicle.` },
+      { q: "Can you provide child seats?", a: "Yes, child and booster seats can be arranged on request. Just tell us the number and ages of children when you send your inquiry." },
+      { q: "Is there room for luggage, sailing bags or strollers?", a: "Yes. When you inquire, mention your luggage and any special items (sailing bags, strollers, beach gear) so the operator picks a vehicle with enough space." }
     ]
   },
-  pricing: {
-    label: "Pricing & Estimates",
+  booking: {
+    label: "Inquiries & Quotes",
     questions: [
-      { q: "Are estimates really free?", a: "Yes. All estimates are provided at no cost and with no obligation. We believe you should understand the scope and cost before making any commitment." },
-      { q: "How do you determine pricing?", a: "Pricing is based on the scope of work, materials needed, and time required. We provide a clear breakdown so you know exactly what you are paying for." },
-      { q: "Do you offer any guarantees on pricing?", a: "We stand behind our estimates. If the scope changes during the project, we communicate the difference and get your approval before proceeding." }
+      { q: "How do I book a transfer?", a: "Fill out the form, send an email, or call. Share your route, flight number, arrival time, passenger count and luggage. The operator sends back a fixed quote to confirm." },
+      { q: "Can I book a return transfer too?", a: "Yes. You can request both your arrival and return transfer in one inquiry, and the operator confirms a pickup time that leaves enough margin for your departure flight." },
+      { q: "What if my flight is delayed?", a: "Pickup is planned around your flight. Share your flight number when you inquire so the driver can track the landing and adjust for a delay or early arrival." }
     ]
   },
-  scheduling: {
-    label: "Scheduling",
+  arrival: {
+    label: "Arrival",
     questions: [
-      { q: "How quickly can you start?", a: "Availability varies, but we typically schedule within a few days of confirmation. For urgent requests, call us directly and we will do our best to accommodate." },
-      { q: "What are your business hours?", a: `Our regular hours are Monday through Friday, 8:00 AM to 5:00 PM, and Saturday 8:00 AM to 2:00 PM. Sunday we are closed.` },
-      { q: "What happens if I need to reschedule?", a: "No problem. Contact us as soon as possible and we will find a time that works. We ask for at least 24 hours notice when possible." }
+      { q: "Where does the driver meet me at Split Airport?", a: "The pickup point is confirmed with your quote. Your driver meets you at the agreed spot once you have collected your luggage." },
+      { q: "Can you drop me in Split's old town?", a: "Much of the old town is a pedestrian zone, so the driver drops guests at the nearest suitable access point. Share the accommodation name in advance so the driver can plan the drop-off." },
+      { q: "When can I send an inquiry?", a: "You can submit the form at any time, and pages are available in English, Croatian and German." }
     ]
   }
 };
 const allQuestions = Object.values(faqData).flatMap(cat => cat.questions.map(q => ({ question: q.q, answer: q.a })));
-const pageSeo = seo({ locale, path: "faq", title: `Frequently Asked Questions | ${siteConfig.business.name}`, description: `Common questions about ${t(siteConfig.business.primaryService, locale)} in ${siteConfig.business.city}. Get answers about services, pricing, scheduling, and service areas.`, schema: [faqSchema(allQuestions), breadcrumbSchema([{ name: "Home", url: localizedPath(locale) }, { name: "FAQ", url: localizedPath(locale, "faq") }])] });
+const pageSeo = seo({ locale, path: "faq", title: isHr ? `Česta pitanja | ${siteConfig.business.name}` : `Frequently Asked Questions | ${siteConfig.business.name}`, description: isHr ? `Odgovori na česta pitanja o privatnim transferima iz Zračne luke Split — vozila, odredišta, upiti i dolazak.` : `Answers to common questions about private Split Airport transfers — vehicles, destinations, inquiries and arrival.`, schema: [faqSchema(allQuestions), breadcrumbSchema([{ name: isHr ? "Početna" : "Home", url: localizedPath(locale) }, { name: isHr ? "Česta pitanja" : "FAQ", url: localizedPath(locale, "faq") }])] });
 ---
 <BaseLayout seo={pageSeo}>
-  <Hero eyebrow="FAQ" title="Frequently Asked Questions" text={`Find answers to common questions about ${t(siteConfig.business.primaryService, locale)} in ${siteConfig.business.city} and ${siteConfig.business.serviceArea}.`} image={(siteConfig.brand as any).images?.hero ?? 'https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=1920&q=80'} primaryHref={localizedPath(locale, "contact")} primaryText={t(siteConfig.business.cta, locale)} />
-  <div class="container"><Breadcrumbs locale={locale} items={[{ label: "FAQ", href: localizedPath(locale, "faq") }]} /></div>
+  <Hero eyebrow={isHr ? "Česta pitanja" : "FAQ"} title={isHr ? "Često postavljana pitanja" : "Frequently Asked Questions"} text={isHr ? `Odgovori na česta pitanja o privatnim transferima iz Zračne luke Split do ${area}.` : `Find answers to common questions about private Split Airport transfers to ${area}.`} image={(siteConfig.brand as any).images?.hero ?? 'https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=1920&q=80'} primaryHref={localizedPath(locale, "contact")} primaryText={t(siteConfig.business.cta, locale)} />
+  <div class="container"><Breadcrumbs locale={locale} items={[{ label: isHr ? "Česta pitanja" : "FAQ", href: localizedPath(locale, "faq") }]} /></div>
   {Object.entries(faqData).map(([_key, category]) => (
     <section class="section">
       <div class="container" style="max-width:850px">
         <p class="eyebrow">{category.label}</p>
-        <h2>{category.label} Questions</h2>
+        <h2>{category.label}</h2>
         <div style="margin-top:20px">
           {category.questions.map((item) => (
             <details style="margin-bottom:12px;border:1px solid var(--color-border);border-radius:var(--radius);padding:14px 18px">
@@ -65,5 +101,5 @@ const pageSeo = seo({ locale, path: "faq", title: `Frequently Asked Questions | 
       </div>
     </section>
   ))}
-  <FinalCta locale={locale} title={`Still Have Questions?`} text={`Contact ${siteConfig.business.name} for ${t(siteConfig.business.primaryService, locale)} in ${siteConfig.business.city}. Call ${siteConfig.business.phone} or submit a free estimate request.`} />
+  <FinalCta locale={locale} title={isHr ? "Imate još pitanja?" : "Still Have Questions?"} text={isHr ? `Kontaktirajte ${siteConfig.business.name} za privatni transfer iz Zračne luke Split. Nazovite ${siteConfig.business.phone} ili zatražite fiksnu ponudu putem obrasca.` : `Contact ${siteConfig.business.name} for a private Split Airport transfer. Call ${siteConfig.business.phone} or request a fixed quote with our form.`} />
 </BaseLayout>

@@ -88,7 +88,7 @@ const termsUrl   = localizedPath(locale, "terms-and-conditions");
         autocomplete="tel"
         aria-required="true"
         pattern="^[0-9+() .\-]{7,}$"
-        placeholder="(512) 555-0100"
+        placeholder="+385 91 234 5678"
       />
     </div>
     <div class="form-field">
@@ -103,40 +103,151 @@ const termsUrl   = localizedPath(locale, "terms-and-conditions");
         required
         autocomplete="email"
         aria-required="true"
-        placeholder="john@example.com"
+        placeholder="name@email.com"
       />
     </div>
   </div>
 
-  <!-- Address -->
-  <div class="form-field">
-    <label class="form-label" for="ef-address">
-      {ui("form.address", locale)} <span class="req" aria-hidden="true">*</span>
-    </label>
-    <input
-      id="ef-address"
-      class="form-input"
-      name="serviceAddress"
-      type="text"
-      required
-      autocomplete="street-address"
-      aria-required="true"
-      placeholder="123 Main St, Austin TX 78701"
-    />
+  <!-- Pickup / Destination row -->
+  <div class="form-row">
+    <div class="form-field">
+      <label class="form-label" for="ef-pickup">
+        {ui("form.pickup", locale)} <span class="req" aria-hidden="true">*</span>
+      </label>
+      <input
+        id="ef-pickup"
+        class="form-input"
+        name="pickup"
+        type="text"
+        required
+        aria-required="true"
+        value="Split Airport (SPU)"
+        placeholder={ui("form.pickupPlaceholder", locale)}
+      />
+    </div>
+    <div class="form-field">
+      <label class="form-label" for="ef-destination">
+        {ui("form.destination", locale)} <span class="req" aria-hidden="true">*</span>
+      </label>
+      <input
+        id="ef-destination"
+        class="form-input"
+        name="destination"
+        type="text"
+        required
+        aria-required="true"
+        placeholder={ui("form.destinationPlaceholder", locale)}
+      />
+    </div>
+  </div>
+
+  <!-- Date / Time row -->
+  <div class="form-row">
+    <div class="form-field">
+      <label class="form-label" for="ef-pickupDate">
+        {ui("form.pickupDate", locale)} <span class="req" aria-hidden="true">*</span>
+      </label>
+      <input
+        id="ef-pickupDate"
+        class="form-input"
+        name="pickupDate"
+        type="date"
+        required
+        aria-required="true"
+      />
+    </div>
+    <div class="form-field">
+      <label class="form-label" for="ef-pickupTime">
+        {ui("form.pickupTime", locale)}
+      </label>
+      <input
+        id="ef-pickupTime"
+        class="form-input"
+        name="pickupTime"
+        type="time"
+      />
+    </div>
+  </div>
+
+  <!-- Passengers / Luggage row -->
+  <div class="form-row">
+    <div class="form-field">
+      <label class="form-label" for="ef-passengers">
+        {ui("form.passengers", locale)} <span class="req" aria-hidden="true">*</span>
+      </label>
+      <input
+        id="ef-passengers"
+        class="form-input"
+        name="passengers"
+        type="number"
+        min="1"
+        required
+        aria-required="true"
+        inputmode="numeric"
+        placeholder="2"
+      />
+    </div>
+    <div class="form-field">
+      <label class="form-label" for="ef-luggage">
+        {ui("form.luggage", locale)}
+      </label>
+      <input
+        id="ef-luggage"
+        class="form-input"
+        name="luggage"
+        type="number"
+        min="0"
+        inputmode="numeric"
+        placeholder="2"
+      />
+    </div>
+  </div>
+
+  <!-- Flight number / Vehicle type row -->
+  <div class="form-row">
+    <div class="form-field">
+      <label class="form-label" for="ef-flightNumber">
+        {ui("form.flightNumber", locale)}
+      </label>
+      <input
+        id="ef-flightNumber"
+        class="form-input"
+        name="flightNumber"
+        type="text"
+        autocomplete="off"
+        placeholder="OU 657"
+      />
+    </div>
+    <div class="form-field">
+      <label class="form-label" for="ef-vehicleType">
+        {ui("form.vehicleType", locale)}
+      </label>
+      <div class="form-select-wrap">
+        <select
+          id="ef-vehicleType"
+          class="form-select"
+          name="vehicleType"
+        >
+          <option value="notSure">{ui("form.vehicleOptions.notSure", locale)}</option>
+          <option value="car">{ui("form.vehicleOptions.car", locale)}</option>
+          <option value="van">{ui("form.vehicleOptions.van", locale)}</option>
+          <option value="minibus">{ui("form.vehicleOptions.minibus", locale)}</option>
+          <option value="bus">{ui("form.vehicleOptions.bus", locale)}</option>
+        </select>
+      </div>
+    </div>
   </div>
 
   <!-- Service select -->
   <div class="form-field">
     <label class="form-label" for="ef-service">
-      {ui("form.service", locale)} <span class="req" aria-hidden="true">*</span>
+      {ui("form.service", locale)}
     </label>
     <div class="form-select-wrap">
       <select
         id="ef-service"
         class="form-select"
         name="serviceNeeded"
-        required
-        aria-required="true"
       >
         <option value="">{ui("form.servicePlaceholder", locale)}</option>
         {allServices.map((item) => (
@@ -146,6 +257,28 @@ const termsUrl   = localizedPath(locale, "terms-and-conditions");
         ))}
       </select>
     </div>
+  </div>
+
+  <!-- Options: child seat / return transfer -->
+  <div class="form-checkbox-row">
+    <input
+      type="checkbox"
+      id="ef-childSeat"
+      name="childSeat"
+    />
+    <label for="ef-childSeat">
+      {ui("form.childSeat", locale)}
+    </label>
+  </div>
+  <div class="form-checkbox-row">
+    <input
+      type="checkbox"
+      id="ef-returnTransfer"
+      name="returnTransfer"
+    />
+    <label for="ef-returnTransfer">
+      {ui("form.returnTransfer", locale)}
+    </label>
   </div>
 
   <!-- Details -->

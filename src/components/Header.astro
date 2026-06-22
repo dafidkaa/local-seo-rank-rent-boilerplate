@@ -55,15 +55,15 @@ const accentWord = siteConfig.brand.logoAccent;
     <div class="util-bar-badges">
       <span class="util-badge">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-        {ui("util.available", locale)}
+        {locale === "hr" ? "Privatni transferi iz zračne luke" : "Private airport transfers"}
       </span>
       <span class="util-badge">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-        {ui("util.licensed", locale)}
+        {locale === "hr" ? "Auto · Kombi · Bus na upit" : "Cars · Vans · Buses on request"}
       </span>
       <span class="util-badge">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-        {ui("util.freeEstimates", locale)}
+        {locale === "hr" ? "EN · HR · DE" : "EN · HR · DE"}
       </span>
     </div>
     <a href={`tel:${siteConfig.business.phone}`} class="util-phone" aria-label={`Call ${siteConfig.business.phone}`}>

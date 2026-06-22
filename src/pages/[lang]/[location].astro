@@ -65,10 +65,10 @@ const vars = {
 const B = (key: string) => blocks(`blocks.locationPage.${key}`, locale, vars);
 const whyItems: Array<{ title: string; desc: string }> = B("why.items");
 const statsBarItems = [
-  { value: siteConfig.stats.yearsInBusiness, label: ui("blocks.statsBar.years", locale) },
-  { value: siteConfig.stats.jobsCompleted,   label: ui("blocks.statsBar.jobs", locale) },
-  { value: siteConfig.stats.averageRating,   label: ui("blocks.statsBar.rating", locale) },
-  { value: siteConfig.stats.satisfactionRate, label: ui("blocks.statsBar.satisfaction", locale) },
+  { value: siteConfig.stats.destinationsServed,                  label: locale === "hr" ? "Pokrivenih odredišta" : "Destinations Covered" },
+  { value: locale === "hr" ? "Auto·Kombi·Bus" : "Cars·Vans·Buses", label: locale === "hr" ? "Na upit" : "On Request" },
+  { value: "EN·HR·DE",                                            label: locale === "hr" ? "3 jezika" : "3 Languages" },
+  { value: locale === "hr" ? "Povratni" : "Return",              label: locale === "hr" ? "Transferi dostupni" : "Transfers Available" },
 ];
 
 // Local knowledge and attractions (from site.config.ts)
@@ -95,8 +95,10 @@ const schemas = [
 ];
 
 const meta = seo({
-  title:       `${primaryService} in ${locationName} | ${businessName}`,
-  description: `Need ${primaryService.toLowerCase()} in ${locationName}? ${businessName} provides licensed, professional ${primaryService.toLowerCase()} with free estimates and same-day service in ${locationName}, ${locationRegion}. Call now.`,
+  title:       locale === "hr" ? `Transfer Zračna luka Split – ${locationName} | ${businessName}` : `Split Airport Transfer to ${locationName} | ${businessName}`,
+  description: locale === "hr"
+    ? `Trebate transfer iz Zračne luke Split do ${locationName}? ${businessName} nudi privatni transfer, vozila na upit i fiksnu ponudu do ${locationName}, ${locationRegion}. Zatražite ponudu.`
+    : `Need a transfer from Split Airport to ${locationName}? ${businessName} offers a private transfer, vehicles on request and a fixed quote to ${locationName}, ${locationRegion}. Request a quote.`,
   locale,
   path:        pageUrl,
   localePaths: localePathsFor((l) => locationPath(l, location.id)),

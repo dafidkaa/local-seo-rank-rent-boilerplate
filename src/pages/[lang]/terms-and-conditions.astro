@@ -13,14 +13,14 @@ const pageSeo = seo({ locale, path: "terms-and-conditions", title: `Terms And Co
     <Breadcrumbs locale={locale} items={[{ label: "Terms & Conditions", href: localizedPath(locale, "terms-and-conditions") }]} />
     <h1>Terms And Conditions</h1>
     <p><em>Last updated: {new Date(siteConfig.legalLastUpdated).toLocaleDateString(dateLocale(locale), { year: "numeric", month: "long", day: "numeric" })}</em></p>
-    <h2>1. Service Inquiries</h2>
-    <p>By submitting a service inquiry through our website, you agree to be contacted by {siteConfig.business.name} regarding your request. Submitting a form does not create a binding contract for service. All inquiries are subject to availability and confirmation.</p>
-    <h2>2. Estimates</h2>
-    <p>Estimates provided through our website or by phone are preliminary and based on the information you provide. Final pricing may vary depending on the scope of work identified during an on-site assessment. We will always communicate any changes before proceeding.</p>
-    <h2>3. Scheduling</h2>
-    <p>Service appointments are scheduled based on availability. We make every effort to honor scheduled times, but unforeseen circumstances (weather, emergencies, supply delays) may require rescheduling. We will notify you as soon as possible if any changes occur.</p>
+    <h2>1. Transfer Inquiries</h2>
+    <p>By submitting a transfer quote request through our website, you agree to be contacted by {siteConfig.business.name} regarding your request. Submitting a form does not create a binding contract for a transfer. All inquiries are subject to availability and confirmation by the transfer operator.</p>
+    <h2>2. Quotes</h2>
+    <p>Quotes provided in response to your request are based on the route, dates, passenger and luggage details you supply. Final pricing and availability are confirmed by the transfer operator and may vary if your route, timing, vehicle or passenger numbers change. We will always communicate any changes before a transfer is confirmed.</p>
+    <h2>3. Bookings &amp; Scheduling</h2>
+    <p>Transfers are arranged subject to availability. Where a vehicle type (car, van, minibus or bus), child seat or other request is involved, it is provided on request and confirmed in advance. Unforeseen circumstances such as flight delays, traffic or weather may affect timing; please share your flight number so pickup can be planned around your arrival.</p>
     <h2>4. Service Disclaimer</h2>
-    <p>{siteConfig.business.name} provides services with reasonable care and skill. While we strive for complete satisfaction, results may vary depending on conditions beyond our control. We do not guarantee specific outcomes unless explicitly stated in a written agreement.</p>
+    <p>This website connects travellers with a transfer operator who provides the transport service. {siteConfig.business.name} presents route information and forwards quote requests in good faith. Vehicle availability, pricing and the transfer itself are subject to confirmation, and we do not guarantee specific outcomes unless explicitly stated in a written confirmation.</p>
     <h2>5. Limitation Of Liability</h2>
     <p>To the maximum extent permitted by law, {siteConfig.business.name} shall not be liable for any indirect, incidental, or consequential damages arising from the use of our services or website. Our total liability for any claim shall not exceed the amount paid for the specific service in question.</p>
     <h2>6. Website Use</h2>
