@@ -6,10 +6,19 @@ excerpt:
   en: "Your options for getting from Split Airport (SPU) into the city centre — bus, taxi or a private transfer — and how to pick the one that fits your trip."
   hr: "Vaše opcije za dolazak iz Zračne luke Split (SPU) do centra grada — autobus, taksi ili privatni transfer — i kako odabrati onu koja vam odgovara."
 date: "2026-01-20"
-image: "https://images.unsplash.com/photo-1555990538-c2d2c4b3c6c8?auto=format&fit=crop&w=1200&q=80"
+image: "https://images.unsplash.com/photo-1559682468-a6a29e7d9517?auto=format&fit=crop&w=1200&q=80"
 category: "guides"
 relatedServices:
   - private-airport-transfers
+  - van-group-transfers
+  - family-transfers
+relatedRoutes:
+  - split
+  - split-old-town
+  - split-ferry-port
+  - podstrana
+  - stobrec
+  - trogir
 author: "Split Airport Transfers"
 tags:
   - split airport
@@ -39,9 +48,9 @@ Taxis wait outside the terminal. A taxi takes you door to door without a fixed t
 
 ## Option 4: A pre-booked private transfer
 
-A private transfer is arranged in advance, so a driver is expecting your specific flight. You send your destination, arrival date and time, the number of passengers and your luggage, and you receive a fixed quote by email before you travel. There are no surprises about the price, and the vehicle is matched to your group — a car for a couple, or a van or minibus for a larger party.
+A private transfer is arranged in advance, so a driver is expecting your specific flight. You send your destination, arrival date and time, the number of passengers and your luggage, and you receive a fixed quote by email before you travel. There are no surprises about the price, and the vehicle is matched to your group — a car for a couple, or a [van or minibus for a larger party](/en/split-airport-van-transfer/).
 
-The main advantages are predictability and convenience. You are taken directly to your accommodation, including help finding the nearest drop-off point if you are staying inside the pedestrian old town, where cars cannot reach every address. For families, groups, late arrivals and anyone connecting to a ferry, this removes a lot of the friction from arrival day.
+The main advantages are predictability and convenience. You are taken directly to your accommodation, including help finding the nearest drop-off point if you are staying inside the [pedestrian old town](/en/split-airport-transfer-to-split-old-town/), where cars cannot reach every address. For [families](/en/split-airport-family-transfer/), groups, late arrivals and anyone connecting to a [ferry at the port](/en/split-airport-transfer-to-split-ferry-port/), this removes a lot of the friction from arrival day.
 
 ## Which should you choose?
 
@@ -58,4 +67,4 @@ Much of Split's old town sits inside a UNESCO-protected, pedestrian-only core bu
 
 ## Plan it before you fly
 
-The easiest arrivals are the ones decided in advance. If you would like a fixed quote for a private transfer from Split Airport to your accommodation in the city, send your route and travel details through our quote form and we will reply by email with a price and the right vehicle for your group.
+The easiest arrivals are the ones decided in advance. If you would like a fixed quote for a [private transfer from Split Airport to Split](/en/split-airport-transfer-to-split/), [send your route and travel details](/en/contact/) through our quote form and we will reply by email with a price and the right vehicle for your group. You can also see [all the destinations we cover](/en/service-area/).

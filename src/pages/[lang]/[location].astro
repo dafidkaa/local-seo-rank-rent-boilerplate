@@ -20,7 +20,7 @@ import FaqSection from "../../components/FaqSection.astro";
 import FinalCta from "../../components/FinalCta.astro";
 import ServiceCard from "../../components/ServiceCard.astro";
 import { siteConfig, allServices } from "../../site.config";
-import { t, locationSlug, locationPath, servicePath, localePathsFor } from "../../lib/routes";
+import { t, locationSlug, locationPath, servicePath, subservicePath, localePathsFor } from "../../lib/routes";
 import { seo, localBusinessSchema, breadcrumbSchema } from "../../lib/seo";
 import { blocks, ui } from "../../i18n";
 import ShortAnswer from "../../components/ShortAnswer.astro";
@@ -181,22 +181,24 @@ const aboutImg  = (siteConfig.brand as any).images?.about ?? "https://images.uns
       <p class="section-lead">{B("services.lead")}</p>
       <div class="loc-services-grid">
         {allServices.map((service: any) => (
-          <a href={servicePath(locale, service)} class="loc-service-card">
-            <h3 class="loc-service-title">{t(service.title, locale)} in {locationName}</h3>
+          <div class="loc-service-card">
+            <h3 class="loc-service-title">
+              <a href={servicePath(locale, service)}>{t(service.title, locale)}</a>
+            </h3>
             <p class="loc-service-desc">{t(service.short, locale)}</p>
             {service.children && service.children.length > 0 && (
               <ul class="loc-service-children">
                 {service.children.slice(0, 3).map((child: any) => (
                   <li>
-                    <span class="loc-child-link">
-                      {t(child.title, locale)} in {locationName}
-                    </span>
+                    <a href={subservicePath(locale, service, child)} class="loc-child-link">
+                      {t(child.title, locale)}
+                    </a>
                   </li>
                 ))}
               </ul>
             )}
-            <span class="loc-service-cta" aria-hidden="true">{ui("blocks.common.learnMore", locale)}</span>
-          </a>
+            <a href={servicePath(locale, service)} class="loc-service-cta">{ui("blocks.common.learnMore", locale)}</a>
+          </div>
         ))}
       </div>
     </div>
@@ -253,9 +255,12 @@ const aboutImg  = (siteConfig.brand as any).images?.about ?? "https://images.uns
         ></iframe>
       </div>
       <div class="area-tags" style="margin-top:2rem">
-        {siteConfig.locations.filter((l: any) => l.id !== location.id).map((loc: any) => (
+        {siteConfig.locations
+          .filter((l: any) => l.id !== location.id)
+          .sort((a: any, b: any) => (b.region === locationRegion ? 1 : 0) - (a.region === locationRegion ? 1 : 0))
+          .map((loc: any) => (
           <a href={`/${locale}/${locationSlug(locale, loc.id)}/`} class="area-tag">
-            {primaryService} in {loc.name}
+            {locale === "hr" ? `Zračna luka Split → ${loc.name}` : `Split Airport → ${loc.name}`}
           </a>
         ))}
       </div>
@@ -400,6 +405,8 @@ const aboutImg  = (siteConfig.brand as any).images?.about ?? "https://images.uns
     color: var(--color-heading);
     margin: 0 0 10px;
   }
+  .loc-service-title a { color: inherit; text-decoration: none; }
+  .loc-service-title a:hover { color: var(--brand-accent); }
   .loc-service-desc {
     font-size: 0.875rem;
     color: var(--color-text-muted);
@@ -428,7 +435,9 @@ const aboutImg  = (siteConfig.brand as any).images?.about ?? "https://images.uns
     margin-top: auto;
     padding-top: 12px;
     display: block;
+    text-decoration: none;
   }
+  .loc-service-cta:hover { text-decoration: underline; }
 
   /* ── Why grid ────────────────────────────────────────────────────────────── */
   .why-grid {

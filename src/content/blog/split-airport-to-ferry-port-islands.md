@@ -11,6 +11,14 @@ category: "ferry-marina"
 relatedServices:
   - marina-yacht-transfers
   - private-airport-transfers
+  - van-group-transfers
+relatedRoutes:
+  - split-ferry-port
+  - split
+  - aci-marina-split
+  - marina-kastela
+  - trogir
+  - kastela
 author: "Split Airport Transfers"
 tags:
   - ferry port
@@ -24,7 +32,7 @@ For many travellers, Split Airport is not the final destination — it is the fi
 
 ## Where the boats leave from
 
-Split Ferry Port is on the eastern side of the city harbour, right next to the main bus and train stations and a short walk from the Riva. Jadrolinija and other operators run from here, with a mix of passenger-only catamarans and larger car ferries. Catamarans are faster and more limited in capacity; car ferries are slower but take vehicles and rarely sell out for foot passengers in the same way.
+[Split Ferry Port](/en/split-airport-transfer-to-split-ferry-port/) is on the eastern side of the city harbour, right next to the main bus and train stations and a short walk from the Riva. Jadrolinija and other operators run from here, with a mix of passenger-only catamarans and larger car ferries. Catamarans are faster and more limited in capacity; car ferries are slower but take vehicles and rarely sell out for foot passengers in the same way.
 
 The airport is about 25 kilometres away, so you need to budget for the transfer plus a comfortable margin at the port itself.
 
@@ -48,10 +56,10 @@ You have the same broad options as any airport arrival, but the time pressure ch
 
 ## Tickets and luggage
 
-Buy island ferry tickets in advance where you can, particularly for popular catamaran routes to Hvar in high season, which can sell out. Keep your tickets and passports easy to reach rather than buried in a suitcase. If you are travelling as a group or family with a lot of luggage, a single van or minibus transfer keeps everyone and their bags together and avoids splitting across multiple taxis.
+Buy island ferry tickets in advance where you can, particularly for popular catamaran routes to Hvar in high season, which can sell out. Keep your tickets and passports easy to reach rather than buried in a suitcase. If you are travelling as a group or family with a lot of luggage, a single [van or minibus transfer](/en/split-airport-van-transfer/) keeps everyone and their bags together and avoids splitting across multiple taxis. Sailing crews heading to a charter base can use a [marina transfer](/en/split-airport-marina-transfers/) instead.
 
 ## A smoother island connection
 
 The islands are the reward, but the connection day is where trips go sideways. A little planning — knowing your boat's departure time, leaving margin for a late flight, and arranging transport that meets your flight rather than a timetable — turns a tense dash into an easy hop.
 
-If you would like a fixed quote for a private transfer from Split Airport directly to the ferry port, timed around your flight and with room for your luggage, send your details through our quote form and we will reply by email.
+If you would like a fixed quote for a [private transfer from Split Airport to the ferry port](/en/split-airport-transfer-to-split-ferry-port/), timed around your flight and with room for your luggage, [send your details](/en/contact/) through our quote form and we will reply by email.

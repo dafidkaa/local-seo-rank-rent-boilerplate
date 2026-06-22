@@ -10,6 +10,15 @@ image: "https://images.unsplash.com/photo-1488085061387-422e29b40080?auto=format
 category: "guides"
 relatedServices:
   - private-airport-transfers
+  - marina-yacht-transfers
+  - family-transfers
+relatedRoutes:
+  - split
+  - split-ferry-port
+  - trogir
+  - omis
+  - makarska
+  - sibenik
 author: "Split Airport Transfers"
 tags:
   - flight delay
@@ -30,13 +39,13 @@ A little preparation makes a delay far easier to absorb:
 
 ## When you find out about a delay
 
-The single most useful thing you can do is **communicate early**. If you have a pre-booked private transfer, let the operator know your new expected arrival as soon as you have it. This is the big advantage of booking ahead rather than relying on a taxi rank or bus: a good operator tracks the flight and adjusts the pickup, so a driver is still there when you actually land rather than when you were originally due.
+The single most useful thing you can do is **communicate early**. If you have a pre-booked [private transfer](/en/split-airport-transfers/), let the operator know your new expected arrival as soon as you have it. This is the big advantage of booking ahead rather than relying on a taxi rank or bus: a good operator tracks the flight and adjusts the pickup, so a driver is still there when you actually land rather than when you were originally due.
 
 Compare that to the alternatives. A scheduled shuttle or city bus will not wait for your late flight. A taxi at the rank may or may not be available at an unusual hour. With a transfer, a quick message keeps the plan intact.
 
 ## Watch your ferry and onward connections
 
-If your trip continues to an island, a delay can put your ferry in doubt. As soon as you know the new arrival time:
+If your trip continues to an island via the [ferry port](/en/split-airport-transfer-to-split-ferry-port/), a delay can put your ferry in doubt. As soon as you know the new arrival time:
 
 - Check the last catamaran or car ferry departure to your island.
 - If it is genuinely tight, consider whether to overnight in Split rather than risk missing the boat and being stranded at the port.
@@ -60,4 +69,4 @@ Delays are tiring. Stay hydrated, keep snacks for children, and resist the urge 
 
 The recurring theme here is simple: arranging your onward transport in advance turns a delay from a scramble into a phone message. When a driver is expecting your specific flight and adjusting to its real arrival time, a late landing means little more than a slightly later start to your holiday — not a missed bus, an empty taxi rank, or a guessing game at midnight.
 
-If you would like a fixed quote for a private transfer from Split Airport, with your flight number on file so the pickup can flex around delays, send your travel details through our quote form and we will reply by email.
+If you would like a fixed quote for a [private transfer from Split Airport](/en/split-airport-transfers/), with your flight number on file so the pickup can flex around delays, [send your travel details](/en/contact/) through our quote form and we will reply by email. You can also browse [every route we cover](/en/service-area/).

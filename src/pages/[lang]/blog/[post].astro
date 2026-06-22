@@ -14,7 +14,7 @@ import ShareButtons from "@/components/ShareButtons.astro";
 import RelatedPosts from "@/components/RelatedPosts.astro";
 import FinalCta from "@/components/FinalCta.astro";
 import { allServices, siteConfig, type Locale } from "@/site.config";
-import { localizedPath, t, blogPostPath, servicePath, dateLocale } from "@/lib/routes";
+import { localizedPath, t, blogPostPath, servicePath, locationPath, dateLocale } from "@/lib/routes";
 import { articleSchema, breadcrumbSchema, seo } from "@/lib/seo";
 import { getCollection } from "astro:content";
 
@@ -66,6 +66,16 @@ const relatedServices = (post.data.relatedServices ?? [])
 const sidebarServices = relatedServices.length > 0
   ? relatedServices
   : allServices.slice(0, 4).map((s) => ({ id: s.id, title: t(s.title, locale), href: servicePath(locale, s) }));
+
+// Sidebar routes: post's relatedRoutes or fall back to the core money routes
+const fallbackRouteIds = ["split", "trogir", "split-ferry-port", "omis", "podstrana", "kastela"];
+const sidebarRoutes = ((post.data.relatedRoutes?.length ? post.data.relatedRoutes : fallbackRouteIds))
+  .map((id: string) => {
+    const loc = siteConfig.locations.find((l) => l.id === id);
+    return loc ? { id: loc.id, name: loc.name, href: locationPath(locale, loc.id) } : null;
+  })
+  .filter(Boolean)
+  .slice(0, 7);
 
 const postUrl = `${siteConfig.siteUrl}${blogPostPath(locale, post.slug)}`;
 const pageSeo = seo({
@@ -251,7 +261,25 @@ const city = siteConfig.business.city;
                 </li>
               ))}
             </ul>
-            <a href={`/${locale}/#services`} class="sidebar-services-all">View all services →</a>
+            <a href={servicePath(locale, allServices[0])} class="sidebar-services-all">{locale === "hr" ? "Sve usluge transfera →" : "All transfer services →"}</a>
+          </div>
+        )}
+
+        <!-- Popular Routes -->
+        {sidebarRoutes.length > 0 && (
+          <div class="sidebar-widget sidebar-services">
+            <h3 class="sidebar-widget-title">{locale === "hr" ? "Popularne rute" : "Popular Routes"}</h3>
+            <ul class="sidebar-services-list">
+              {sidebarRoutes.map((r: any) => (
+                <li>
+                  <a href={r.href} class="sidebar-service-link">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+                    {locale === "hr" ? `Zračna luka Split → ${r.name}` : `Split Airport → ${r.name}`}
+                  </a>
+                </li>
+              ))}
+            </ul>
+            <a href={localizedPath(locale, "service-area")} class="sidebar-services-all">{locale === "hr" ? "Sve rute →" : "All routes →"}</a>
           </div>
         )}
 

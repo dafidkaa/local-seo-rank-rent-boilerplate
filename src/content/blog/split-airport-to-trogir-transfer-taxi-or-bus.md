@@ -10,6 +10,15 @@ image: "https://images.unsplash.com/photo-1592861956120-e524fc739696?auto=format
 category: "routes"
 relatedServices:
   - private-airport-transfers
+  - van-group-transfers
+  - family-transfers
+relatedRoutes:
+  - trogir
+  - ciovo
+  - okrug-gornji
+  - seget-donji
+  - marina-baotic
+  - split
 author: "Split Airport Transfers"
 tags:
   - trogir
@@ -34,13 +43,13 @@ A taxi from the airport rank takes you straight to Trogir without waiting for a 
 
 ## Option 3: A pre-booked private transfer
 
-Because the route is short, the price difference between a transfer and a taxi is often small — and a pre-booked transfer adds predictability. A driver is expecting your flight, the price is fixed and known in advance, and the vehicle is sized to your group. For families, groups, or anyone arriving on a late flight, having someone there waiting takes the guesswork out of a tired arrival.
+Because the route is short, the price difference between a transfer and a taxi is often small — and a pre-booked transfer adds predictability. A driver is expecting your flight, the price is fixed and known in advance, and the vehicle is sized to your group. For [families with children](/en/split-airport-family-transfer/), [groups who want one van](/en/split-airport-van-transfer/), or anyone arriving on a late flight, having someone there waiting takes the guesswork out of a tired arrival.
 
 This is also the easiest option if your accommodation is awkward to reach. Much of Trogir's old town is on a small island connected by bridges, with narrow streets that cars cannot fully enter, and many visitors stay across the water on Čiovo. A private transfer can take you to the nearest sensible drop-off point if you share your accommodation name in advance.
 
 ## What about Čiovo and Okrug?
 
-A large share of Trogir-area visitors actually stay on Čiovo — in Okrug Gornji, Slatine or Arbanija — rather than in the old town itself. The bridge from Trogir onto Čiovo can back up in summer, and bus connections onward are limited. If your accommodation is on the island, a transfer that goes directly to the door saves a lot of hassle with luggage and children compared with a bus stop in town plus an onward leg.
+A large share of Trogir-area visitors actually stay on [Čiovo](/en/split-airport-transfer-to-ciovo/) — in [Okrug Gornji](/en/split-airport-transfer-to-okrug-gornji/), Slatine or Arbanija — rather than in the old town itself. The bridge from Trogir onto Čiovo can back up in summer, and bus connections onward are limited. If your accommodation is on the island, a transfer that goes directly to the door saves a lot of hassle with luggage and children compared with a bus stop in town plus an onward leg.
 
 ## So which is best?
 
@@ -52,4 +61,4 @@ A large share of Trogir-area visitors actually stay on Čiovo — in Okrug Gornj
 
 Trogir is close enough that there are no bad choices here — only ones that fit your situation better or worse. Light and flexible travellers can lean on the bus; everyone arriving with bags, kids or a fixed plan tends to value the certainty of a pre-arranged ride.
 
-If you would like a fixed quote for a private transfer from Split Airport to Trogir, Čiovo or Okrug, send your route and travel details through our quote form and we will reply by email.
+If you would like a fixed quote for a private transfer from [Split Airport to Trogir](/en/split-airport-transfer-to-trogir/), [Čiovo](/en/split-airport-transfer-to-ciovo/) or [Okrug](/en/split-airport-transfer-to-okrug-gornji/), [send your route and travel details](/en/contact/) through our quote form and we will reply by email. You can also browse [all our Split Airport routes](/en/service-area/).

@@ -11,7 +11,7 @@ import ProcessSection from "../../../components/ProcessSection.astro";
 import ServiceCard from "../../../components/ServiceCard.astro";
 import FinalCta from "../../../components/FinalCta.astro";
 import { siteConfig, allServices } from "../../../site.config";
-import { t, servicePath, subservicePath, serviceSlug, localePathsFor } from "../../../lib/routes";
+import { t, servicePath, subservicePath, locationPath, serviceSlug, localePathsFor } from "../../../lib/routes";
 import { seo, serviceSchema, breadcrumbSchema } from "../../../lib/seo";
 import { blocks, ui } from "../../../i18n";
 import type { Locale } from "../../../site.config";
@@ -233,6 +233,21 @@ const relatedServices = allServices.filter((s: any) => s.id !== parent.id).slice
     </section>
   )}
 
+  <!-- 7b. POPULAR ROUTES — internal links to top route money pages -->
+  <section class="section">
+    <div class="container">
+      <p class="section-eyebrow">{locale === "hr" ? "Popularne rute" : "Popular Routes"}</p>
+      <h2 class="section-heading">{locale === "hr" ? "Popularne rute transfera iz Zračne luke Split" : "Popular Split Airport Transfer Routes"}</h2>
+      <div class="child-routes">
+        {siteConfig.locations.slice(0, 10).map((loc: any) => (
+          <a href={locationPath(locale, loc.id)} class="child-route-tag">
+            {locale === "hr" ? `Zračna luka Split → ${loc.name}` : `Split Airport → ${loc.name}`}
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
   <!-- 8. FINAL CTA -->
   <FinalCta locale={locale as any} />
 
@@ -371,4 +386,18 @@ const relatedServices = allServices.filter((s: any) => s.id !== parent.id).slice
   .child-trust-card { position: static; }
   .child-benefits-grid { grid-template-columns: 1fr; gap: 2.5rem; }
 }
+.child-routes { display: flex; flex-wrap: wrap; gap: 10px; margin-top: clamp(24px, 4vw, 36px); }
+.child-route-tag {
+  display: inline-block;
+  padding: 8px 16px;
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: 100px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text);
+  text-decoration: none;
+  transition: background .2s, border-color .2s, color .2s;
+}
+.child-route-tag:hover { background: var(--brand-accent); border-color: var(--brand-accent); color: #fff; }
 </style>
