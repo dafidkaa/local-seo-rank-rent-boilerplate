@@ -44,6 +44,7 @@ const en = {
   hero: {
     eyebrow:        "Serving {city} & Central Dalmatia",
     callCta:        "Call Us:",
+    emailCta:       "Email Us",
     badge:          "Private transfers from {city} Airport",
     cta: {
       primary:      "Request a Quote",

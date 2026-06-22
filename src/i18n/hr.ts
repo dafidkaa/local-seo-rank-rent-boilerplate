@@ -31,6 +31,7 @@ const hr = {
   hero: {
     eyebrow:        "Pokrivamo {city} i srednju Dalmaciju",
     callCta:        "Nazovite nas:",
+    emailCta:       "Pošaljite e-mail",
     badge:          "Privatni transferi iz Zračne luke {city}",
     cta: {
       primary:      "Zatražite ponudu",

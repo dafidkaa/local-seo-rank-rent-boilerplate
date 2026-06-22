@@ -187,7 +187,7 @@ export const siteConfig = {
       hero1: "https://images.unsplash.com/photo-1559682468-a6a29e7d9517?auto=format&fit=crop&w=1920&q=80",
       hero2: "https://images.unsplash.com/photo-1488085061387-422e29b40080?auto=format&fit=crop&w=1920&q=80",
       hero3: "https://images.unsplash.com/photo-1505761671935-60b3a7427bad?auto=format&fit=crop&w=1920&q=80",
-      about: "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?auto=format&fit=crop&w=1200&q=80",
+      about: "https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1200&q=80",
       team:  "https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1200&q=80",
       process: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=80",
       cta:   "https://images.unsplash.com/photo-1559682468-a6a29e7d9517?auto=format&fit=crop&w=1920&q=80",
@@ -233,7 +233,7 @@ export const siteConfig = {
   locations: [
     {
       id: "split", name: "Split", region: "Split",
-      image: "https://images.unsplash.com/photo-1555990538-c2d2c4b3c6c8?auto=format&fit=crop&w=900&q=80",
+      image: "https://images.unsplash.com/photo-1559682468-a6a29e7d9517?auto=format&fit=crop&w=900&q=80",
       detail: "The main arrival route — hotels, apartments, the old town, ferry port and beaches across the city of Split.",
       knowledge: "Split is Dalmatia's largest city and the busiest destination for Split Airport arrivals. Guests head to hotels and apartments near Bačvice, Žnjan and the Riva, to old-town accommodation, or onward to the ferry port for the islands.",
       attractions: ["Diocletian's Palace", "Riva waterfront", "Bačvice beach", "Marjan Hill"],
@@ -353,7 +353,7 @@ export const siteConfig = {
     },
     {
       id: "aci-marina-split", name: "ACI Marina Split", region: "Split",
-      image: "https://images.unsplash.com/photo-1527679124726-21d7b6f0f5c1?auto=format&fit=crop&w=900&q=80",
+      image: "https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?auto=format&fit=crop&w=900&q=80",
       detail: "Split's city marina below Marjan — convenient for yacht guests staying close to the centre.",
       knowledge: "ACI Marina Split sits just below Marjan Hill near the city centre and is a frequent destination for yacht charter guests. A private transfer with luggage space connects the airport directly to the berth.",
       attractions: ["ACI Marina Split", "Marjan Hill", "Split old town", "Matejuška"],
@@ -369,7 +369,7 @@ export const siteConfig = {
     },
     {
       id: "klis", name: "Klis", region: "Split",
-      image: "https://images.unsplash.com/photo-1589657836378-d3a0a7f3aa6e?auto=format&fit=crop&w=900&q=80",
+      image: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=900&q=80",
       detail: "Hilltop fortress village above Split, popular with day visitors and inland stays.",
       knowledge: "Klis is famous for its hilltop fortress overlooking Split and the coast. It draws history and film-location visitors, and a private transfer pairs well with a day-trip or an inland villa stay.",
       attractions: ["Klis Fortress", "Klis viewpoints", "Salona nearby", "Split panorama"],
@@ -377,7 +377,7 @@ export const siteConfig = {
     },
     {
       id: "makarska", name: "Makarska", region: "Makarska Riviera",
-      image: "https://images.unsplash.com/photo-1530841344095-7ce4bc6d4d5b?auto=format&fit=crop&w=900&q=80",
+      image: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=900&q=80",
       detail: "Higher-value longer route to the Makarska Riviera's beaches beneath the Biokovo mountains.",
       knowledge: "Makarska is the heart of a popular riviera of beach resorts beneath the Biokovo massif, roughly an hour and a quarter south of the airport. The longer distance makes a comfortable private transfer especially worthwhile for families and groups.",
       attractions: ["Makarska riviera beaches", "Biokovo Nature Park", "Makarska promenade", "Brela & Tučepi nearby"],
@@ -385,7 +385,7 @@ export const siteConfig = {
     },
     {
       id: "sibenik", name: "Šibenik", region: "Šibenik",
-      image: "https://images.unsplash.com/photo-1602002418082-dd4a8f7d4a1b?auto=format&fit=crop&w=900&q=80",
+      image: "https://images.unsplash.com/photo-1602343168117-bb8ffe3e2e9f?auto=format&fit=crop&w=900&q=80",
       detail: "Regional route north of the airport — a UNESCO cathedral city and gateway to Krka National Park.",
       knowledge: "Šibenik lies north of Split Airport and is known for its UNESCO-listed cathedral and as a gateway to Krka National Park. A private transfer is a comfortable option for this longer regional route, especially with luggage or a group.",
       attractions: ["Cathedral of St. James (UNESCO)", "St. Michael's Fortress", "Krka National Park nearby", "Šibenik old town"],
